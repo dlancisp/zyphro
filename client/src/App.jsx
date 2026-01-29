@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import CryptoJS from 'crypto-js';
 import './App.css';
 
-const API_URL = 'http://127.0.0.1:4000/api';
+const API_URL = 'https://zyph-backend-kghc.onrender.com/api';
 
 // --- ICONOS VECTORIALES (SVG) ---
 const Icons = {
