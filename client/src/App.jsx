@@ -3,15 +3,17 @@ import { useState, useEffect, useRef } from 'react';
 import CryptoJS from 'crypto-js';
 import './App.css';
 
-const API_URL = 'https://zyph-backend-kghc.onrender.com/api';
+const API_URL = 'http://127.0.0.1:4000/api';
 
 // --- ICONOS VECTORIALES (SVG) ---
 const Icons = {
+  // NUEVO LOGO: PSEUDO-TRIÁNGULO MODERNO
   Logo: () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 20 L12 4 L21 20 L12 16 L3 20 Z" />
     </svg>
   ),
+  // RESTO DE ICONOS (Sin cambios)
   Home: () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -39,16 +41,10 @@ const Icons = {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20 6 9 17 4 12"/>
     </svg>
-  ),
-  Copy: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-    </svg>
   )
 };
 
-// --- VISTAS ---
+// --- VISTAS (EL RESTO DEL CÓDIGO SIGUE IGUAL) ---
 
 function HomeView({ onNavigate }) {
   return (
@@ -293,6 +289,7 @@ function App() {
     <div className="app-container">
       <aside className="sidebar">
         <div className="brand-section">
+          {/* AQUÍ ESTÁ EL NUEVO LOGO */}
           <div className="brand-logo"><Icons.Logo /></div>
           <span className="brand-text">ZYPH</span>
         </div>
