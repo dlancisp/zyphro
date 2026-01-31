@@ -1,0 +1,29 @@
+// server/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo para el Secure Drop (Secretos)
+model Secret {
+  id         String   @id @default(uuid()) // ID único tipo "550e8400-e29b..."
+  cipherText String   // El mensaje encriptado
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime? // Cuándo debe borrarse (opcional)
+}
+
+// Modelo para el Dead Man's Switch
+model Switch {
+  id               String   @id @default(uuid())
+  recipientEmail   String
+  encryptedContent String   // Las claves o mensaje final
+  checkInFrequency Int      // Minutos requeridos para dar señal de vida
+  lastCheckIn      DateTime @default(now())
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+}
