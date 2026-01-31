@@ -72,15 +72,14 @@ const decryptData = async (base64Data, keyStr) => {
 const Icons = {
   // NUEVO LOGO: PSEUDO-TRIÁNGULO GLOW
   Logo: () => (
-    <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-       <defs>
-        <linearGradient id="g" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#60A5FA" /><stop offset="1" stopColor="#2563EB" />
-        </linearGradient>
-      </defs>
-      <path d="M16 2L3.5 24.5C2.5 26.2 3.8 28.5 5.8 28.5H26.2C28.2 28.5 29.5 26.2 28.5 24.5L16 2Z" fill="url(#g)" stroke="#EFF6FF" strokeWidth="2" strokeLinejoin="round"/>
+    <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Círculo de fondo azul sólido */}
+      <circle cx="32" cy="32" r="32" fill="#2563EB"/>
+      {/* La 'Z' en forma de rayo blanco */}
+      <path d="M14 16H50L30 36H54L18 56L38 36H10L14 16Z" fill="white"/>
     </svg>
   ),
+  
   Menu: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>),
   Close: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>),
   Home: () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>),
