@@ -2,8 +2,16 @@
 import { useState, useEffect, useRef } from 'react';
 import './App.css';
 
-// 👇 CAMBIA ESTO POR TU URL DE RENDER EN PRODUCCIÓN
-const API_URL = 'http://127.0.0.1:4000/api';
+// ✅ BIEN: Esto elige automáticamente:
+// - Si estás en tu PC --> Usa localhost
+// - Si estás en la Nube --> Usa la variable VITE_API_URL de Vercel
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+
+// Y luego en tu fetch usas esa constante:
+const response = await fetch(`${API_URL}/secret`, { 
+  // ... resto de tu código
+});
 
 // --- UTILIDADES DE CRIPTOGRAFÍA NATIVA (WEB CRYPTO API) ---
 const enc = new TextEncoder();
