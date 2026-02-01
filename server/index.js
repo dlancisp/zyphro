@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const cron = require('node-cron');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client'); // Importamos Prisma
@@ -10,13 +11,10 @@ const helmet = require('helmet');
 const app = express();
 app.use(helmet());
 
-// 2. Confianza en Proxy (NECESARIO para Render)
-// Render pone un intermediario. Si no activamos esto, Rate Limit pensará
-// que todos los usuarios son el mismo y bloqueará a todo el mundo.
+
 app.set('trust proxy', 1);
 
-// 3. Rate Limiting (El Portero)
-// Reglas: Solo permite 100 peticiones cada 15 minutos por IP.
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 100, // Límite de 100 peticiones por IP
@@ -33,7 +31,7 @@ const prisma = new PrismaClient(); // Iniciamos la conexión
 
 // --- MIDDLEWARES DE SEGURIDAD ---
 app.use(helmet());
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '50kb' }));
 app.use(cors({
   origin: [
     "http://localhost:5173",             // Tu PC
@@ -129,4 +127,33 @@ setInterval(async () => {
 
 
 const PORT = process.env.PORT || 4000;
+// --- GARBAGE COLLECTOR (LIMPIEZA AUTOMÁTICA) ---
+
+// Cron Job: Se ejecuta una vez cada hora ('0 * * * *')
+// Explicación: Borra secretos creados hace más de 24 horas que no han sido leídos.
+cron.schedule('0 * * * *', async () => {
+  console.log('🧹 Ejecutando limpieza automática de secretos caducados...');
+
+  try {
+    // Calculamos la fecha de ayer (hace 24h)
+    const twentyFourHoursAgo = new Date(new Date() - 24 * 60 * 60 * 1000);
+
+    // Ordenamos a Prisma borrar todo lo viejo
+    const deleted = await prisma.secret.deleteMany({
+      where: {
+        createdAt: {
+          lt: twentyFourHoursAgo, // "lt" significa "Less Than" (Menor que / Antes de)
+        },
+      },
+    });
+
+    if (deleted.count > 0) {
+      console.log(`✅ Se han eliminado ${deleted.count} secretos caducados.`);
+    } else {
+      console.log('✨ No había basura que limpiar.');
+    }
+  } catch (error) {
+    console.error('❌ Error en el Garbage Collector:', error);
+  }
+});
 app.listen(PORT, () => console.log(`🚀 Server PostgreSQL running on port ${PORT}`));
