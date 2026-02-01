@@ -4,8 +4,31 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client'); // Importamos Prisma
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const app = express();
+app.use(helmet());
+
+// 2. Confianza en Proxy (NECESARIO para Render)
+// Render pone un intermediario. Si no activamos esto, Rate Limit pensará
+// que todos los usuarios son el mismo y bloqueará a todo el mundo.
+app.set('trust proxy', 1);
+
+// 3. Rate Limiting (El Portero)
+// Reglas: Solo permite 100 peticiones cada 15 minutos por IP.
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // Límite de 100 peticiones por IP
+  standardHeaders: true, // Devuelve info de límites en las cabeceras `RateLimit-*`
+  legacyHeaders: false, // Desactiva las cabeceras viejas
+  message: {
+    error: "Demasiadas peticiones desde esta IP. Inténtalo de nuevo en 15 minutos."
+  }
+});
+
+// Aplicar el límite a TODAS las rutas
+app.use(limiter);
 const prisma = new PrismaClient(); // Iniciamos la conexión
 
 // --- MIDDLEWARES DE SEGURIDAD ---
