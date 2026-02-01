@@ -9,12 +9,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelo para el Secure Drop (Secretos)
 model Secret {
-  id         String   @id @default(uuid()) // ID único tipo "550e8400-e29b..."
-  cipherText String   // El mensaje encriptado
-  createdAt  DateTime @default(now())
-  expiresAt  DateTime? // Cuándo debe borrarse (opcional)
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  expiresAt DateTime? // (Opcional) Si quieres añadir fechas personalizadas en el futuro
+  
+  // --- AÑADIR ESTO ---
+  userId    String?  // Puede ser null (si el usuario es anónimo)
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+
+model User {
+  id        String   @id @default(uuid()) // ID único (ej: "a1b2-c3d4...")
+  email     String   @unique              // El email no se puede repetir
+  password  String                        // Aquí guardaremos el HASH, no la contraseña real
+  createdAt DateTime @default(now())
+  
+  // Relación: Un usuario puede tener muchos secretos
+  secrets   Secret[]
 }
 
 // Modelo para el Dead Man's Switch

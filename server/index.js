@@ -3,6 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const cron = require('node-cron');
 const helmet = require('helmet');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client'); // Importamos Prisma
 const rateLimit = require('express-rate-limit');
@@ -32,11 +35,12 @@ const prisma = new PrismaClient(); // Iniciamos la conexión
 // --- MIDDLEWARES DE SEGURIDAD ---
 app.use(helmet());
 app.use(express.json({ limit: '50kb' }));
+app.use(cookieParser());
 app.use(cors({
   origin: [
-    "http://localhost:5173",             // Tu PC
-    "https://zyph-v1.vercel.app",        // Tu Web en Vercel (Pega AQUÍ tu dominio exacto)
-    "https://zyph-suite.vercel.app"      // (Si tienes otro dominio, ponlo también)
+    "http://localhost:5173",
+    "https://zyph-v1.vercel.app", 
+    "https://zyph-suite.vercel.app" 
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
@@ -46,6 +50,68 @@ const limiter = rateLimit({ windowMs: 15*60*1000, max: 100 });
 app.use('/api', limiter);
 
 // --- RUTAS DE SECURE DROP ---
+
+// --- AUTENTICACIÓN: REGISTRO DE USUARIO ---
+
+app.post('/api/register', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Validación básica: ¿Me han enviado los datos?
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Faltan datos (email o password)' });
+    }
+
+    // 2. Comprobar si ya existe (Evitar duplicados)
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'Este email ya está registrado' });
+    }
+
+    // 3. ENCRIPTAR LA CONTRASEÑA (Hashing)
+    // "10" es la fuerza del triturado (Salt rounds).
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 4. Guardar en Base de Datos
+    const newUser = await prisma.user.create({
+      data: {
+        email: email,
+        password: hashedPassword,
+      },
+    });
+
+    // 5. Crear el Pase VIP (Token JWT)
+    const token = jwt.sign(
+      { id: newUser.id, email: newUser.email }, // Datos dentro del pase
+      process.env.JWT_SECRET,                   // El sello secreto
+      { expiresIn: '24h' }                      // Caduca en 1 día
+    );
+
+    // 6. Entregar el pase en una Cookie Segura (HttpOnly)
+    // Esto es vital: Al ser HttpOnly, los hackers no pueden robarla con JavaScript.
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,      // Solo funciona en HTTPS (Render/Vercel)
+      sameSite: 'none',  // Necesario porque Front y Back están en dominios distintos
+      maxAge: 24 * 60 * 60 * 1000 // 24 horas
+    });
+
+    console.log(`👤 Nuevo usuario registrado: ${email}`);
+    
+    // Respondemos (¡Pero NUNCA devolvemos la contraseña!)
+    res.status(201).json({ 
+      message: 'Usuario registrado con éxito', 
+      user: { id: newUser.id, email: newUser.email } 
+    });
+
+  } catch (error) {
+    console.error('Error en registro:', error);
+    res.status(500).json({ error: 'Error al registrar usuario' });
+  }
+});
 
 // 1. Crear Secreto
 app.post('/api/secret', async (req, res) => {
