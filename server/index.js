@@ -7,137 +7,111 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
-const { PrismaClient } = require('@prisma/client'); // Importamos Prisma
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
+const { PrismaClient } = require('@prisma/client');
 
+// --- 1. INICIALIZACIÓN ---
 const app = express();
-app.use(helmet());
+const prisma = new PrismaClient();
+const PORT = process.env.PORT || 4000;
 
-
+// Confianza en Proxy (Necesario para Render/Vercel)
 app.set('trust proxy', 1);
 
+// --- 2. MIDDLEWARES DE SEGURIDAD (EL ESCUDO) ---
 
+// A. Helmet: Protege cabeceras HTTP y oculta tecnología
+app.use(helmet());
+
+// B. Rate Limiting: Evita ataques de fuerza bruta (DDoS)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // Límite de 100 peticiones por IP
-  standardHeaders: true, // Devuelve info de límites en las cabeceras `RateLimit-*`
-  legacyHeaders: false, // Desactiva las cabeceras viejas
-  message: {
-    error: "Demasiadas peticiones desde esta IP. Inténtalo de nuevo en 15 minutos."
-  }
+  max: 100, // Máximo 100 peticiones por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiadas peticiones. Inténtalo en 15 minutos." }
 });
+app.use(limiter); // Aplicar a todo el servidor
 
-// Aplicar el límite a TODAS las rutas
-app.use(limiter);
-const prisma = new PrismaClient(); // Iniciamos la conexión
-
-// --- MIDDLEWARES DE SEGURIDAD ---
-app.use(helmet());
-app.use(express.json({ limit: '50kb' }));
-app.use(cookieParser());
+// C. CORS: Permite que Vercel hable con este servidor
 app.use(cors({
   origin: [
-    "http://localhost:5173",
-    "https://zyph-v1.vercel.app", 
-    "https://zyph-suite.vercel.app" 
+    "http://localhost:5173",             // Tu PC
+    "https://zyph-v1.vercel.app",        // Tu Web 1
+    "https://zyph-suite.vercel.app"      // Tu Web 2
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  credentials: true // Permite envío de Cookies seguras
 }));
 
-const limiter = rateLimit({ windowMs: 15*60*1000, max: 100 });
-app.use('/api', limiter);
+// D. Procesamiento de datos
+app.use(express.json({ limit: '50kb' })); // Limita tamaño de paquetes a 50kb
+app.use(cookieParser()); // Permite leer cookies
 
-// --- RUTAS DE SECURE DROP ---
+// --- 3. RUTAS (ENDPOINTS) ---
 
-// --- AUTENTICACIÓN: REGISTRO DE USUARIO ---
-
+// A. REGISTRO DE USUARIOS (Auth)
 app.post('/api/register', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1. Validación básica: ¿Me han enviado los datos?
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Faltan datos (email o password)' });
-    }
+    if (!email || !password) return res.status(400).json({ error: 'Faltan datos' });
 
-    // 2. Comprobar si ya existe (Evitar duplicados)
-    const existingUser = await prisma.user.findUnique({
-      where: { email: email }
-    });
+    // Verificar duplicados
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) return res.status(400).json({ error: 'Email ya registrado' });
 
-    if (existingUser) {
-      return res.status(400).json({ error: 'Este email ya está registrado' });
-    }
-
-    // 3. ENCRIPTAR LA CONTRASEÑA (Hashing)
-    // "10" es la fuerza del triturado (Salt rounds).
+    // Hash de contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4. Guardar en Base de Datos
+    // Crear usuario
     const newUser = await prisma.user.create({
-      data: {
-        email: email,
-        password: hashedPassword,
-      },
+      data: { email, password: hashedPassword },
     });
 
-    // 5. Crear el Pase VIP (Token JWT)
+    // Crear Token JWT
     const token = jwt.sign(
-      { id: newUser.id, email: newUser.email }, // Datos dentro del pase
-      process.env.JWT_SECRET,                   // El sello secreto
-      { expiresIn: '24h' }                      // Caduca en 1 día
+      { id: newUser.id, email: newUser.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
     );
 
-    // 6. Entregar el pase en una Cookie Segura (HttpOnly)
-    // Esto es vital: Al ser HttpOnly, los hackers no pueden robarla con JavaScript.
+    // Enviar Cookie Segura
     res.cookie('token', token, {
       httpOnly: true,
-      secure: true,      // Solo funciona en HTTPS (Render/Vercel)
-      sameSite: 'none',  // Necesario porque Front y Back están en dominios distintos
-      maxAge: 24 * 60 * 60 * 1000 // 24 horas
+      secure: true,
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000
     });
 
-    console.log(`👤 Nuevo usuario registrado: ${email}`);
-    
-    // Respondemos (¡Pero NUNCA devolvemos la contraseña!)
-    res.status(201).json({ 
-      message: 'Usuario registrado con éxito', 
-      user: { id: newUser.id, email: newUser.email } 
-    });
+    console.log(`👤 Nuevo usuario: ${email}`);
+    res.status(201).json({ message: 'Registro exitoso', user: { id: newUser.id, email } });
 
   } catch (error) {
-    console.error('Error en registro:', error);
-    res.status(500).json({ error: 'Error al registrar usuario' });
+    console.error('Register Error:', error);
+    res.status(500).json({ error: 'Error interno al registrar' });
   }
 });
 
-// 1. Crear Secreto
+// B. CREAR SECRETO
 app.post('/api/secret', async (req, res) => {
   try {
     const { cipherText } = req.body;
-    // Prisma crea el registro en la tabla Secret
-    const newSecret = await prisma.secret.create({
-      data: { cipherText }
-    });
+    const newSecret = await prisma.secret.create({ data: { cipherText } });
     res.json({ id: newSecret.id });
   } catch (error) {
     res.status(500).json({ error: 'Error guardando secreto' });
   }
 });
 
-// 2. Leer Secreto (Y borrarlo al instante - Burn on Read)
+// C. LEER SECRETO (Burn on Read)
 app.get('/api/secret/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Buscar el secreto
     const secret = await prisma.secret.findUnique({ where: { id } });
 
     if (!secret) return res.status(404).json({ error: 'Secreto no encontrado o ya leído' });
 
-    // Borrarlo inmediatamente (Transacción segura)
+    // Borrado atómico (Transacción)
     await prisma.secret.delete({ where: { id } });
 
     res.json({ cipherText: secret.cipherText });
@@ -146,8 +120,7 @@ app.get('/api/secret/:id', async (req, res) => {
   }
 });
 
-// --- RUTAS DE DEAD MAN'S SWITCH ---
-
+// D. DEAD MAN'S SWITCH
 app.post('/api/switch/create', async (req, res) => {
   try {
     const { recipientEmail, encryptedContent, checkInFrequency } = req.body;
@@ -160,7 +133,6 @@ app.post('/api/switch/create', async (req, res) => {
     });
     res.json({ id: newSwitch.id });
   } catch (error) {
-    console.log(error)
     res.status(500).json({ error: 'Error creando switch' });
   }
 });
@@ -168,10 +140,9 @@ app.post('/api/switch/create', async (req, res) => {
 app.post('/api/switch/checkin', async (req, res) => {
   try {
     const { id } = req.body;
-    // Actualizar lastCheckIn
     await prisma.switch.update({
       where: { id },
-      data: { lastCheckIn: new Date() } // Hora actual
+      data: { lastCheckIn: new Date() }
     });
     res.json({ status: 'Vida confirmada' });
   } catch (error) {
@@ -179,47 +150,21 @@ app.post('/api/switch/checkin', async (req, res) => {
   }
 });
 
-// --- CRON JOB (Simulado con setInterval para Postgres) ---
-// En SQL los datos no caducan solos (TTL). Lo hacemos manual:
-setInterval(async () => {
-  console.log('⏳ Revisando Dead Man Switches...');
-  
-  // 1. Buscar Switches caducados
-  // Nota: Esto requeriría lógica de fechas más compleja, 
-  // por ahora solo imprimimos para no complicar la migración.
-  // En producción usaríamos una librería como 'node-cron'.
-  
-}, 60 * 1000); // Cada minuto
+// --- 4. TAREAS AUTOMÁTICAS (CRON JOBS) ---
 
-
-const PORT = process.env.PORT || 4000;
-// --- GARBAGE COLLECTOR (LIMPIEZA AUTOMÁTICA) ---
-
-// Cron Job: Se ejecuta una vez cada hora ('0 * * * *')
-// Explicación: Borra secretos creados hace más de 24 horas que no han sido leídos.
+// Limpieza de secretos viejos (>24h)
 cron.schedule('0 * * * *', async () => {
-  console.log('🧹 Ejecutando limpieza automática de secretos caducados...');
-
+  console.log('🧹 Ejecutando limpieza de secretos caducados...');
   try {
-    // Calculamos la fecha de ayer (hace 24h)
     const twentyFourHoursAgo = new Date(new Date() - 24 * 60 * 60 * 1000);
-
-    // Ordenamos a Prisma borrar todo lo viejo
     const deleted = await prisma.secret.deleteMany({
-      where: {
-        createdAt: {
-          lt: twentyFourHoursAgo, // "lt" significa "Less Than" (Menor que / Antes de)
-        },
-      },
+      where: { createdAt: { lt: twentyFourHoursAgo } },
     });
-
-    if (deleted.count > 0) {
-      console.log(`✅ Se han eliminado ${deleted.count} secretos caducados.`);
-    } else {
-      console.log('✨ No había basura que limpiar.');
-    }
+    if (deleted.count > 0) console.log(`✅ Eliminados ${deleted.count} secretos viejos.`);
   } catch (error) {
-    console.error('❌ Error en el Garbage Collector:', error);
+    console.error('❌ Error en limpieza:', error);
   }
 });
-app.listen(PORT, () => console.log(`🚀 Server PostgreSQL running on port ${PORT}`));
+
+// --- 5. ARRANQUE DEL SERVIDOR ---
+app.listen(PORT, () => console.log(`🚀 ZYPH Backend running on port ${PORT}`));
