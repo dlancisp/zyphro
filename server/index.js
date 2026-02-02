@@ -33,28 +33,24 @@ const limiter = rateLimit({
 app.use(limiter); // Aplicar a todo el servidor
 
 // C. CORS: Permite que Vercel hable con este servidor
+// Borra cualquier otro 'app.use(cors...)' y pon SOLO este:
 app.use(cors({
   origin: function (origin, callback) {
-    // Permitir peticiones sin origen (como Postman o scripts de servidor)
-    if (!origin) return callback(null, true);
-    
-    // Lista de dominios permitidos explícitamente
     const allowedDomains = [
       "http://localhost:5173",
-      "https://zyph-v1.vercel.app"
+      "https://zyph-v1.vercel.app",
+      "https://getzyph.com", // ¡Añadimos tu futuro dominio ya!
+      "https://www.getzyph.com" 
     ];
 
-    // LOGIC: Si está en la lista O si termina en .vercel.app (para previews), entra.
-    if (allowedDomains.indexOf(origin) !== -1 || origin.endsWith(".vercel.app")) {
+    // Permitir si está en la lista O si es una preview de Vercel (.vercel.app)
+    if (!origin || allowedDomains.includes(origin) || origin.endsWith(".vercel.app")) {
       callback(null, true);
     } else {
-      console.log("🚫 CORS Bloqueado para:", origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true, // ¡Vital para las cookies!
-  allowedHeaders: ["Content-Type", "Authorization"]
+  credentials: true // <--- ESTO ES LO QUE ARREGLA TU ERROR
 }));
 
 // D. Procesamiento de datos
