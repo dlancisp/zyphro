@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client');
+// ... otros requires
+const { body, validationResult } = require('express-validator');
 
 // --- 1. VALIDACIÓN DE ENTORNO (CRÍTICO #3) ---
 // Si faltan estas variables, el servidor se apaga para evitar catástrofes.
@@ -81,36 +83,52 @@ const authenticateToken = (req, res, next) => {
 // --- 5. RUTAS API ---
 
 // ➤ AUTH: Registro (Público)
-app.post('/api/register', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Faltan datos' });
+// ➤ AUTH: Registro (Validado)
+app.post('/api/register', 
+  // 1. REGLAS DE VALIDACIÓN
+  [
+    body('email').isEmail().withMessage('Email inválido').normalizeEmail(),
+    body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
+  ],
+  // 2. PROCESAMIENTO
+  async (req, res) => {
+    try {
+      // Verificar si hubo errores en la validación
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ error: errors.array()[0].msg });
+      }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) return res.status(400).json({ error: 'Email ya registrado' });
+      const { email, password } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await prisma.user.create({
-      data: { email, password: hashedPassword },
-    });
+      // Verificar duplicados
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+      if (existingUser) return res.status(400).json({ error: 'Este email ya está registrado' });
 
-    const token = jwt.sign({ id: newUser.id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '24h' });
+      // Hash y creación
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = await prisma.user.create({
+        data: { email, password: hashedPassword },
+      });
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 24 * 60 * 60 * 1000
-    });
+      // Token y Cookie
+      const token = jwt.sign({ id: newUser.id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '24h' });
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 24 * 60 * 60 * 1000
+      });
 
-    console.log(`👤 Nuevo usuario Zyphro: ${email}`);
-    res.status(201).json({ message: 'Registro exitoso', user: { id: newUser.id, email } });
+      console.log(`👤 Nuevo usuario Zyphro: ${email}`);
+      res.status(201).json({ message: 'Registro exitoso', user: { id: newUser.id, email } });
 
-  } catch (error) {
-    console.error('Register Error:', error);
-    res.status(500).json({ error: 'Error interno' });
+    } catch (error) {
+      console.error('Register Error:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
   }
-});
+);
 
 // ➤ SECRETS: Crear (Público - para uso anónimo)
 app.post('/api/secret', async (req, res) => {

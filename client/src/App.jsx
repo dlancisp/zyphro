@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import Register from './Register'; // ✅ Tu nuevo componente
+import DOMPurify from 'dompurify'; // <--- AÑADIR ESTO ARRIBA
 
 // --- CONFIGURACIÓN API ---
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -244,7 +245,12 @@ function Viewer({ id, hash }) {
         } else if(d?.cipherText) {
           try { 
             const decrypted = await cryptoUtils.decryptData(d.cipherText, hash);
-            setMsg(decrypted); 
+            
+            // 👇 AQUÍ ESTÁ EL CAMBIO DE SEGURIDAD 👇
+            const cleanMessage = DOMPurify.sanitize(decrypted); 
+            setMsg(cleanMessage); 
+            // 👆 El mensaje ahora está limpio de virus/scripts
+
           } catch (e) { 
             setMsg('❌ Error: La llave de desencriptado es incorrecta.'); 
           }
