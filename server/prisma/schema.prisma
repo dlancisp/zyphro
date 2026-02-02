@@ -10,34 +10,33 @@ datasource db {
 }
 
 model Secret {
-  id        String   @id @default(uuid())
-  content   String
-  createdAt DateTime @default(now())
-  expiresAt DateTime? // (Opcional) Si quieres añadir fechas personalizadas en el futuro
+  id         String   @id @default(uuid())
+  cipherText String   // <--- CORREGIDO: Antes era "content"
+  createdAt  DateTime @default(now())
   
-  // --- AÑADIR ESTO ---
-  userId    String?  // Puede ser null (si el usuario es anónimo)
-  user      User?    @relation(fields: [userId], references: [id])
+  // Relación opcional con usuario (para el futuro)
+  userId     String?  
+  user       User?    @relation(fields: [userId], references: [id])
 }
-
 
 model User {
-  id        String   @id @default(uuid()) // ID único (ej: "a1b2-c3d4...")
-  email     String   @unique              // El email no se puede repetir
-  password  String                        // Aquí guardaremos el HASH, no la contraseña real
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String
   createdAt DateTime @default(now())
   
-  // Relación: Un usuario puede tener muchos secretos
-  secrets   Secret[]
+  secrets  Secret[]
 }
 
-// Modelo para el Dead Man's Switch
 model Switch {
   id               String   @id @default(uuid())
   recipientEmail   String
-  encryptedContent String   // Las claves o mensaje final
-  checkInFrequency Int      // Minutos requeridos para dar señal de vida
+  encryptedContent String
+  checkInFrequency Int
   lastCheckIn      DateTime @default(now())
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
+  
+  // Opcional: Podrías vincularlo a un usuario también
+  userId           String?
 }

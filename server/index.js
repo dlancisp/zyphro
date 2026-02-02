@@ -9,39 +9,48 @@ const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client');
 
-// --- 1. CONFIGURACIÓN INICIAL ---
+// --- 1. VALIDACIÓN DE ENTORNO (CRÍTICO #3) ---
+// Si faltan estas variables, el servidor se apaga para evitar catástrofes.
+const requiredEnv = ['DATABASE_URL', 'JWT_SECRET'];
+const missingEnv = requiredEnv.filter(key => !process.env[key]);
+
+if (missingEnv.length > 0) {
+  console.error(`❌ ERROR FATAL: Faltan variables de entorno: ${missingEnv.join(', ')}`);
+  process.exit(1);
+}
+
+// --- 2. CONFIGURACIÓN INICIAL ---
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
 app.set('trust proxy', 1); // Necesario para Render
 
-// --- 2. MIDDLEWARES DE SEGURIDAD ---
+// --- 3. MIDDLEWARES DE SEGURIDAD ---
 
 // A. Protección de Cabeceras
 app.use(helmet());
 
 // B. Rate Limiting (Anti-DDoS)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // Máx peticiones por IP
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Demasiadas peticiones. Calma." }
 });
 app.use(limiter);
 
-// C. CORS (La puerta de entrada)
+// C. CORS (Lista de Invitados)
 app.use(cors({
   origin: function (origin, callback) {
     const allowedDomains = [
-      "http://localhost:5173",          // Localhost
-      "https://zyph-v1.vercel.app",     // Vercel antiguo
-      "https://zyphro.com",             // ✅ TU NUEVO DOMINIO
-      "https://www.zyphro.com"          // ✅ TU NUEVO DOMINIO (WWW)
+      "http://localhost:5173",          
+      "https://zyph-v1.vercel.app",     
+      "https://zyphro.com",             
+      "https://www.zyphro.com"          
     ];
 
-    // Permitir dominios listados, previews de Vercel o peticiones sin origen (Postman)
     if (!origin || allowedDomains.includes(origin) || origin.endsWith(".vercel.app")) {
       callback(null, true);
     } else {
@@ -49,16 +58,29 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true // Permitir cookies
+  credentials: true 
 }));
 
 // D. Parsing
 app.use(express.json({ limit: '50kb' }));
 app.use(cookieParser());
 
-// --- 3. RUTAS API ---
+// --- 4. MIDDLEWARE DE AUTENTICACIÓN (CRÍTICO #2) ---
+// Este es el "Portero" que verifica si tienes entrada (Token)
+const authenticateToken = (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ error: 'Acceso denegado. Debes iniciar sesión.' });
 
-// ➤ AUTH: Registro
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Token inválido o expirado.' });
+    req.user = user;
+    next();
+  });
+};
+
+// --- 5. RUTAS API ---
+
+// ➤ AUTH: Registro (Público)
 app.post('/api/register', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -72,11 +94,7 @@ app.post('/api/register', async (req, res) => {
       data: { email, password: hashedPassword },
     });
 
-    const token = jwt.sign(
-      { id: newUser.id, email: newUser.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    const token = jwt.sign({ id: newUser.id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
     res.cookie('token', token, {
       httpOnly: true,
@@ -94,18 +112,20 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// ➤ SECRETS: Crear
+// ➤ SECRETS: Crear (Público - para uso anónimo)
 app.post('/api/secret', async (req, res) => {
   try {
     const { cipherText } = req.body;
+    // Ahora sí usa 'cipherText' que coincide con el schema.prisma corregido
     const newSecret = await prisma.secret.create({ data: { cipherText } });
     res.json({ id: newSecret.id });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error guardando secreto' });
   }
 });
 
-// ➤ SECRETS: Leer (Burn on Read)
+// ➤ SECRETS: Leer (Público - Burn on Read)
 app.get('/api/secret/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -113,22 +133,24 @@ app.get('/api/secret/:id', async (req, res) => {
 
     if (!secret) return res.status(404).json({ error: 'Secreto no existe' });
 
-    await prisma.secret.delete({ where: { id } }); // Borrar tras leer
+    await prisma.secret.delete({ where: { id } }); 
     res.json({ cipherText: secret.cipherText });
   } catch (error) {
     res.status(500).json({ error: 'Error recuperando secreto' });
   }
 });
 
-// ➤ DEAD MAN SWITCH
-app.post('/api/switch/create', async (req, res) => {
+// ➤ DEAD MAN SWITCH (🔒 PROTEGIDO - Solo usuarios registrados)
+// Aquí añadimos 'authenticateToken'
+app.post('/api/switch/create', authenticateToken, async (req, res) => {
   try {
     const { recipientEmail, encryptedContent, checkInFrequency } = req.body;
     const newSwitch = await prisma.switch.create({
       data: {
         recipientEmail,
         encryptedContent,
-        checkInFrequency: parseInt(checkInFrequency)
+        checkInFrequency: parseInt(checkInFrequency),
+        // Podríamos guardar req.user.id aquí si actualizamos el schema luego
       }
     });
     res.json({ id: newSwitch.id });
@@ -137,9 +159,10 @@ app.post('/api/switch/create', async (req, res) => {
   }
 });
 
-app.post('/api/switch/checkin', async (req, res) => {
+app.post('/api/switch/checkin', authenticateToken, async (req, res) => {
   try {
     const { id } = req.body;
+    // Opcional: Verificar que el switch pertenece al usuario logueado (req.user.id)
     await prisma.switch.update({
       where: { id },
       data: { lastCheckIn: new Date() }
@@ -150,17 +173,12 @@ app.post('/api/switch/checkin', async (req, res) => {
   }
 });
 
-// ➤ ANON MAIL (Simulado por ahora para que no falle el frontend)
+// ➤ ANON MAIL (Simulado)
 app.post('/api/email', async (req, res) => {
-    // AQUÍ CONECTAREMOS RESEND O NODEMAILER EN EL FUTURO
-    console.log("📨 Email solicitado:", req.body);
-    // Simulamos éxito
     res.json({ status: 'Enviado (Simulación)' });
 });
 
-// --- 4. TAREAS AUTOMÁTICAS ---
-
-// Limpieza cada hora
+// --- 6. TAREAS AUTOMÁTICAS ---
 cron.schedule('0 * * * *', async () => {
   console.log('🧹 Limpiando secretos caducados...');
   try {
@@ -173,5 +191,5 @@ cron.schedule('0 * * * *', async () => {
   }
 });
 
-// --- 5. START ---
+// --- 7. START ---
 app.listen(PORT, () => console.log(`🚀 ZYPHRO Backend listo en puerto ${PORT}`));
