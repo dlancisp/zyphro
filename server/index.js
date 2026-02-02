@@ -34,13 +34,27 @@ app.use(limiter); // Aplicar a todo el servidor
 
 // C. CORS: Permite que Vercel hable con este servidor
 app.use(cors({
-  origin: [
-    "http://localhost:5173",             // Tu PC
-    "https://zyph-v1.vercel.app",        // Tu Web 1
-    "https://zyph-suite.vercel.app"      // Tu Web 2
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true // Permite envío de Cookies seguras
+  origin: function (origin, callback) {
+    // Permitir peticiones sin origen (como Postman o scripts de servidor)
+    if (!origin) return callback(null, true);
+    
+    // Lista de dominios permitidos explícitamente
+    const allowedDomains = [
+      "http://localhost:5173",
+      "https://zyph-v1.vercel.app"
+    ];
+
+    // LOGIC: Si está en la lista O si termina en .vercel.app (para previews), entra.
+    if (allowedDomains.indexOf(origin) !== -1 || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      console.log("🚫 CORS Bloqueado para:", origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true, // ¡Vital para las cookies!
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 // D. Procesamiento de datos
