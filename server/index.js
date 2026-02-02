@@ -32,25 +32,25 @@ const limiter = rateLimit({
 });
 app.use(limiter); // Aplicar a todo el servidor
 
-// C. CORS: Permite que Vercel hable con este servidor
-// Borra cualquier otro 'app.use(cors...)' y pon SOLO este:
+
+// En server/index.js
 app.use(cors({
   origin: function (origin, callback) {
     const allowedDomains = [
       "http://localhost:5173",
       "https://zyph-v1.vercel.app",
-      "https://getzyph.com", // ¡Añadimos tu futuro dominio ya!
-      "https://www.getzyph.com" 
+      // 👇 AÑADE ESTOS DOS NUEVOS:
+      "https://zyphro.com",
+      "https://www.zyphro.com"
     ];
 
-    // Permitir si está en la lista O si es una preview de Vercel (.vercel.app)
     if (!origin || allowedDomains.includes(origin) || origin.endsWith(".vercel.app")) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true // <--- ESTO ES LO QUE ARREGLA TU ERROR
+  credentials: true
 }));
 
 // D. Procesamiento de datos
