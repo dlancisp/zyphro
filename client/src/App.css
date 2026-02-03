@@ -1,168 +1,199 @@
-/* client/src/App.css */
+/* 1. IMPORTAR FUENTE 'INTER' (La que usa todo SaaS moderno) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-body: #ffffff;
-  --bg-sidebar: #f9fafb;
-  --border-color: #e5e7eb;
-  --primary: #2563eb; 
-  --primary-dark: #1d4ed8;
-  --primary-light: #eff6ff;
-  --text-main: #374151;
-  --text-heading: #111827;
-  --text-muted: #6b7280;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  /* Paleta Zyphro: Oscura, Seria, Elegante */
+  --primary: #3b82f6;          /* Azul Zyphro */
+  --primary-hover: #2563eb;    /* Azul Intenso */
+  --bg-dark: #0f172a;          /* Fondo Principal (Casi negro) */
+  --bg-card: #1e293b;          /* Fondo Tarjetas (Gris azulado) */
+  --text-main: #f8fafc;        /* Blanco hueso */
+  --text-muted: #94a3b8;       /* Gris texto secundario */
+  --border: #334155;           /* Bordes sutiles */
+  --success: #10b981;
+  --error: #ef4444;
+}
+
+/* 2. RESET Y BASES */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased; /* Texto nítido en Mac */
 }
 
 body {
-  background-color: var(--bg-body);
+  background-color: var(--bg-dark);
   color: var(--text-main);
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  -webkit-font-smoothing: antialiased;
-}
-
-.app-container {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-  position: relative; /* Necesario para el menú móvil */
-}
-
-/* --- SIDEBAR (PC) --- */
-.sidebar {
-  width: 280px;
-  background-color: var(--bg-sidebar);
-  border-right: 1px solid var(--border-color);
-  padding: 32px 24px;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
-  z-index: 50; /* Por encima del contenido en móvil */
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.brand-section {
+/* 3. ESTILOS DE COMPONENTES */
+
+/* Contenedor Principal */
+.app-container {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 48px;
-  padding-left: 8px;
+  min-height: 100vh;
 }
 
-.brand-logo { color: var(--primary); }
-.brand-text { font-size: 1.25rem; font-weight: 700; color: var(--text-heading); }
-
-.nav-menu { display: flex; flex-direction: column; gap: 4px; }
-
-.nav-item {
-  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-  border-radius: var(--radius-md); border: none; background: transparent;
-  color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
-  cursor: pointer; transition: all 0.2s ease; text-align: left;
+/* Animaciones suaves */
+button, a, input, textarea {
+  transition: all 0.2s ease-in-out;
 }
 
-.nav-item:hover { background-color: #f3f4f6; color: var(--text-heading); }
-.nav-item.active { background-color: white; color: var(--primary); box-shadow: var(--shadow-sm); font-weight: 600; }
-.nav-item svg { width: 20px; height: 20px; }
-
-/* --- MAIN CONTENT --- */
-.main-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 64px 96px;
-  display: flex; flex-direction: column; align-items: flex-start;
-  max-width: 800px;
-  width: 100%; /* Asegura que no se salga */
+/* TARJETAS GLASSMORPHISM (Efecto cristal sutil) */
+.feature-wrapper, .result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem; /* Más espacio = Más lujo */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-/* --- ELEMENTOS MÓVILES (Ocultos en PC) --- */
-.mobile-header { display: none; }
-.mobile-overlay { display: none; }
-
-/* --- ESTILOS GENERALES (Hero, Forms, etc) --- */
-.hero-title { font-size: 3.5rem; font-weight: 700; line-height: 1.1; color: var(--text-heading); margin-bottom: 24px; }
-.hero-subtitle { font-size: 1.125rem; color: var(--text-muted); line-height: 1.6; max-width: 540px; }
-.section-title { font-size: 1.8rem; font-weight: 700; color: var(--text-heading); margin: 0 0 8px 0; }
-.section-desc { color: var(--text-muted); font-size: 1rem; margin-bottom: 30px; }
-.input-group { margin-bottom: 20px; width: 100%; }
-.input-label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--text-heading); margin-bottom: 8px; }
-
+/* INPUTS PROFESIONALES */
 input, textarea {
-  width: 100%; padding: 14px 16px; background: white;
-  border: 1px solid var(--border-color); border-radius: var(--radius-md);
-  font-family: inherit; font-size: 0.95rem; color: var(--text-heading);
-  box-sizing: border-box; /* CRUCIAL PARA MÓVIL */
+  width: 100%;
+  background: #0f172a; /* Input más oscuro que la tarjeta */
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+  margin-top: 8px;
 }
-input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
-textarea { min-height: 140px; resize: none; }
 
+input:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); /* Anillo de luz */
+}
+
+textarea {
+  min-height: 140px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* BOTONES DE ACCIÓN */
 .btn-primary {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 16px; background-color: var(--text-heading);
-  color: white; border: none; border-radius: var(--radius-md);
-  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.02em;
 }
-.result-card { background: var(--bg-sidebar); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-top: 32px; width: 100%; box-sizing: border-box; }
-.result-link { word-break: break-all; background: white; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; margin: 12px 0 20px 0; font-family: monospace; color: var(--primary); }
-.action-row { display: flex; gap: 12px; flex-wrap: wrap; } /* Wrap para móvil */
 
-/* =========================================
-   📱 MEDIA QUERIES (VERSIÓN MÓVIL REAL)
-   ========================================= */
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-secondary:hover {
+  border-color: var(--text-main);
+  color: var(--text-main);
+  background: rgba(255,255,255,0.05);
+}
+
+/* TIPOGRAFÍA */
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(to right, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  line-height: 1.6;
+  max-width: 580px;
+  margin: 0 auto 3rem auto;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+.section-desc {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+/* RESULT LINK (Caja del link generado) */
+.result-link {
+  background: #0f172a;
+  padding: 16px;
+  border-radius: 8px;
+  color: var(--primary);
+  word-break: break-all;
+  font-family: 'Courier New', monospace; /* Fuente tipo código */
+  margin: 15px 0;
+  border: 1px dashed var(--border);
+  font-size: 0.9rem;
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
-  /* 1. Header Móvil: Visible solo aquí */
-  .mobile-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 60px;
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border-color);
-    padding: 0 20px;
-    z-index: 40;
+  .app-container { flex-direction: column; }
+  .sidebar { 
+    display: none; /* Ocultamos sidebar en móvil (ya tienes el menú hamburguesa) */
   }
-
-  /* 2. Sidebar: Ahora es un cajón oculto */
-  .sidebar {
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    width: 80%; /* Ocupa casi toda la pantalla */
-    max-width: 300px;
-    transform: translateX(-100%); /* Oculto por defecto a la izquierda */
-    background: white;
-    box-shadow: 20px 0 50px rgba(0,0,0,0.1);
-  }
-
-  .sidebar.open {
-    transform: translateX(0); /* Se muestra al abrir */
-  }
-
-  /* 3. Fondo oscuro al abrir menú */
-  .mobile-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4);
-    z-index: 45;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .mobile-overlay.open { display: block; opacity: 1; }
-
-  /* 4. Ajustes del Contenido Principal */
-  .main-content {
-    padding: 90px 24px 40px; /* Más padding arriba para no chocar con el header */
-    margin-left: 0;
-  }
-
-  /* 5. Ajustes de Tipografía Móvil */
-  .hero-title { font-size: 2.2rem; }
-  .section-title { font-size: 1.5rem; }
-  .btn-primary { width: 100%; }
+  .main-content { margin-left: 0; padding: 20px; }
+  .hero-title { font-size: 2.5rem; }
 }

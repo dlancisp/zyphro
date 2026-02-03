@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
-import Register from './Register'; // ✅ Tu nuevo componente
-import DOMPurify from 'dompurify'; // <--- AÑADIR ESTO ARRIBA
+import Register from './Register';
+import DOMPurify from 'dompurify';
+import { Toaster, toast } from 'react-hot-toast'; // ✅ Notificaciones bonitas
 
 // --- CONFIGURACIÓN API ---
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
@@ -51,9 +52,24 @@ const cryptoUtils = {
   }
 };
 
-// --- ICONOS ---
+// --- ICONOS (Con tu Logo Nuevo) ---
 const Icons = {
-  Logo: () => (<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="32" fill="#2563EB"/><path d="M14 16H50L30 36H54L18 56L38 36H10L14 16Z" fill="white"/></svg>),
+  Logo: () => (
+    <svg width="40" height="40" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="zyphroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3b82f6" /> {/* Azul */}
+          <stop offset="100%" stopColor="#9333ea" /> {/* Violeta */}
+        </linearGradient>
+      </defs>
+      <path 
+        fillRule="evenodd" 
+        clipRule="evenodd" 
+        d="M17 0C17.5523 0 18 0.447715 18 1V8.39648C18 8.61918 18.2693 8.7307 18.4268 8.57324L26.4141 0.585938C26.7891 0.210936 27.2978 7.97938e-05 27.8281 0H36.5859C36.8511 4.04019e-05 37.1055 0.105468 37.293 0.292969L40.293 3.29297C40.6834 3.68347 40.6834 4.31653 40.293 4.70703L36.4268 8.57324C36.2693 8.73073 36.3808 8.99997 36.6035 9H44.5859C44.8511 9.00004 45.1055 9.10547 45.293 9.29297L48.293 12.293C48.6834 12.6835 48.6834 13.3165 48.293 13.707L44.3535 17.6465C44.1583 17.8417 44.1583 18.1583 44.3535 18.3535L47.5859 21.5859C48.4914 22.4914 49 23.7195 49 25C49 26.2805 48.4913 27.5086 47.5859 28.4141L36.5859 39.4141C36.2109 39.7891 35.7022 39.9999 35.1719 40H32C31.4477 40 31 39.5523 31 39V31.6035C31 31.3808 30.7307 31.2693 30.5732 31.4268L22.5859 39.4141C22.2109 39.7891 21.7022 39.9999 21.1719 40H12.4141C12.1489 40 11.8945 39.8945 11.707 39.707L8.70703 36.707C8.31661 36.3165 8.31661 35.6835 8.70703 35.293L12.5732 31.4268C12.7307 31.2693 12.6192 31 12.3965 31H4.41406C4.1489 31 3.89453 30.8945 3.70703 30.707L0.707031 27.707C0.316606 27.3165 0.316607 26.6835 0.707031 26.293L4.64648 22.3535C4.8417 22.1583 4.8417 21.8417 4.64648 21.6465L1.41406 18.4141C0.508652 17.5086 0 16.2805 0 15C0 13.7195 0.508651 12.4914 1.41406 11.5859L12.4141 0.585938C12.7891 0.210936 13.2978 8.00463e-05 13.8281 0H17ZM20.0713 9C18.7452 9 17.4728 9.52716 16.5352 10.4648L5.85352 21.1465C5.53861 21.4615 5.76165 21.9999 6.20703 22H20.793C21.2383 22.0001 21.4613 22.5386 21.1465 22.8535L13.8535 30.1465C13.5386 30.4615 13.7616 30.9999 14.207 31H28.9287C30.2548 31 31.5272 30.4728 32.4648 29.5352L43.1465 18.8535C43.4417 18.5583 43.2642 18.0663 42.874 18.0059L42.793 18H28.207C27.7616 18 27.5386 17.4615 27.8535 17.1465L35.1465 9.85352C35.4614 9.53855 35.2384 9.00006 34.793 9H20.0713Z" 
+        fill="url(#zyphroGrad)" 
+      />
+    </svg>
+  ),
   Menu: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>),
   Close: () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>),
   Home: () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>),
@@ -85,7 +101,10 @@ function SecureDrop() {
   const [state, setState] = useState({ text: '', link: '', loading: false });
 
   const create = async () => {
-    if (!state.text) return;
+    if (!state.text) {
+        toast.error('Por favor, escribe un secreto.');
+        return;
+    }
     setState(prev => ({ ...prev, loading: true }));
     
     try {
@@ -106,10 +125,11 @@ function SecureDrop() {
         loading: false, 
         link: `${window.location.origin}/?id=${data.id}#${keyStr}` 
       });
+      toast.success('¡Secreto encriptado correctamente!');
 
     } catch (e) { 
       console.error(e);
-      alert('Error de encriptación o conexión');
+      toast.error('Error de encriptación o conexión');
       setState(prev => ({ ...prev, loading: false }));
     }
   };
@@ -142,7 +162,10 @@ function SecureDrop() {
           </div>
           <div className="result-link">{state.link}</div>
           <div className="action-row">
-            <button className="btn-primary" style={{flex:1}} onClick={() => navigator.clipboard.writeText(state.link)}>Copiar</button>
+            <button className="btn-primary" style={{flex:1}} onClick={() => {
+                navigator.clipboard.writeText(state.link);
+                toast.success('¡Enlace copiado al portapapeles!');
+            }}>Copiar</button>
             <button className="btn-secondary" onClick={() => setState({text:'', link:'', loading:false})}>Nuevo</button>
           </div>
         </div>
@@ -158,7 +181,7 @@ function DeadMansSwitch() {
   const [loading, setLoading] = useState(false);
 
   const activate = async () => {
-    if(!form.to || !form.msg) return alert("Rellena todos los campos");
+    if(!form.to || !form.msg) return toast.error("Rellena todos los campos");
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/switch/create`, { 
@@ -168,13 +191,14 @@ function DeadMansSwitch() {
       const data = await res.json();
       setActiveId(data.id); 
       setActive(true);
-    } catch(e) { alert("Error al conectar"); }
+      toast.success('Protocolo activado. El tiempo corre.');
+    } catch(e) { toast.error("Error al conectar"); }
     setLoading(false);
   };
 
   const checkIn = async () => {
     await fetch(`${API_URL}/switch/checkin`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id: activeId }) });
-    alert('Vida confirmada. Contador reseteado.');
+    toast.success('Vida confirmada. Contador reseteado.');
   };
 
   return (
@@ -212,9 +236,9 @@ function AnonymousMail() {
     setLoading(true);
     try {
       await fetch(`${API_URL}/email`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ to: form.to, subject: form.sub, message: form.body }) });
-      alert('Correo anónimo enviado con éxito.'); 
+      toast.success('Correo anónimo enviado con éxito.'); 
       setForm({ to: '', sub: '', body: '' });
-    } catch(e) { alert("Error al enviar"); }
+    } catch(e) { toast.error("Error al enviar"); }
     setLoading(false);
   };
 
@@ -242,27 +266,29 @@ function Viewer({ id, hash }) {
       .then(async (d) => {
         if(d === 'exp') {
           setMsg('⛔ Este mensaje ha sido destruido o no existe.');
+          toast.error('Mensaje no encontrado');
         } else if(d?.cipherText) {
           try { 
             const decrypted = await cryptoUtils.decryptData(d.cipherText, hash);
-            
-            // 👇 AQUÍ ESTÁ EL CAMBIO DE SEGURIDAD 👇
             const cleanMessage = DOMPurify.sanitize(decrypted); 
             setMsg(cleanMessage); 
-            // 👆 El mensaje ahora está limpio de virus/scripts
-
+            toast.success('Mensaje descifrado correctamente');
           } catch (e) { 
             setMsg('❌ Error: La llave de desencriptado es incorrecta.'); 
+            toast.error('Llave incorrecta');
           }
         }
       })
-      .catch(() => setMsg('Error de conexión con el servidor.'));
+      .catch(() => {
+          setMsg('Error de conexión con el servidor.');
+          toast.error('Error de conexión');
+      });
   }, [id, hash]);
 
   return (
     <div style={{padding:'40px 20px', maxWidth:'600px', margin:'0 auto', textAlign:'center'}}>
       <h2 className="section-title">Mensaje Seguro Recibido</h2>
-      <div className="result-card" style={{marginTop:'20px', background:'white', whiteSpace:'pre-wrap', textAlign:'left', borderLeft: '4px solid var(--primary)'}}>
+      <div className="result-card" style={{marginTop:'20px', background:'white', whiteSpace:'pre-wrap', textAlign:'left', borderLeft: '4px solid var(--primary)', color: '#333'}}>
         {msg}
       </div>
       <a href="/" style={{display:'block', marginTop:'30px', color:'var(--primary)', textDecoration:'none', fontWeight:'600'}}>Crear mi propio secreto en ZYPH</a>
@@ -278,7 +304,6 @@ function App() {
   const location = useLocation();
   const [viewerParams, setViewerParams] = useState(null);
 
-  // Detectar si venimos de un enlace secreto compartido (?id=...#key)
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const id = p.get('id');
@@ -288,10 +313,8 @@ function App() {
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
-  // Modo VISOR (Si entran con enlace directo)
   if (viewerParams) return <Viewer id={viewerParams.id} hash={viewerParams.hash} />;
 
-  // Modo APP NORMAL
   return (
     <div className="app-container">
       {/* HEADER MÓVIL */}
@@ -334,7 +357,38 @@ function App() {
           <Route path="/mail" element={<AnonymousMail />} />
           <Route path="/register" element={<Register />} />
         </Routes>
+
+        {/* FOOTER - PIE DE PÁGINA PROFESIONAL */}
+        <footer style={{
+            marginTop: '80px', 
+            borderTop: '1px solid var(--border)', 
+            paddingTop: '30px',
+            paddingBottom: '30px',
+            textAlign: 'center',
+            color: 'var(--text-muted)',
+            fontSize: '0.85rem'
+        }}>
+            <div style={{display:'flex', justifyContent:'center', gap:'10px', alignItems:'center', marginBottom:'15px'}}>
+                <Icons.Logo /> 
+                <span style={{fontWeight:'600', color:'white'}}>ZYPHRO</span>
+            </div>
+            <p>© 2026 Zyphro Security Inc. Protocolo Zero-Knowledge.</p>
+        </footer>
       </main>
+
+      {/* SISTEMA DE NOTIFICACIONES */}
+      <Toaster 
+        position="bottom-center"
+        toastOptions={{
+          style: {
+            background: '#1e293b', /* Fondo oscuro a juego con el tema */
+            color: '#fff',
+            border: '1px solid #334155',
+            borderRadius: '10px',
+          },
+        }}
+      />
+      
     </div>
   );
 }
