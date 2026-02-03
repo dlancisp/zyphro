@@ -1,24 +1,22 @@
-/* 1. TIPOGRAFÍA MODERNA */
+/* client/src/App.css */
+
+/* 1. TIPOGRAFÍA Y VARIABLES GLOBALES */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* PALETA INTERNXT (Clara y Profesional) */
-  --primary: #2563eb;          /* Azul vibrante principal */
-  --primary-dark: #1d4ed8;     /* Azul más oscuro para hover */
-  --bg-main: #ffffff;          /* Fondo blanco puro */
-  --bg-secondary: #f8fafc;     /* Gris muy claro para fondos alternativos */
-  --text-heading: #0f172a;     /* Negro casi puro para títulos */
-  --text-body: #334155;        /* Gris oscuro para texto normal */
-  --text-muted: #64748b;       /* Gris medio para subtítulos */
-  --border-color: #e2e8f0;     /* Bordes gris claro sutiles */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --primary: #2563eb;          /* Azul Internxt */
+  --primary-hover: #1d4ed8;    /* Azul oscuro hover */
+  --bg-main: #ffffff;          /* Blanco puro */
+  --bg-secondary: #f8fafc;     /* Gris muy claro */
+  --text-heading: #0f172a;     /* Texto oscuro títulos */
+  --text-body: #334155;        /* Texto cuerpo */
+  --text-muted: #64748b;       /* Texto suave */
+  --border-color: #e2e8f0;     /* Bordes sutiles */
   
   --navbar-height: 70px;
 }
 
-/* 2. RESET BASE */
+/* 2. RESET BÁSICO */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -29,8 +27,8 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-main);
   color: var(--text-body);
-  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
 }
 
 .app-container {
@@ -39,240 +37,177 @@ body {
   min-height: 100vh;
 }
 
-/* 3. BARRA DE NAVEGACIÓN SUPERIOR (Estilo Internxt) */
+/* 3. BARRA DE NAVEGACIÓN (Navbar) */
 .navbar {
   height: var(--navbar-height);
-  background: var(--bg-main);
+  background: rgba(255, 255, 255, 0.95); /* Efecto translúcido */
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 5%; /* Márgenes laterales */
+  justify-content: space-between; /* Separa los 3 bloques: Logo - Centro - Botones */
+  padding: 0 5%;
   position: fixed;
   top: 0;
   width: 100%;
   z-index: 1000;
-  box-shadow: var(--shadow-sm);
 }
 
+/* -- IZQUIERDA: Logo -- */
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
-  cursor: pointer;
-}
-
-.brand-text {
+  color: var(--text-heading);
   font-weight: 700;
   font-size: 1.3rem;
-  color: var(--text-heading);
   letter-spacing: -0.02em;
+  width: 220px; /* Ancho fijo para equilibrar el centro */
 }
 
-/* Menú de Escritorio */
-.nav-links-desktop {
+/* -- CENTRO: Enlaces (Inicio, Productos) -- */
+.nav-links-center {
   display: flex;
   gap: 30px;
   align-items: center;
+  justify-content: center;
 }
 
 .nav-link {
   text-decoration: none;
   color: var(--text-body);
   font-weight: 500;
-  font-size: 1rem;
-  padding: 8px 0;
-  position: relative;
+  font-size: 0.95rem;
   transition: color 0.2s;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link:hover {
   color: var(--primary);
 }
 
-/* Línea azul debajo del link activo */
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--primary);
-  transition: width 0.2s ease;
-}
-
-.nav-link.active::after {
-  width: 100%;
-}
-
-/* Menú Desplegable (Dropdown) */
-.dropdown-container {
-  position: relative;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: var(--bg-main);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
-  padding: 10px;
-  min-width: 220px;
-  display: none; /* Oculto por defecto */
-  flex-direction: column;
-  gap: 5px;
-  margin-top: 15px; /* Espacio desde el link */
-}
-
-/* Mostrar dropdown al pasar el ratón */
-.dropdown-container:hover .dropdown-menu {
-  display: flex;
-  animation: slideUp 0.2s ease-out;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.dropdown-item {
-  text-decoration: none;
-  color: var(--text-body);
-  padding: 10px 15px;
-  border-radius: 8px;
+/* -- DERECHA: Botones (Login, Registro) -- */
+.nav-auth-buttons {
   display: flex;
   align-items: center;
-  gap: 10px;
-  transition: background 0.2s;
-  font-weight: 500;
+  gap: 20px;
+  width: 220px;
+  justify-content: flex-end; /* Alinear a la derecha */
 }
 
-.dropdown-item:hover, .dropdown-item.active {
-  background: var(--bg-secondary);
+/* Botón Iniciar Sesión (Solo texto) */
+.btn-login {
+  text-decoration: none;
+  color: var(--text-heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.btn-login:hover {
   color: var(--primary);
 }
 
-.dropdown-icon {
-  color: var(--text-muted);
+/* Botón Crear Cuenta (Azul sólido) */
+.btn-register-small {
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
 }
-.dropdown-item:hover .dropdown-icon {
-  color: var(--primary);
+.btn-register-small:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
 }
 
-/* Botón Menú Móvil */
+/* Botón Hamburguesa (Móvil) - Oculto en PC */
 .mobile-menu-btn {
-  display: none; /* Oculto en escritorio */
+  display: none;
   background: none;
   border: none;
   cursor: pointer;
   color: var(--text-heading);
-  padding: 5px;
 }
 
-/* 4. CONTENIDO PRINCIPAL CENTRADO */
+/* 4. MENÚ MÓVIL DESPLEGABLE */
+/* IMPORTANTE: Display none por defecto para que NO salga en PC */
+.mobile-menu {
+  display: none; 
+  position: fixed;
+  top: var(--navbar-height);
+  left: 0;
+  width: 100%;
+  background: var(--bg-main);
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+  flex-direction: column;
+  gap: 15px;
+  z-index: 999;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+/* Estilos de los items del menú móvil */
+.mobile-nav-item {
+  text-decoration: none;
+  color: var(--text-heading);
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mobile-nav-item:hover {
+  background: var(--bg-secondary);
+  color: var(--primary);
+}
+
+/* 5. CONTENIDO PRINCIPAL */
 .main-content {
-  margin-top: var(--navbar-height); /* Espacio para la barra fija */
+  margin-top: var(--navbar-height);
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centrado horizontal */
-  padding: 60px 20px;
-  background: var(--bg-secondary); /* Fondo gris claro para contrastar tarjetas */
-}
-
-/* Tarjetas Blancas Limpias */
-.feature-wrapper, .result-card {
-  background: var(--bg-main);
-  border: 1px solid var(--border-color);
-  border-radius: 20px; /* Bordes más redondeados */
-  padding: 40px;
-  box-shadow: var(--shadow-md);
-  max-width: 600px; /* Ancho máximo óptimo para lectura */
+  align-items: center;
+  padding: 80px 20px;
   width: 100%;
-  text-align: center; /* Centrar contenido de la tarjeta */
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.feature-wrapper:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+/* Hero Section */
+.hero-wrapper {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-/* Títulos y Textos */
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 3.8rem;
   font-weight: 800;
   color: var(--text-heading);
   line-height: 1.1;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  letter-spacing: -0.03em;
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
   color: var(--text-muted);
-  max-width: 700px;
+  line-height: 1.6;
+  max-width: 600px;
   margin: 0 auto 40px auto;
 }
 
-.section-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text-heading);
-  margin-bottom: 10px;
-}
-
-.section-desc {
-  color: var(--text-muted);
-  margin-bottom: 30px;
-  font-size: 1.1rem;
-}
-
-/* Inputs y Botones (Estilo Internxt) */
-.input-group {
-  margin-bottom: 25px;
-  text-align: left;
-}
-
-.input-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-heading);
-  margin-bottom: 8px;
-  display: block;
-}
-
-input, textarea {
-  width: 100%;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border-color); /* Borde más grueso */
-  padding: 15px 18px;
-  border-radius: 12px;
-  color: var(--text-heading);
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.2s;
-}
-
-input:focus, textarea:focus {
-  border-color: var(--primary);
-  background: var(--bg-main);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); /* Anillo azul suave */
-}
-
-textarea {
-  min-height: 150px;
-  resize: vertical;
-}
-
-.btn-primary {
+/* Botón Grande (Hero) */
+.btn-hero {
   background: var(--primary);
   color: white;
   border: none;
@@ -281,86 +216,105 @@ textarea {
   font-weight: 600;
   font-size: 1.1rem;
   cursor: pointer;
+  transition: transform 0.2s;
+}
+.btn-hero:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3);
+}
+
+/* Tarjetas (Features) */
+.feature-wrapper {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+  max-width: 550px;
   width: 100%;
-  transition: background 0.2s, transform 0.1s;
-  display: flex; justify-content: center; align-items: center; gap: 10px;
+  text-align: center;
+  margin-top: 20px;
 }
 
-.btn-primary:hover {
-  background: var(--primary-dark);
+/* Inputs */
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
 }
-
-.btn-primary:active {
-  transform: scale(0.98);
-}
-
-.btn-secondary {
-  background: var(--bg-secondary);
+.input-label {
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--text-heading);
-  border: 2px solid var(--border-color);
-  padding: 16px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  margin-bottom: 8px;
+  display: block;
 }
-
-.btn-secondary:hover {
-  border-color: var(--text-muted);
-  background: #f1f5f9;
-}
-
-/* Result Link Box */
-.result-link {
+input, textarea {
+  width: 100%;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  color: var(--primary);
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s;
+}
+input:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background: white;
+}
+textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+/* Caja de Enlace Resultado */
+.result-link {
+  background: var(--bg-secondary);
   padding: 15px;
   border-radius: 10px;
+  color: var(--primary);
   font-family: monospace;
   word-break: break-all;
   margin: 20px 0;
-  font-size: 0.95rem;
+  border: 1px solid var(--border-color);
 }
 
-/* 5. RESPONSIVE: MÓVIL (Menú Hamburguesa) */
-@media (max-width: 768px) {
-  .nav-links-desktop { display: none; } /* Ocultar menú de escritorio */
-  .mobile-menu-btn { display: block; } /* Mostrar botón hamburguesa */
+/* 6. RESPONSIVE (MEDIA QUERIES) */
 
-  .navbar { padding: 0 20px; }
-
-  /* Menú Móvil Desplegable */
-  .mobile-menu {
-    position: fixed;
-    top: var(--navbar-height);
-    left: 0;
-    width: 100%;
-    background: var(--bg-main);
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: var(--shadow-md);
+/* En tablets y móviles (menos de 900px) */
+@media (max-width: 900px) {
+  /* Ocultamos la navegación de escritorio */
+  .nav-links-center, .nav-auth-buttons {
     display: none;
-    flex-direction: column;
-    gap: 10px;
   }
-  .mobile-menu.open { display: flex; }
+  
+  /* Mostramos el botón hamburguesa */
+  .mobile-menu-btn {
+    display: block;
+  }
+  
+  /* El menú móvil solo se ve si tiene la clase .open */
+  .mobile-menu.open {
+    display: flex;
+  }
+  
+  .navbar {
+    padding: 0 20px;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .main-content {
+    padding: 40px 20px;
+  }
+}
 
-  .mobile-nav-item {
-    padding: 15px;
-    text-decoration: none;
-    color: var(--text-heading);
-    font-weight: 600;
-    border-radius: 10px;
-    display: flex; align-items: center; gap: 15px;
+/* En PC (más de 901px) - Aseguramos limpieza */
+@media (min-width: 901px) {
+  .mobile-menu, .mobile-menu.open {
+    display: none !important; /* Forzamos ocultar menú móvil */
   }
-  .mobile-nav-item.active, .mobile-nav-item:hover {
-    background: var(--bg-secondary); color: var(--primary);
-  }
-
-  /* Ajustes de contenido en móvil */
-  .main-content { padding: 40px 15px; }
-  .hero-title { font-size: 2.5rem; }
-  .hero-subtitle { font-size: 1.1rem; }
-  .feature-wrapper, .result-card { padding: 25px; }
 }
