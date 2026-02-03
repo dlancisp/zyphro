@@ -1,199 +1,366 @@
-/* 1. IMPORTAR FUENTE 'INTER' (La que usa todo SaaS moderno) */
+/* 1. TIPOGRAFÍA MODERNA */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Paleta Zyphro: Oscura, Seria, Elegante */
-  --primary: #3b82f6;          /* Azul Zyphro */
-  --primary-hover: #2563eb;    /* Azul Intenso */
-  --bg-dark: #0f172a;          /* Fondo Principal (Casi negro) */
-  --bg-card: #1e293b;          /* Fondo Tarjetas (Gris azulado) */
-  --text-main: #f8fafc;        /* Blanco hueso */
-  --text-muted: #94a3b8;       /* Gris texto secundario */
-  --border: #334155;           /* Bordes sutiles */
-  --success: #10b981;
-  --error: #ef4444;
+  /* PALETA INTERNXT (Clara y Profesional) */
+  --primary: #2563eb;          /* Azul vibrante principal */
+  --primary-dark: #1d4ed8;     /* Azul más oscuro para hover */
+  --bg-main: #ffffff;          /* Fondo blanco puro */
+  --bg-secondary: #f8fafc;     /* Gris muy claro para fondos alternativos */
+  --text-heading: #0f172a;     /* Negro casi puro para títulos */
+  --text-body: #334155;        /* Gris oscuro para texto normal */
+  --text-muted: #64748b;       /* Gris medio para subtítulos */
+  --border-color: #e2e8f0;     /* Bordes gris claro sutiles */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  
+  --navbar-height: 70px;
 }
 
-/* 2. RESET Y BASES */
+/* 2. RESET BASE */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased; /* Texto nítido en Mac */
 }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--text-main);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 3. ESTILOS DE COMPONENTES */
-
-/* Contenedor Principal */
 .app-container {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
-/* Animaciones suaves */
-button, a, input, textarea {
-  transition: all 0.2s ease-in-out;
-}
-
-/* TARJETAS GLASSMORPHISM (Efecto cristal sutil) */
-.feature-wrapper, .result-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2.5rem; /* Más espacio = Más lujo */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-  max-width: 520px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-/* INPUTS PROFESIONALES */
-input, textarea {
-  width: 100%;
-  background: #0f172a; /* Input más oscuro que la tarjeta */
-  border: 1px solid var(--border);
-  padding: 14px 16px;
-  border-radius: 10px;
-  color: white;
-  font-size: 0.95rem;
-  outline: none;
-  margin-top: 8px;
-}
-
-input:focus, textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); /* Anillo de luz */
-}
-
-textarea {
-  min-height: 140px;
-  resize: vertical;
-  line-height: 1.5;
-}
-
-/* BOTONES DE ACCIÓN */
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-  color: white;
-  border: none;
-  padding: 14px 24px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 24px;
+/* 3. BARRA DE NAVEGACIÓN SUPERIOR (Estilo Internxt) */
+.navbar {
+  height: var(--navbar-height);
+  background: var(--bg-main);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%; /* Márgenes laterales */
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-brand {
+  display: flex;
   align-items: center;
   gap: 10px;
-  letter-spacing: 0.02em;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.btn-secondary {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  padding: 14px;
-  border-radius: 10px;
+  text-decoration: none;
   cursor: pointer;
+}
+
+.brand-text {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--text-heading);
+  letter-spacing: -0.02em;
+}
+
+/* Menú de Escritorio */
+.nav-links-desktop {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-body);
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 8px 0;
+  position: relative;
+  transition: color 0.2s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary);
+}
+
+/* Línea azul debajo del link activo */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: width 0.2s ease;
+}
+
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* Menú Desplegable (Dropdown) */
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 10px;
+  min-width: 220px;
+  display: none; /* Oculto por defecto */
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 15px; /* Espacio desde el link */
+}
+
+/* Mostrar dropdown al pasar el ratón */
+.dropdown-container:hover .dropdown-menu {
+  display: flex;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+  text-decoration: none;
+  color: var(--text-body);
+  padding: 10px 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s;
   font-weight: 500;
 }
 
-.btn-secondary:hover {
-  border-color: var(--text-main);
-  color: var(--text-main);
-  background: rgba(255,255,255,0.05);
+.dropdown-item:hover, .dropdown-item.active {
+  background: var(--bg-secondary);
+  color: var(--primary);
 }
 
-/* TIPOGRAFÍA */
+.dropdown-icon {
+  color: var(--text-muted);
+}
+.dropdown-item:hover .dropdown-icon {
+  color: var(--primary);
+}
+
+/* Botón Menú Móvil */
+.mobile-menu-btn {
+  display: none; /* Oculto en escritorio */
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-heading);
+  padding: 5px;
+}
+
+/* 4. CONTENIDO PRINCIPAL CENTRADO */
+.main-content {
+  margin-top: var(--navbar-height); /* Espacio para la barra fija */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centrado horizontal */
+  padding: 60px 20px;
+  background: var(--bg-secondary); /* Fondo gris claro para contrastar tarjetas */
+}
+
+/* Tarjetas Blancas Limpias */
+.feature-wrapper, .result-card {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 20px; /* Bordes más redondeados */
+  padding: 40px;
+  box-shadow: var(--shadow-md);
+  max-width: 600px; /* Ancho máximo óptimo para lectura */
+  width: 100%;
+  text-align: center; /* Centrar contenido de la tarjeta */
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-wrapper:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Títulos y Textos */
 .hero-title {
   font-size: 3.5rem;
   font-weight: 800;
-  letter-spacing: -0.04em;
+  color: var(--text-heading);
   line-height: 1.1;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(to right, #fff, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
 }
 
 .hero-subtitle {
+  font-size: 1.25rem;
   color: var(--text-muted);
-  font-size: 1.2rem;
-  line-height: 1.6;
-  max-width: 580px;
-  margin: 0 auto 3rem auto;
+  max-width: 700px;
+  margin: 0 auto 40px auto;
 }
 
 .section-title {
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--text-main);
+  color: var(--text-heading);
+  margin-bottom: 10px;
 }
 
 .section-desc {
   color: var(--text-muted);
-  margin-bottom: 2rem;
-  font-size: 0.95rem;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
 }
 
-.input-label {
-  display: block;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 700;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
+/* Inputs y Botones (Estilo Internxt) */
 .input-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 25px;
   text-align: left;
 }
 
-/* RESULT LINK (Caja del link generado) */
-.result-link {
-  background: #0f172a;
-  padding: 16px;
-  border-radius: 8px;
-  color: var(--primary);
-  word-break: break-all;
-  font-family: 'Courier New', monospace; /* Fuente tipo código */
-  margin: 15px 0;
-  border: 1px dashed var(--border);
+.input-label {
   font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-heading);
+  margin-bottom: 8px;
+  display: block;
 }
 
-/* RESPONSIVE */
+input, textarea {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color); /* Borde más grueso */
+  padding: 15px 18px;
+  border-radius: 12px;
+  color: var(--text-heading);
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--primary);
+  background: var(--bg-main);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); /* Anillo azul suave */
+}
+
+textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s, transform 0.1s;
+  display: flex; justify-content: center; align-items: center; gap: 10px;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-heading);
+  border: 2px solid var(--border-color);
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--text-muted);
+  background: #f1f5f9;
+}
+
+/* Result Link Box */
+.result-link {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--primary);
+  padding: 15px;
+  border-radius: 10px;
+  font-family: monospace;
+  word-break: break-all;
+  margin: 20px 0;
+  font-size: 0.95rem;
+}
+
+/* 5. RESPONSIVE: MÓVIL (Menú Hamburguesa) */
 @media (max-width: 768px) {
-  .app-container { flex-direction: column; }
-  .sidebar { 
-    display: none; /* Ocultamos sidebar en móvil (ya tienes el menú hamburguesa) */
+  .nav-links-desktop { display: none; } /* Ocultar menú de escritorio */
+  .mobile-menu-btn { display: block; } /* Mostrar botón hamburguesa */
+
+  .navbar { padding: 0 20px; }
+
+  /* Menú Móvil Desplegable */
+  .mobile-menu {
+    position: fixed;
+    top: var(--navbar-height);
+    left: 0;
+    width: 100%;
+    background: var(--bg-main);
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    display: none;
+    flex-direction: column;
+    gap: 10px;
   }
-  .main-content { margin-left: 0; padding: 20px; }
+  .mobile-menu.open { display: flex; }
+
+  .mobile-nav-item {
+    padding: 15px;
+    text-decoration: none;
+    color: var(--text-heading);
+    font-weight: 600;
+    border-radius: 10px;
+    display: flex; align-items: center; gap: 15px;
+  }
+  .mobile-nav-item.active, .mobile-nav-item:hover {
+    background: var(--bg-secondary); color: var(--primary);
+  }
+
+  /* Ajustes de contenido en móvil */
+  .main-content { padding: 40px 15px; }
   .hero-title { font-size: 2.5rem; }
+  .hero-subtitle { font-size: 1.1rem; }
+  .feature-wrapper, .result-card { padding: 25px; }
 }
