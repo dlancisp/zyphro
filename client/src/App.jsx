@@ -2,14 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation, Link } from 'react-router-dom';
 import './App.css';
 import Register from './Register';
+import Login from './Login';
 import DOMPurify from 'dompurify';
 import { Toaster, toast } from 'react-hot-toast';
 
 // --- CONFIGURACIÓN API ---
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+// Forzamos que use el servidor de Vercel (ruta relativa)
+const API_URL = '/api';
 
 // --- UTILIDADES CRIPTOGRÁFICAS (AES-GCM) ---
-// (Lógica intacta)
 const cryptoUtils = {
   enc: new TextEncoder(),
   dec: new TextDecoder(),
@@ -71,7 +72,7 @@ const Icons = {
   ChevronDown: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>)
 };
 
-// --- COMPONENTES (Actualizados para usar btn-hero y nuevo diseño) ---
+// --- COMPONENTES ---
 
 function HomeView() {
   const navigate = useNavigate();
@@ -192,19 +193,54 @@ function AnonymousMail() {
 }
 
 function Viewer({ id, hash }) {
-  const [msg, setMsg] = useState('Verificando integrity...');
+  const [msg, setMsg] = useState('Verificando integridad...');
   const fetched = useRef(false);
+
   useEffect(() => {
-    if(fetched.current) return; fetched.current = true;
-    fetch(`${API_URL}/secret/${id}`).then(r => r.status === 404 ? 'exp' : r.json()).then(async (d) => {
-      if(d === 'exp') { setMsg('⛔ Mensaje destruido.'); toast.error('No existe'); }
-      else if(d?.cipherText) { try { const dec = await cryptoUtils.decryptData(d.cipherText, hash); setMsg(DOMPurify.sanitize(dec)); toast.success('Descifrado'); } catch { setMsg('❌ Llave incorrecta.'); } }
-    }).catch(() => setMsg('Error conexión'));
+    if(fetched.current) return; 
+    fetched.current = true;
+    
+    fetch(`${API_URL}/secret/${id}`)
+      .then(r => r.status === 404 ? 'exp' : r.json())
+      .then(async (d) => {
+        if(d === 'exp') {
+          setMsg('⛔ Este mensaje ha sido destruido o no existe.');
+          toast.error('Mensaje no encontrado');
+        } else if(d?.cipherText) {
+          try { 
+            const decrypted = await cryptoUtils.decryptData(d.cipherText, hash);
+            const cleanMessage = DOMPurify.sanitize(decrypted); 
+            setMsg(cleanMessage); 
+            toast.success('Mensaje descifrado correctamente');
+          } catch (e) { 
+            setMsg('❌ Error: La llave de desencriptado es incorrecta.'); 
+            toast.error('Llave incorrecta');
+          }
+        }
+      })
+      .catch(() => {
+          setMsg('Error de conexión con el servidor.');
+          toast.error('Error de conexión');
+      });
   }, [id, hash]);
-  return (<div className="main-content" style={{justifyContent:'center'}}><div className="feature-wrapper"><h2>Mensaje Recibido</h2><div style={{background:'var(--bg-secondary)', padding:'20px', borderRadius:'10px', marginTop:'20px', textAlign:'left'}}>{msg}</div><Link to="/" style={{display:'block', marginTop:'20px', color:'var(--primary)', fontWeight:'700'}}>Crear el tuyo →</Link></div></div>);
+
+  return (
+    <div className="main-content" style={{justifyContent:'center'}}>
+      <div className="feature-wrapper" style={{maxWidth:'700px'}}>
+        <h2 className="section-title" style={{marginBottom:'30px'}}>Mensaje Seguro Recibido</h2>
+        <div style={{background:'var(--bg-secondary)', padding:'30px', borderRadius:'12px', whiteSpace:'pre-wrap', textAlign:'left', borderLeft: '5px solid var(--primary)', fontSize:'1.1rem', color:'var(--text-heading)'}}>
+          {msg}
+        </div>
+        
+        <a href="/" style={{display:'block', marginTop:'40px', color:'var(--primary)', textDecoration:'none', fontWeight:'700', fontSize:'1.1rem'}}>
+          ← Crear mi propio secreto en ZYPHRO
+        </a>
+      </div>
+    </div>
+  );
 }
 
-// --- APP PRINCIPAL (ESTRUCTURA NUEVA SIN SIDEBAR EN PC) ---
+// --- APP PRINCIPAL ---
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -225,7 +261,7 @@ function App() {
   return (
     <div className="app-container">
       
-      {/* 1. NAVBAR SUPERIOR (Layout: Izquierda, Centro, Derecha) */}
+      {/* 1. NAVBAR SUPERIOR */}
       <header className="navbar">
         {/* IZQUIERDA: Marca */}
         <Link to="/" className="nav-brand">
@@ -233,25 +269,34 @@ function App() {
           <span>ZYPHRO</span>
         </Link>
 
-        {/* CENTRO: Menú (Solo visible en PC, oculto en móvil por CSS) */}
+        {/* CENTRO: Menú con Dropdown */}
         <nav className="nav-links-center">
           <Link to="/" className="nav-link">Inicio</Link>
-          <div className="nav-link">Productos <Icons.ChevronDown /></div>
+          
+          <div className="dropdown-container">
+            <div className="nav-link">Productos <Icons.ChevronDown /></div>
+            
+            <div className="dropdown-menu">
+              <Link to="/drop" className="dropdown-item"><Icons.Lock /> Secure Drop</Link>
+              <Link to="/switch" className="dropdown-item"><Icons.Shield /> Dead Man Switch</Link>
+              <Link to="/mail" className="dropdown-item"><Icons.Send /> Anon Mail</Link>
+            </div>
+          </div>
         </nav>
 
-        {/* DERECHA: Autenticación (Solo visible en PC, oculto en móvil por CSS) */}
+        {/* DERECHA: Botones */}
         <div className="nav-auth-buttons">
           <Link to="/login" className="btn-login">Iniciar sesión</Link>
           <Link to="/register" className="btn-register-small">Crear Cuenta</Link>
         </div>
 
-        {/* MÓVIL: Botón Hamburguesa (Solo visible en móvil por CSS) */}
+        {/* BOTÓN MÓVIL */}
         <button className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <Icons.Close /> : <Icons.Menu />}
         </button>
       </header>
 
-      {/* 2. MENÚ MÓVIL DESPLEGABLE (Overlay) */}
+      {/* 2. MENÚ MÓVIL DESPLEGABLE */}
       <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
         <Link to="/" className="mobile-nav-item" onClick={() => setMenuOpen(false)}><Icons.Home /> Inicio</Link>
         <Link to="/drop" className="mobile-nav-item" onClick={() => setMenuOpen(false)}><Icons.Lock /> Secure Drop</Link>
@@ -262,7 +307,7 @@ function App() {
         <Link to="/register" className="mobile-nav-item" onClick={() => setMenuOpen(false)} style={{color:'var(--primary)'}}> Crear Cuenta</Link>
       </div>
 
-      {/* 3. CONTENIDO PRINCIPAL CENTRADO (Sin Sidebar) */}
+      {/* 3. CONTENIDO PRINCIPAL CENTRADO */}
       <main className="main-content">
         <Routes>
           <Route path="/" element={<HomeView />} />
@@ -270,7 +315,7 @@ function App() {
           <Route path="/switch" element={<DeadMansSwitch />} />
           <Route path="/mail" element={<AnonymousMail />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Register />} /> {/* Placeholder */}
+          <Route path="/login" element={<Login />} />
         </Routes>
       </main>
 

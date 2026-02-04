@@ -1,76 +1,114 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Para navegar tras el registro
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
-export default function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+function Register() {
   const navigate = useNavigate();
+  const [isLogin, setIsLogin] = useState(false); // false = Registro, true = Login
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
 
-  // Detectar URL correcta (Local o Nube)
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  // Determinar la URL de la API según el modo
+  const API_URL = '/api'; // Gracias al proxy de Vercel/Vite, esto apunta a tu servidor
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    
+    // 1. Validaciones básicas frontend
+    if (!form.email || !form.password) return toast.error("Rellena todos los campos");
+    if (form.password.length < 6) return toast.error("La contraseña debe tener al menos 6 caracteres");
+
+    setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/register`, {
+      // 2. Elegir ruta: ¿Login o Registro?
+      const endpoint = isLogin ? `${API_URL}/login` : `${API_URL}/register`;
+
+      // 3. Llamada al Backend
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include', // <--- ¡LA CLAVE! Permite recibir la Cookie Segura
+        body: JSON.stringify(form),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al registrarse');
+        throw new Error(data.error || 'Ocurrió un error inesperado');
       }
 
-      // Si todo va bien, redirigimos al usuario (por ahora a la home)
-      alert('¡Cuenta creada con éxito!');
-      navigate('/'); 
+      // 4. Éxito
+      toast.success(isLogin ? "¡Bienvenido de nuevo!" : "¡Cuenta creada con éxito!");
+      
+      // Guardamos datos básicos en local (opcional, la seguridad real está en la cookie)
+      localStorage.setItem('zyphro_user', JSON.stringify(data.user));
 
-    } catch (err) {
-      setError(err.message);
+      // Redirigir al inicio
+      navigate('/');
+
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
-      <h2>Crear Cuenta en ZYPH</h2>
-      <p style={{ color: '#888' }}>Únete para gestionar tus secretos.</p>
-      
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <input
-          type="email"
-          placeholder="Tu correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ padding: '10px', borderRadius: '5px', border: '1px solid #333', background: '#222', color: 'white' }}
-        />
+    <div className="auth-container">
+      <div className="auth-card">
+        {/* Logo */}
+        <div style={{marginBottom:'20px', display:'flex', justifyContent:'center'}}>
+           <svg width="48" height="48" viewBox="0 0 50 50" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M17 0C17.5523 0 18 0.447715 18 1V8.39648C18 8.61918 18.2693 8.7307 18.4268 8.57324L26.4141 0.585938C26.7891 0.210936 27.2978 7.97938e-05 27.8281 0H36.5859C36.8511 4.04019e-05 37.1055 0.105468 37.293 0.292969L40.293 3.29297C40.6834 3.68347 40.6834 4.31653 40.293 4.70703L36.4268 8.57324C36.2693 8.73073 36.3808 8.99997 36.6035 9H44.5859C44.8511 9.00004 45.1055 9.10547 45.293 9.29297L48.293 12.293C48.6834 12.6835 48.6834 13.3165 48.293 13.707L44.3535 17.6465C44.1583 17.8417 44.1583 18.1583 44.3535 18.3535L47.5859 21.5859C48.4914 22.4914 49 23.7195 49 25C49 26.2805 48.4913 27.5086 47.5859 28.4141L36.5859 39.4141C36.2109 39.7891 35.7022 39.9999 35.1719 40H32C31.4477 40 31 39.5523 31 39V31.6035C31 31.3808 30.7307 31.2693 30.5732 31.4268L22.5859 39.4141C22.2109 39.7891 21.7022 39.9999 21.1719 40H12.4141C12.1489 40 11.8945 39.8945 11.707 39.707L8.70703 36.707C8.31661 36.3165 8.31661 35.6835 8.70703 35.293L12.5732 31.4268C12.7307 31.2693 12.6192 31 12.3965 31H4.41406C4.1489 31 3.89453 30.8945 3.70703 30.707L0.707031 27.707C0.316606 27.3165 0.316607 26.6835 0.707031 26.293L4.64648 22.3535C4.8417 22.1583 4.8417 21.8417 4.64648 21.6465L1.41406 18.4141C0.508652 17.5086 0 16.2805 0 15C0 13.7195 0.508651 12.4914 1.41406 11.5859L12.4141 0.585938C12.7891 0.210936 13.2978 8.00463e-05 13.8281 0H17ZM20.0713 9C18.7452 9 17.4728 9.52716 16.5352 10.4648L5.85352 21.1465C5.53861 21.4615 5.76165 21.9999 6.20703 22H20.793C21.2383 22.0001 21.4613 22.5386 21.1465 22.8535L13.8535 30.1465C13.5386 30.4615 13.7616 30.9999 14.207 31H28.9287C30.2548 31 31.5272 30.4728 32.4648 29.5352L43.1465 18.8535C43.4417 18.5583 43.2642 18.0663 42.874 18.0059L42.793 18H28.207C27.7616 18 27.5386 17.4615 27.8535 17.1465L35.1465 9.85352C35.4614 9.53855 35.2384 9.00006 34.793 9H20.0713Z" fill="#2563EB"/></svg>
+        </div>
         
-        <input
-          type="password"
-          placeholder="Contraseña segura"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{ padding: '10px', borderRadius: '5px', border: '1px solid #333', background: '#222', color: 'white' }}
-        />
+        <h2 className="auth-title">{isLogin ? 'Bienvenido de nuevo' : 'Crea tu cuenta gratis'}</h2>
+        <p className="auth-desc">
+          {isLogin ? 'Accede a tus secretos y correos seguros.' : 'Únete a Zyphro para gestionar tu privacidad.'}
+        </p>
 
-        {error && <p style={{ color: 'red', fontSize: '0.9rem' }}>{error}</p>}
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label className="input-label">CORREO ELECTRÓNICO</label>
+            <input 
+              type="email" 
+              required
+              placeholder="tu@email.com" 
+              value={form.email}
+              onChange={e => setForm({...form, email: e.target.value})}
+            />
+          </div>
+          
+          <div className="input-group">
+            <label className="input-label">CONTRASEÑA</label>
+            <input 
+              type="password" 
+              required
+              placeholder="••••••••" 
+              value={form.password}
+              onChange={e => setForm({...form, password: e.target.value})}
+            />
+          </div>
 
-        <button type="submit" style={{ padding: '10px', background: '#0070f3', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
-          Registrarse
-        </button>
-      </form>
+          <button 
+            type="submit" 
+            className="btn-hero" 
+            style={{width:'100%', marginTop:'10px', opacity: loading ? 0.7 : 1}}
+            disabled={loading}
+          >
+            {loading ? 'Procesando...' : (isLogin ? 'Iniciar Sesión' : 'Registrarse')}
+          </button>
+        </form>
 
-      <p style={{ marginTop: '20px' }}>
-        ¿Ya tienes cuenta? <Link to="/login" style={{ color: '#0070f3' }}>Inicia sesión</Link>
-      </p>
+        <div className="auth-footer">
+          {isLogin ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? '}
+          <span onClick={() => { setIsLogin(!isLogin); setForm({email:'', password:''}); }}>
+            {isLogin ? 'Regístrate' : 'Inicia sesión'}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
+
+export default Register;

@@ -37,21 +37,91 @@ body {
   min-height: 100vh;
 }
 
-/* 3. BARRA DE NAVEGACIÓN (Navbar) */
+/* --- INICIO DEL BLOQUE NAVBAR CORREGIDO --- */
 .navbar {
   height: var(--navbar-height);
-  background: rgba(255, 255, 255, 0.95); /* Efecto translúcido */
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Separa los 3 bloques: Logo - Centro - Botones */
+  justify-content: space-between;
   padding: 0 5%;
   position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
+  top: 0; width: 100%; z-index: 1000;
 }
+
+.nav-brand {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: var(--text-heading);
+  font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+
+/* MENÚ CENTRAL Y DROPDOWN */
+.nav-links-center { display: flex; gap: 30px; align-items: center; height: 100%; }
+
+.nav-link {
+  text-decoration: none; color: var(--text-body); font-weight: 500;
+  font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 5px;
+  height: 100%; /* Importante para el hover */
+}
+.nav-link:hover { color: var(--primary); }
+
+/* CONTENEDOR DEL DESPLEGABLE */
+.dropdown-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 95%; /* Se despliega justo debajo */
+  left: 50%; transform: translateX(-50%);
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
+  padding: 8px;
+  min-width: 220px;
+  display: none; /* Oculto */
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ESTA REGLA HACE QUE SE VEA AL PASAR EL RATÓN */
+.dropdown-container:hover .dropdown-menu {
+  display: flex;
+}
+
+.dropdown-item {
+  text-decoration: none; color: var(--text-body);
+  padding: 10px 15px; border-radius: 8px; font-weight: 500; font-size: 0.9rem;
+  display: flex; align-items: center; gap: 10px; transition: background 0.1s;
+}
+.dropdown-item:hover { background: var(--bg-secondary); color: var(--primary); }
+
+/* BOTONES DERECHA (LOGIN/REGISTRO) */
+.nav-auth-buttons {
+  display: flex; align-items: center; gap: 20px;
+  flex-shrink: 0;
+}
+
+.btn-login {
+  text-decoration: none; color: var(--text-heading); font-weight: 600; font-size: 0.95rem;
+  background: none; border: none; cursor: pointer;
+}
+.btn-login:hover { color: var(--primary); }
+
+.btn-register-small {
+  background: var(--primary); color: white;
+  text-decoration: none; padding: 10px 24px; border-radius: 8px;
+  font-weight: 600; font-size: 0.9rem; white-space: nowrap;
+}
+.btn-register-small:hover { background: var(--primary-hover); transform: translateY(-1px); }
+/* --- FIN DEL BLOQUE NAVBAR CORREGIDO --- */
 
 /* -- IZQUIERDA: Logo -- */
 .nav-brand {
@@ -268,16 +338,22 @@ textarea {
   resize: vertical;
 }
 
-/* Caja de Enlace Resultado */
+/* Result Link Box (Mejorado visualmente) */
 .result-link {
   background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--primary);
   padding: 15px;
   border-radius: 10px;
-  color: var(--primary);
   font-family: monospace;
-  word-break: break-all;
   margin: 20px 0;
-  border: 1px solid var(--border-color);
+  font-size: 0.95rem;
+  
+  /* Truco para que no ocupe 3 líneas y se vea limpio */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* 6. RESPONSIVE (MEDIA QUERIES) */
@@ -311,6 +387,20 @@ textarea {
     padding: 40px 20px;
   }
 }
+
+/* ESTILOS NUEVOS PARA EL REGISTRO (Auth Card) */
+.auth-container {
+  display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 40px;
+}
+.auth-card {
+  background: white; padding: 40px; border-radius: 24px;
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); border: 1px solid var(--border-color);
+  width: 100%; max-width: 420px; text-align: center;
+}
+.auth-title { font-size: 1.8rem; font-weight: 700; color: var(--text-heading); margin-bottom: 10px; }
+.auth-desc { color: var(--text-muted); margin-bottom: 30px; font-size: 0.95rem; }
+.auth-footer { margin-top: 25px; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 20px; }
+.auth-footer span { color: var(--primary); font-weight: 700; cursor: pointer; }
 
 /* En PC (más de 901px) - Aseguramos limpieza */
 @media (min-width: 901px) {
