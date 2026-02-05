@@ -1,0 +1,38 @@
+---
+
+### STEP 2: The License (`LICENSE`) ⚖️
+
+Your audit strongly recommends the **GNU GPL v3** license to build trust[cite: 1282].
+
+1.  Create a file named **`LICENSE`** (no extension) in the root folder.
+2.  Copy the full text of the GPL v3 license.
+    * You can copy the text from here: [Official GPLv3 Text](https://www.gnu.org/licenses/gpl-3.0.txt).
+
+---
+
+### STEP 3: Security Policy (`SECURITY.md`) 🛡️
+
+This file tells the world (and companies) how to report bugs safely[cite: 1285].
+
+Create a file named **`SECURITY.md`** in the root folder:
+
+```markdown
+# Security Policy
+
+## Supported Versions
+
+Currently, only the latest version deployed to `main` receives security updates.
+
+| Version | Supported          |
+| ------- | ------------------ |
+| 1.0.x   | :white_check_mark: |
+| < 1.0   | :x:                |
+
+## Reporting a Vulnerability
+
+If you discover a security vulnerability in Zyphro, **PLEASE DO NOT OPEN A PUBLIC ISSUE**.
+
+Please email `security@zyphro.com` (or your personal email for now).
+We will attempt to respond within 48 hours.
+
+We appreciate security researchers who help keep Zyphro safe. While we do not currently offer a monetary Bug Bounty, we will include you in our Hall of Fame.

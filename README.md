@@ -25,6 +25,28 @@ Unlike other services, **encryption keys are never sent to the server**. All cry
 - **Database:** PostgreSQL (Neon Tech) + Prisma ORM
 - **Infrastructure:** Vercel (Edge Network)
 
+
+## 🗺️ Security Roadmap
+
+We are following a strict security hardening path towards SOC 2 compliance.
+
+### Phase 1: Critical Hardening (Current)
+- [x] **Modular Architecture:** Refactoring frontend to isolate cryptographic components.
+- [ ] **Key Derivation Upgrade:** Implementing **PBKDF2** (310k iterations) to remove the key from the URL hash.
+- [ ] **Authenticated Encryption:** Adding AAD (Additional Authenticated Data) to AES-GCM payloads to prevent context confusion.
+- [ ] **CSP Headers:** Implementing strict Content-Security-Policy to prevent XSS.
+
+### Phase 2: Advanced Cryptography (Next)
+- [ ] **XChaCha20-Poly1305:** Migrating from AES-GCM to XChaCha20 to eliminate nonce-reuse risks (192-bit nonces).
+- [ ] **Backend Rate Limiting:** Advanced protection against brute-force attacks.
+- [ ] **Passphrase Strength Meter:** Integrated zxcvbn estimator for user passwords.
+
+### Phase 3: Audit & Compliance (2026)
+- [ ] **External Audit:** Scheduled security review by firms like Cure53 or Trail of Bits.
+- [ ] **Bug Bounty Program:** Launching a public reward program for security researchers.
+- [ ] **SOC 2 Type II:** Achieving operational security certification.
+
+
 ## 🛠️ Installation & Self-Hosting
 
 To run your own instance of Zyphro locally:
