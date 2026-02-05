@@ -1,0 +1,46 @@
+// server/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Secret {
+  id         String   @id @default(uuid())
+  cipherText String   
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime // NECESARIO: Tu backend usa esto para saber cuándo borrarlo
+
+  // Relación con Usuario (Opcional)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  // Tus secretos y tus switches
+  secrets   Secret[]
+  switches  Switch[] 
+}
+
+model Switch {
+  id               String   @id @default(uuid())
+  recipientEmail   String
+  encryptedContent String
+  checkInFrequency Int
+  lastCheckIn      DateTime @default(now())
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  // Relación con Usuario (Opcional)
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id])
+}
