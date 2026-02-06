@@ -50,7 +50,11 @@ function SecureDrop() {
   return (
     <div className="feature-wrapper">
       <div style={{marginBottom:'30px'}}>
-        <h2 className="section-title">Secure Drop <span style={{fontSize:'0.8em', color:'var(--primary)', background:'#eff6ff', padding:'2px 8px', borderRadius:'12px'}}>XChaCha20</span></h2>
+        <h2 className="section-title">
+          Secure Drop 
+          {/* ✅ AQUÍ ESTÁ EL CAMBIO: Usamos la clase tech-badge y borramos el style manual */}
+          <span className="tech-badge">XChaCha20</span>
+        </h2>
         <p className="section-desc">Cifrado de grado militar. Tus datos nunca tocan el servidor sin cifrar.</p>
       </div>
       
