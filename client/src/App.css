@@ -350,3 +350,109 @@ input:focus, textarea:focus {
   .hero-visual { display: none; /* Ocultamos la visual compleja en móvil o la simplificamos */ }
   .glass-card-visual { transform: none; }
 }
+
+/* ================================================================= */
+/* 💸 SECCIÓN DE PRECIOS                    */
+/* ================================================================= */
+
+.pricing-section {
+  margin-top: 100px;
+  padding-bottom: 80px;
+  animation: slideUp 0.8s var(--ease-fluid);
+}
+
+.pricing-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-title-center {
+  font-size: 2.5rem; color: white; font-weight: 800; margin-bottom: 15px;
+}
+.section-subtitle {
+  color: var(--text-sec); font-size: 1.1rem;
+}
+
+/* GRID DE 3 COLUMNAS */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  align-items: center; /* Alineación vertical */
+}
+
+/* --- TARJETA GENÉRICA --- */
+.pricing-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px 30px;
+  position: relative;
+  transition: all 0.3s ease;
+  display: flex; flex-direction: column;
+}
+
+.pricing-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* --- TARJETA DESTACADA (PRO) --- */
+.pricing-card.featured {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 1), rgba(30, 41, 59, 0.5));
+  border: 1px solid var(--primary); /* Borde Azul */
+  box-shadow: 0 0 40px -10px rgba(37, 99, 235, 0.25); /* Resplandor */
+  transform: scale(1.05); /* Un poco más grande */
+  z-index: 2;
+}
+
+.pricing-card.featured:hover {
+  transform: scale(1.05) translateY(-5px);
+  box-shadow: 0 0 60px -10px rgba(37, 99, 235, 0.4);
+}
+
+/* Badge "Recomendado" */
+.recommended-badge {
+  position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+  background: var(--primary); color: white;
+  padding: 6px 16px; border-radius: 20px;
+  font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+}
+
+/* --- CONTENIDO TARJETA --- */
+.plan-name { font-size: 1.4rem; color: white; margin-bottom: 15px; font-weight: 700; }
+
+.price-tag { display: flex; align-items: baseline; gap: 5px; margin-bottom: 10px; }
+.amount { font-size: 3rem; font-weight: 800; color: white; letter-spacing: -2px; }
+.period { color: var(--text-sec); font-size: 1rem; }
+.old-price { 
+  color: var(--text-sec); text-decoration: line-through; 
+  font-size: 1.2rem; margin-left: 10px; opacity: 0.6; 
+}
+
+.plan-desc { color: var(--text-sec); margin-bottom: 30px; font-size: 0.95rem; min-height: 40px;}
+
+/* Botones */
+.btn-outline {
+  display: block; text-align: center; text-decoration: none;
+  border: 1px solid var(--border); color: white; padding: 12px; border-radius: 12px;
+  font-weight: 600; transition: all 0.2s;
+}
+.btn-outline:hover { background: rgba(255,255,255,0.05); border-color: white; }
+
+.btn-full { width: 100%; display: block; text-align: center; text-decoration: none; padding: 14px; }
+
+/* Lista de características */
+.feature-list { list-style: none; margin-top: 30px; display: flex; flex-direction: column; gap: 15px; }
+.feature-list li { display: flex; align-items: center; gap: 10px; color: var(--text-sec); font-size: 0.95rem; }
+.feature-list li svg { width: 18px; height: 18px; color: var(--primary); flex-shrink: 0; }
+.feature-list li strong { color: white; }
+.feature-list li.disabled { opacity: 0.4; } /* Para cosas que NO incluye */
+
+/* AJUSTES MÓVIL */
+@media (max-width: 900px) {
+  .pricing-card.featured { transform: scale(1); margin: 20px 0; }
+  .pricing-card.featured:hover { transform: translateY(-5px); }
+  .section-title-center { font-size: 2rem; }
+}
