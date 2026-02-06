@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@noble/ciphers": "^2.1.1",
+    "@noble/ciphers": "^0.3.0",
     "@noble/hashes": "^2.0.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.3.1",
