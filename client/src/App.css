@@ -1,263 +1,193 @@
 /* ================================================================= */
-/* 🌌 ZYPHRO: PREMIUM CYBERSEC             */
+/* 💎 ZYPHRO: ULTRA-PREMIUM DARK          */
 /* ================================================================= */
 
-/* 1. TIPOGRAFÍA Y VARIABLES */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* --- PALETA DE COLORES --- */
-  --bg-main: #020617;       /* Slate 950 (Fondo Profundo) */
-  --bg-secondary: #0f172a;  /* Slate 900 (Paneles) */
-  --bg-tertiary: #1e293b;   /* Slate 800 (Hover/Inputs) */
+  /* --- PALETA "STEALTH" (Menos brillo, más elegancia) --- */
+  --bg-body: #020617;       /* Negro azulado muy profundo */
+  --bg-panel: #0b1121;      /* Casi negro, para tarjetas */
+  --bg-input: #131b2e;      /* Un poco más claro para inputs */
   
-  --primary: #3b82f6;       /* Azul Eléctrico */
-  --primary-hover: #2563eb; 
+  --primary: #2563eb;       /* Azul puro */
+  --primary-glow: rgba(37, 99, 235, 0.4);
   
-  --text-heading: #ffffff;  
-  --text-body: #94a3b8;     /* Gris suave para lectura cómoda */
-  --text-muted: #64748b;    
+  --text-main: #ffffff;
+  --text-sec: #94a3b8;      /* Gris medio */
   
-  --border-color: rgba(255, 255, 255, 0.06); 
-  
-  /* --- DIMENSIONES Y EFECTOS --- */
-  --navbar-height: 80px;    /* Más alta para dar aire */
-  --glass-effect: blur(20px) saturate(180%);
-  --ease-fluid: cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Animación suave */
-  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);   /* Rebote sutil */
+  /* BORDES: La clave del estilo premium es que sean casi invisibles */
+  --border-subtle: rgba(255, 255, 255, 0.06); 
+  --border-focus: rgba(37, 99, 235, 0.5);
+
+  --nav-height: 80px;
 }
 
-/* 2. BASES */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-main);
-  /* Degradado ambiental muy sutil en la parte superior */
-  background-image: radial-gradient(circle at 50% -20%, #1e3a8a 0%, var(--bg-main) 40%);
-  background-attachment: fixed;
-  color: var(--text-body);
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  line-height: 1.5;
+  overflow-x: hidden; /* Evita scroll lateral */
   -webkit-font-smoothing: antialiased;
-  line-height: 1.6;
-  overflow-x: hidden;
 }
 
 .app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  display: flex; flex-direction: column; min-height: 100vh;
 }
 
 /* ================================================================= */
-/* 🧭 NAVBAR (Espaciosa y Cristalina)                                */
+/* 🧭 NAVBAR (Estructura Rígida de 3 Columnas)                       */
 /* ================================================================= */
+/* Esto arregla que las cosas se monten o se muevan */
 
 .navbar {
-  height: var(--navbar-height);
-  background: rgba(2, 6, 23, 0.6); /* Más transparencia */
-  backdrop-filter: var(--glass-effect);
-  -webkit-backdrop-filter: var(--glass-effect);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: center;
-  padding: 0 40px; /* Más margen lateral */
-  position: fixed;
-  top: 0; width: 100%; z-index: 1000;
-  transition: background 0.5s var(--ease-fluid);
+  height: var(--nav-height);
+  width: 100%;
+  position: fixed; top: 0; z-index: 1000;
+  background: rgba(2, 6, 23, 0.85); /* Más opaco para leer mejor */
+  backdrop-filter: blur(12px);      /* Efecto cristal real */
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex; justify-content: center;
 }
 
 .nav-container {
-  width: 100%;
-  max-width: 1280px; /* Ancho máximo mayor para pantallas grandes */
-  display: flex;
-  justify-content: space-between;
+  width: 100%; max-width: 1400px; padding: 0 40px;
+  display: grid;
+  /* TRUCO: 3 columnas. Izquierda y Derecha fijas, Centro flexible */
+  grid-template-columns: 250px 1fr 250px; 
   align-items: center;
 }
 
-/* MARCA */
+/* 1. IZQUIERDA: Logo */
 .nav-brand {
   display: flex; align-items: center; gap: 12px;
-  text-decoration: none; color: var(--text-heading);
-  font-weight: 700; font-size: 1.4rem; letter-spacing: -0.02em;
+  text-decoration: none; color: white; font-weight: 700; font-size: 1.2rem;
+  justify-self: start; /* Pegado a la izquierda */
 }
 
-/* MENU CENTRAL */
+/* 2. CENTRO: Enlaces */
 .nav-links-center {
-  display: flex; gap: 40px; /* Más espacio entre enlaces */
-  align-items: center; height: 100%;
+  display: flex; gap: 40px; justify-content: center; /* Centrado perfecto */
 }
 
 .nav-link {
-  text-decoration: none; color: var(--text-body); 
-  font-weight: 500; font-size: 0.95rem; 
-  cursor: pointer; display: flex; align-items: center; gap: 8px;
-  transition: color 0.4s var(--ease-fluid);
-  position: relative;
+  text-decoration: none; color: var(--text-sec); font-size: 0.9rem; font-weight: 500;
+  transition: color 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.nav-link:hover { color: white; }
+
+/* 3. DERECHA: Botones */
+.nav-auth-buttons {
+  display: flex; gap: 15px; align-items: center; 
+  justify-self: end; /* Pegado a la derecha */
 }
 
-/* Efecto de línea inferior al pasar el ratón */
-.nav-link::after {
-  content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px;
-  background: var(--primary); transition: width 0.4s var(--ease-fluid);
-  border-radius: 2px;
-}
-.nav-link:hover { color: var(--primary); }
-.nav-link:hover::after { width: 100%; }
-
-/* Dropdown */
-.dropdown-container { position: relative; height: 100%; display: flex; align-items: center; cursor: pointer; }
-.dropdown-menu {
-  position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: 0 20px 50px -10px rgba(0,0,0,0.6);
-  padding: 10px; min-width: 220px;
-  opacity: 0; visibility: hidden;
-  transition: all 0.3s var(--ease-fluid);
-  display: flex; flex-direction: column; gap: 5px;
-}
-.dropdown-container:hover .dropdown-menu {
-  opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
-}
-
-.dropdown-item {
-  text-decoration: none; color: var(--text-body);
-  padding: 12px 16px; border-radius: 10px; font-weight: 500; font-size: 0.9rem;
-  display: flex; align-items: center; gap: 12px; transition: all 0.2s var(--ease-fluid);
-}
-.dropdown-item:hover { background: var(--bg-tertiary); color: var(--text-heading); }
-
-/* BOTONES AUTH */
-.nav-auth-buttons { display: flex; align-items: center; gap: 20px; }
-
+/* Estilos de botones del Navbar */
 .btn-login {
-  text-decoration: none; color: var(--text-heading); font-weight: 500; font-size: 0.95rem;
-  padding: 10px 15px; border-radius: 10px;
-  transition: background 0.3s var(--ease-fluid);
+  color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500;
 }
-.btn-login:hover { background: rgba(255,255,255,0.05); }
-
 .btn-register-small {
-  background: var(--primary); color: white;
-  text-decoration: none; padding: 10px 24px; border-radius: 12px;
-  font-weight: 600; font-size: 0.9rem; border: 1px solid transparent;
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-  transition: all 0.4s var(--ease-bounce); /* Rebote suave */
+  background: var(--primary); color: white; text-decoration: none;
+  padding: 8px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+  transition: all 0.2s ease;
 }
-.btn-register-small:hover { 
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5);
-  background: var(--primary-hover);
+.btn-register-small:hover { background: #1d4ed8; }
+
+/* ================================================================= */
+/* 📱 MENÚ MÓVIL (CORRECCIÓN CRÍTICA)                                */
+/* ================================================================= */
+
+/* POR DEFECTO: OCULTO SIEMPRE (Para arreglar el bug de tu foto) */
+.mobile-menu { display: none !important; } 
+.mobile-menu-btn { display: none; }
+
+/* SOLO visible en pantallas pequeñas */
+@media (max-width: 900px) {
+  .nav-container { display: flex; justify-content: space-between; } /* Cambiamos grid a flex en móvil */
+  .nav-links-center, .nav-auth-buttons { display: none; }
+  .mobile-menu-btn { display: block; background: none; border: none; color: white; cursor: pointer; }
+  
+  /* Ahora sí permitimos que se vea SI está abierto */
+  .mobile-menu.open {
+    display: flex !important;
+    position: fixed; top: var(--nav-height); left: 0; right: 0;
+    background: var(--bg-body); border-bottom: 1px solid var(--border-subtle);
+    padding: 20px; flex-direction: column; gap: 15px;
+  }
 }
 
 /* ================================================================= */
-/* 🏠 HERO & CONTENIDO (Separación y Fluidez)                        */
+/* 🏠 HERO Y CONTENIDO (Menos brillo, más clase)                     */
 /* ================================================================= */
 
 .main-content {
-  margin-top: var(--navbar-height);
-  flex: 1;
+  margin-top: var(--nav-height);
+  padding: 80px 20px;
   display: flex; flex-direction: column; align-items: center;
-  padding: 100px 20px; /* Mucho aire arriba y abajo */
-  width: 100%;
-}
-
-.hero-wrapper {
-  text-align: center; max-width: 900px; margin: 0 auto;
-  animation: fadeIn 0.8s var(--ease-fluid);
+  text-align: center;
 }
 
 .hero-title {
-  font-size: 4.5rem; /* Más grande e impactante */
-  font-weight: 800; color: var(--text-heading);
-  line-height: 1.1; margin-bottom: 30px; letter-spacing: -0.03em;
+  font-size: 4rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 20px;
+  color: white; /* Blanco sólido, más nítido que el degradado */
 }
 
 .hero-subtitle {
-  font-size: 1.3rem; color: var(--text-body); line-height: 1.7;
-  max-width: 680px; margin: 0 auto 50px auto; /* Más separación con el botón */
+  color: var(--text-sec); font-size: 1.2rem; max-width: 600px; margin: 0 auto 40px;
+  font-weight: 300;
 }
 
-/* Botón Grande Principal */
 .btn-hero {
-  background: var(--primary); color: white; border: none; padding: 18px 42px;
-  border-radius: 14px; font-weight: 600; font-size: 1.15rem; cursor: pointer;
-  box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.4);
-  transition: all 0.5s var(--ease-bounce); /* Animación elástica */
+  background: var(--primary); color: white; border: none;
+  padding: 16px 40px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+  cursor: pointer; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 .btn-hero:hover {
-  transform: translateY(-4px) scale(1.03);
-  box-shadow: 0 20px 50px -10px rgba(59, 130, 246, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5);
 }
 
 /* ================================================================= */
-/* 🧩 TARJETAS Y PANELES (Glass Premium)                             */
+/* 📦 CAJAS Y TARJETAS (Arreglo del "Brillo excesivo")               */
 /* ================================================================= */
 
 .feature-wrapper {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
-  padding: 50px;
-  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.5); /* Sombra profunda */
-  max-width: 640px; width: 100%;
-  text-align: center; margin-top: 40px;
-  animation: slideUp 0.8s var(--ease-fluid);
+  margin-top: 40px; width: 100%; max-width: 580px;
+  /* FONDO: Mucho más oscuro y opaco */
+  background: var(--bg-panel); 
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 40px;
+  /* SOMBRA: Negra y difusa, no brillante */
+  box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.7);
 }
 
-.input-group { margin-bottom: 28px; text-align: left; }
-.input-label {
-  font-size: 0.95rem; font-weight: 600; color: var(--text-heading);
-  margin-bottom: 12px; display: block;
-}
+.input-group { text-align: left; margin-bottom: 20px; }
+.input-label { display: block; color: var(--text-main); font-size: 0.9rem; margin-bottom: 8px; font-weight: 500; }
 
+/* INPUTS: Oscuros y mate (sin brillo blanco) */
 input, textarea {
   width: 100%;
-  background: var(--bg-main);
-  border: 1px solid var(--border-color);
-  color: var(--text-heading);
-  padding: 18px; border-radius: 12px; font-size: 1rem;
-  outline: none; transition: all 0.3s var(--ease-fluid);
-  font-family: 'Inter', sans-serif;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: white;
+  padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; font-family: inherit;
+  outline: none; transition: border-color 0.2s;
 }
+
 input:focus, textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); /* Anillo suave */
-  transform: translateY(-1px);
+  /* Eliminamos el anillo brillante exagerado */
 }
-textarea { min-height: 160px; resize: vertical; }
 
-/* Enlaces generados */
 .result-link {
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(37, 99, 235, 0.1); /* Azul muy tenue */
+  border: 1px solid rgba(37, 99, 235, 0.2);
   color: #60a5fa;
-  padding: 20px; border-radius: 12px; font-family: 'Fira Code', monospace;
-  margin: 30px 0; font-size: 0.95rem;
-  word-break: break-all;
-  position: relative;
-  transition: background 0.3s;
+  padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem;
+  margin-top: 20px; word-break: break-all;
 }
-.result-link:hover { background: rgba(59, 130, 246, 0.12); }
-
-/* ================================================================= */
-/* 📱 RESPONSIVE (Móvil)                                             */
-/* ================================================================= */
-
-@media (max-width: 900px) {
-  .nav-links-center, .nav-auth-buttons { display: none; }
-  .mobile-menu-btn { display: block; }
-  .navbar { padding: 0 20px; height: 70px; }
-  
-  .hero-title { font-size: 2.8rem; margin-top: 20px; }
-  .main-content { padding: 60px 20px; }
-  
-  .feature-wrapper { padding: 30px; }
-}
-
-/* Animaciones de entrada */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
