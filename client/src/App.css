@@ -1,16 +1,23 @@
 /* ================================================================= */
-/* 💎 ZYPHRO 2.0: CLEAN & SECURE (Fixed Layout)                      */
+/* 💎 ZYPHRO: ULTIMATE POLISH (Layout Fixes)                         */
 /* ================================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-body: #020617;       /* Negro azulado */
-  --primary: #2563eb;       /* Azul Zyphro */
+  --bg-body: #020617;       
+  --bg-panel: #0f172a;      
+  --bg-input: #1e293b;      
+  
+  --primary: #2563eb;       
+  --primary-hover: #1d4ed8;
+  
   --text-main: #ffffff;
-  --text-sec: #94a3b8;      /* Gris */
+  --text-sec: #94a3b8;      
   --border: rgba(255, 255, 255, 0.08); 
-  --nav-height: 80px;
+
+  /* 📏 AJUSTE 1: Altura de barra reducida (Más elegante) */
+  --nav-height: 64px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,199 +33,159 @@ body {
 .app-container { display: flex; flex-direction: column; min-height: 100vh; }
 
 /* ================================================================= */
-/* 🧭 NAVBAR (Solución al "Menú Fantasma")                           */
+/* 🧭 NAVBAR (Ajustada y Centrada)                                   */
 /* ================================================================= */
 
 .navbar {
   height: var(--nav-height);
   width: 100%;
   position: fixed; top: 0; z-index: 1000;
-  background: rgba(2, 6, 23, 0.8);
+  background: rgba(2, 6, 23, 0.85); /* Un poco más oscuro */
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  display: flex; justify-content: center;
+  display: flex; justify-content: center; align-items: center; /* Centrado total */
 }
 
 .nav-container {
-  width: 100%; max-width: 1200px; padding: 0 20px;
+  width: 100%; max-width: 1200px; padding: 0 24px;
   display: flex; justify-content: space-between; align-items: center;
+  height: 100%; /* Ocupa toda la altura para centrar items */
 }
 
-/* IZQUIERDA: Marca */
 .nav-brand {
   display: flex; align-items: center; gap: 10px;
-  text-decoration: none; color: white; font-weight: 700; font-size: 1.3rem;
+  text-decoration: none; color: white; font-weight: 700; font-size: 1.25rem;
 }
 
-/* CENTRO: Enlaces */
-.nav-links-center {
-  display: flex; gap: 30px; align-items: center;
-}
+.nav-links-center { display: flex; gap: 32px; align-items: center; height: 100%; }
 
 .nav-link {
-  color: var(--text-sec); text-decoration: none; font-size: 0.95rem; font-weight: 500;
-  cursor: pointer; display: flex; align-items: center; gap: 5px; transition: color 0.2s;
+  color: var(--text-sec); text-decoration: none; font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 6px; transition: color 0.2s;
+  height: 100%; /* Para que el área de click sea cómoda */
 }
 .nav-link:hover { color: white; }
 
-/* --- DROPDOWN (EL ARREGLO) --- */
-/* Esto asegura que el menú flote y no empuje el contenido */
+/* Dropdown ajuste */
 .dropdown-wrapper { position: relative; height: 100%; display: flex; align-items: center; }
-
 .dropdown-content {
-  position: absolute;
-  top: 100%; left: 50%; transform: translateX(-50%);
-  background: #0f172a; /* Fondo sólido oscuro */
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 8px;
-  min-width: 200px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  display: none; /* OCULTO POR DEFECTO */
-  flex-direction: column; gap: 5px;
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 8px; min-width: 200px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; gap: 4px;
 }
-
-/* Solo se muestra al pasar el ratón */
 .dropdown-wrapper:hover .dropdown-content { display: flex; }
-
 .dropdown-item {
-  text-decoration: none; color: var(--text-sec); padding: 10px 15px;
+  text-decoration: none; color: var(--text-sec); padding: 10px 14px;
   border-radius: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;
 }
 .dropdown-item:hover { background: rgba(255,255,255,0.05); color: white; }
 
-/* DERECHA: Auth */
-.nav-auth-buttons { display: flex; gap: 15px; align-items: center; }
-
-.btn-login { color: white; text-decoration: none; font-size: 0.95rem; font-weight: 500; }
+/* Botones Auth */
+.nav-auth-buttons { display: flex; gap: 16px; align-items: center; }
+.btn-login { color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500; }
 .btn-register-small {
   background: var(--primary); color: white; text-decoration: none;
-  padding: 8px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+  padding: 8px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;
   transition: background 0.2s;
 }
-.btn-register-small:hover { background: #1d4ed8; }
+.btn-register-small:hover { background: var(--primary-hover); }
 
 /* ================================================================= */
-/* 📱 MENÚ MÓVIL (Corrección Definitiva)                             */
+/* 📱 MENÚ MÓVIL                                                     */
 /* ================================================================= */
-
 .mobile-menu-btn { display: none; background: none; border: none; color: white; cursor: pointer; }
-.mobile-menu { display: none; } /* Siempre oculto en PC */
+.mobile-menu { display: none; }
 
-/* Solo visible en pantallas pequeñas */
 @media (max-width: 900px) {
-  .nav-links-center, .nav-auth-buttons { display: none; } /* Ocultar menú PC */
-  .mobile-menu-btn { display: block; } /* Mostrar botón hamburguesa */
-  
+  .nav-links-center, .nav-auth-buttons { display: none; }
+  .mobile-menu-btn { display: block; }
   .mobile-menu.open {
-    display: flex; flex-direction: column;
-    position: fixed; top: var(--nav-height); left: 0; right: 0;
+    display: flex; flex-direction: column; position: fixed; 
+    top: var(--nav-height); left: 0; right: 0;
     background: var(--bg-body); border-bottom: 1px solid var(--border);
     padding: 20px; z-index: 999;
   }
-  
   .mobile-link {
     padding: 15px; color: white; text-decoration: none; font-weight: 600;
     border-bottom: 1px solid rgba(255,255,255,0.05);
   }
-  .mobile-link.highlight { color: var(--primary); }
 }
 
 /* ================================================================= */
-/* 🏠 RESTO DE LA WEB                                                */
+/* 📦 CAJAS Y TARJETAS (Arreglo de Márgenes)                         */
 /* ================================================================= */
 
-.main-content { margin-top: var(--nav-height); padding: 80px 20px; text-align: center; flex: 1; }
+.main-content { margin-top: var(--nav-height); padding: 60px 20px; text-align: center; flex: 1; }
 
-.hero-title { font-size: 4rem; font-weight: 800; margin-bottom: 20px; color: white; }
-.hero-subtitle { color: var(--text-sec); font-size: 1.2rem; max-width: 600px; margin: 0 auto 40px; }
-
-/* BOTÓN PRINCIPAL (Energía Azul) */
-.btn-hero {
-  /* Degradado vertical para dar volumen 3D */
-  background: linear-gradient(to bottom, #3b82f6, #2563eb);
-  color: white; border: none;
-  padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 1.05rem;
-  cursor: pointer; width: 100%;
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
-  transition: all 0.3s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-}
-
-.btn-hero:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(to bottom, #60a5fa, #3b82f6); /* Más brillante al hover */
-  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.6), inset 0 1px 0 rgba(255,255,255,0.3);
-}
-.btn-hero:active { transform: translateY(1px); box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3); }
-
-/* ================================================================= */
-/* 📦 CAJAS Y TARJETAS (Estilo Premium Deep Blue)                    */
-/* ================================================================= */
+.hero-title { font-size: 3.5rem; font-weight: 800; margin-bottom: 20px; color: white; letter-spacing: -1px; }
+.hero-subtitle { color: var(--text-sec); font-size: 1.1rem; max-width: 600px; margin: 0 auto 40px; }
 
 .feature-wrapper {
-  margin: 40px auto;
-  max-width: 600px; width: 100%;
-  /* Degradado sutil para dar volumen en vez de color plano */
-  background: linear-gradient(145deg, #1e293b, #0f172a);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  /* Sombra interna superior para efecto 3D + sombra externa potente */
-  box-shadow: 
-    inset 0 1px 1px rgba(255, 255, 255, 0.05),
-    0 20px 50px -10px rgba(0, 0, 0, 0.6);
-  border-radius: 24px; /* Bordes más redondeados */
-  padding: 40px;
+  margin: 20px auto; max-width: 580px; width: 100%;
+  background: var(--bg-panel); 
+  border: 1px solid var(--border); 
+  border-radius: 20px;
+  padding: 40px; /* Margen interno generoso */
   text-align: center;
-  position: relative; overflow: hidden;
-}
-/* Efecto de "luz" superior */
-.feature-wrapper::before {
-  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
-  background: linear-gradient(to right, transparent, rgba(59, 130, 246, 0.5), transparent);
-  opacity: 0.7;
+  box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.6);
 }
 
-.auth-wrapper { display: flex; justify-content: center; margin-top: 50px; }
-.footer { padding: 40px; text-align: center; color: var(--text-sec); border-top: 1px solid var(--border); }
+.auth-wrapper { display: flex; justify-content: center; margin-top: 40px; }
+.footer { padding: 40px; text-align: center; color: var(--text-sec); border-top: 1px solid var(--border); margin-top: auto;}
 
-/* LABELS & INPUTS (Hundidos y brillantes al foco) */
-.input-group { text-align: left; margin-bottom: 25px; }
+/* --- 📝 INPUTS (EL ARREGLO DEL TEXTO PEGADO) --- */
+.input-group { text-align: left; margin-bottom: 24px; }
 .input-label { 
   display: block; color: var(--text-sec); font-size: 0.85rem; 
-  margin-bottom: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 8px; font-weight: 600; letter-spacing: 0.5px;
 }
 
 input, textarea {
   width: 100%;
-  background: #0b1121; /* Fondo más oscuro que el panel para dar profundidad */
-  border: 1px solid rgba(59, 130, 246, 0.2); /* Borde azul sutil siempre */
+  background: var(--bg-input); 
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
-  padding: 16px; border-radius: 12px; font-size: 1rem; font-family: 'Inter', monospace;
+  /* 🛑 AQUÍ ESTÁ LA MAGIA: 16px de relleno separan el texto del borde */
+  padding: 16px 20px; 
+  border-radius: 12px; 
+  font-size: 1rem; 
   outline: none; 
-  box-shadow: inset 0 2px 5px rgba(0,0,0,0.4); /* Sombra interna para efecto hundido */
-  transition: all 0.3s ease;
+  transition: all 0.2s;
+  font-family: inherit;
 }
 
 input:focus, textarea:focus {
   border-color: var(--primary);
-  background: #0f172a; /* Se aclara ligeramente */
-  box-shadow: 
-    inset 0 2px 5px rgba(0,0,0,0.4), /* Mantiene profundidad */
-    0 0 0 3px rgba(37, 99, 235, 0.25), /* Anillo de foco */
-    0 0 20px rgba(37, 99, 235, 0.2);  /* Resplandor azul externo */
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
-/* BADGE TECNOLÓGICO (Para etiquetas como XChaCha20) */
+/* Badge Tecnológico (Secure Drop) */
 .tech-badge {
-  display: inline-block;
-  background: rgba(37, 99, 235, 0.15); /* Fondo azul transparente */
-  color: #60a5fa; /* Texto azul claro brillante */
-  border: 1px solid rgba(37, 99, 235, 0.4);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  box-shadow: 0 0 15px rgba(37, 99, 235, 0.2); /* Resplandor suave */
-  margin-left: 10px;
-  vertical-align: middle;
+  display: inline-block; background: rgba(37, 99, 235, 0.15); color: #60a5fa;
+  border: 1px solid rgba(37, 99, 235, 0.4); padding: 4px 10px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 700; margin-left: 10px; vertical-align: middle;
+}
+
+/* ================================================================= */
+/* 🔘 BOTONES (Corrección Anon Mail)                                 */
+/* ================================================================= */
+
+/* Botón Grande Principal (Secure Drop / Anon Mail) */
+.btn-hero {
+  background: var(--primary); color: white; border: none;
+  padding: 16px 32px; border-radius: 12px; font-weight: 600; font-size: 1rem;
+  cursor: pointer; width: 100%; transition: all 0.2s;
+  
+  /* 🛑 ESTO CENTRA EL ICONO Y EL TEXTO */
+  display: flex; justify-content: center; align-items: center; gap: 10px;
+}
+
+.btn-hero:hover { background: var(--primary-hover); transform: translateY(-2px); }
+
+/* Link de resultado */
+.result-link {
+  background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2);
+  color: #60a5fa; padding: 16px; border-radius: 10px; 
+  font-family: monospace; font-size: 0.95rem; margin-top: 20px; word-break: break-all;
 }
