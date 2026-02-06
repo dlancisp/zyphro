@@ -4,8 +4,12 @@ export const Icons = {
     <img 
       src="/logo.png" 
       alt="Zyphro Logo" 
-      style={{ height: '40px', width: 'auto', objectFit: 'contain', ...style }} 
-      {...props} 
+      style={{ height: '35px', width: 'auto', display: 'block', ...style }} 
+      {...props}
+      onError={(e) => {
+        e.target.onerror = null; 
+        e.target.style.display = 'none'; // Si falla, se oculta para no verse feo
+      }}
     />
   ),
 

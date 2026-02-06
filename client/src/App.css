@@ -1,22 +1,30 @@
-/* client/src/App.css */
+/* ================================================================= */
+/* 🌌 ZYPHRO: CORE STYLES & LAYOUT (Deep Blue Cybersec Theme)        */
+/* ================================================================= */
 
 /* 1. TIPOGRAFÍA Y VARIABLES GLOBALES */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --primary: #2563eb;          /* Azul Internxt */
-  --primary-hover: #1d4ed8;    /* Azul oscuro hover */
-  --bg-main: #ffffff;          /* Blanco puro */
-  --bg-secondary: #f8fafc;     /* Gris muy claro */
-  --text-heading: #0f172a;     /* Texto oscuro títulos */
-  --text-body: #334155;        /* Texto cuerpo */
-  --text-muted: #64748b;       /* Texto suave */
-  --border-color: #e2e8f0;     /* Bordes sutiles */
+  /* --- PALETA DE COLORES (Cybersec Theme) --- */
+  --bg-main: #020617;       /* Fondo principal (Slate 950) */
+  --bg-secondary: #0f172a;  /* Fondo paneles (Slate 900) */
+  --bg-tertiary: #1e293b;   /* Fondo inputs/hover (Slate 800) */
+  
+  --primary: #3b82f6;       /* Azul Eléctrico (Logo) */
+  --primary-hover: #2563eb; /* Azul más intenso */
+  
+  --text-heading: #f8fafc;  /* Blanco puro (Títulos) */
+  --text-body: #cbd5e1;     /* Gris azulado claro (Texto) */
+  --text-muted: #64748b;    /* Gris apagado (Subtítulos) */
+  
+  --border-color: rgba(255, 255, 255, 0.08); /* Borde sutil semitransparente */
   
   --navbar-height: 70px;
+  --glass-effect: blur(12px);
 }
 
-/* 2. RESET BÁSICO */
+/* 2. RESET Y BASES */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -26,6 +34,9 @@
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-main);
+  /* Degradado sutil superior para dar profundidad */
+  background-image: radial-gradient(circle at 50% 0%, #172554 0%, var(--bg-main) 50%);
+  background-attachment: fixed;
   color: var(--text-body);
   -webkit-font-smoothing: antialiased;
   line-height: 1.6;
@@ -37,374 +48,220 @@ body {
   min-height: 100vh;
 }
 
-/* --- INICIO DEL BLOQUE NAVBAR CORREGIDO --- */
+/* ================================================================= */
+/* 🧭 BARRA DE NAVEGACIÓN (Glassmorphism)                            */
+/* ================================================================= */
+
 .navbar {
   height: var(--navbar-height);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
+  background: rgba(2, 6, 23, 0.7); /* Fondo oscuro semitransparente */
+  backdrop-filter: var(--glass-effect); /* Efecto cristal */
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 5%;
+  justify-content: center; /* Centramos el contenido interior */
+  padding: 0 2rem;
   position: fixed;
   top: 0; width: 100%; z-index: 1000;
+  transition: all 0.3s ease;
 }
 
-.nav-brand {
-  display: flex; align-items: center; gap: 8px;
-  text-decoration: none; color: var(--text-heading);
-  font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em;
-  flex-shrink: 0;
-}
-
-/* MENÚ CENTRAL Y DROPDOWN */
-.nav-links-center { display: flex; gap: 30px; align-items: center; height: 100%; }
-
-.nav-link {
-  text-decoration: none; color: var(--text-body); font-weight: 500;
-  font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 5px;
-  height: 100%; /* Importante para el hover */
-}
-.nav-link:hover { color: var(--primary); }
-
-/* CONTENEDOR DEL DESPLEGABLE */
-.dropdown-container {
-  position: relative;
-  height: 100%;
+/* Contenedor interno para limitar el ancho */
+.nav-container {
+  width: 100%;
+  max-width: 1200px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-.dropdown-menu {
-  position: absolute;
-  top: 95%; /* Se despliega justo debajo */
-  left: 50%; transform: translateX(-50%);
-  background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
-  padding: 8px;
-  min-width: 220px;
-  display: none; /* Oculto */
-  flex-direction: column;
-  gap: 4px;
+/* -- IZQUIERDA: Marca -- */
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text-heading);
+  font-weight: 700; font-size: 1.4rem; letter-spacing: -0.02em;
+}
+.nav-brand span {
+  background: linear-gradient(to right, #fff, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* ESTA REGLA HACE QUE SE VEA AL PASAR EL RATÓN */
-.dropdown-container:hover .dropdown-menu {
-  display: flex;
+/* -- CENTRO: Enlaces -- */
+.nav-links-center {
+  display: flex; gap: 32px; align-items: center; height: 100%;
 }
+
+.nav-link {
+  text-decoration: none; color: var(--text-muted); 
+  font-weight: 500; font-size: 0.95rem; 
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.nav-link:hover { color: var(--primary); text-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+
+/* Dropdown (Menú desplegable) */
+.dropdown-container {
+  position: relative; height: 100%; display: flex; align-items: center; cursor: pointer;
+}
+.dropdown-menu {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+  padding: 8px; min-width: 200px;
+  display: none; flex-direction: column; gap: 4px;
+  animation: fadeIn 0.2s ease;
+}
+.dropdown-container:hover .dropdown-menu { display: flex; }
 
 .dropdown-item {
   text-decoration: none; color: var(--text-body);
   padding: 10px 15px; border-radius: 8px; font-weight: 500; font-size: 0.9rem;
-  display: flex; align-items: center; gap: 10px; transition: background 0.1s;
+  display: flex; align-items: center; gap: 10px; transition: all 0.2s;
 }
-.dropdown-item:hover { background: var(--bg-secondary); color: var(--primary); }
+.dropdown-item:hover { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
 
-/* BOTONES DERECHA (LOGIN/REGISTRO) */
-.nav-auth-buttons {
-  display: flex; align-items: center; gap: 20px;
-  flex-shrink: 0;
-}
+/* -- DERECHA: Botones Auth -- */
+.nav-auth-buttons { display: flex; align-items: center; gap: 16px; }
 
 .btn-login {
-  text-decoration: none; color: var(--text-heading); font-weight: 600; font-size: 0.95rem;
-  background: none; border: none; cursor: pointer;
+  text-decoration: none; color: var(--text-heading); font-weight: 500; font-size: 0.95rem;
+  background: transparent; border: 1px solid transparent; padding: 8px 16px; border-radius: 8px;
+  transition: all 0.2s;
 }
-.btn-login:hover { color: var(--primary); }
+.btn-login:hover { border-color: var(--border-color); background: rgba(255,255,255,0.05); }
 
 .btn-register-small {
   background: var(--primary); color: white;
-  text-decoration: none; padding: 10px 24px; border-radius: 8px;
-  font-weight: 600; font-size: 0.9rem; white-space: nowrap;
-}
-.btn-register-small:hover { background: var(--primary-hover); transform: translateY(-1px); }
-/* --- FIN DEL BLOQUE NAVBAR CORREGIDO --- */
-
-/* -- IZQUIERDA: Logo -- */
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  color: var(--text-heading);
-  font-weight: 700;
-  font-size: 1.3rem;
-  letter-spacing: -0.02em;
-  width: 220px; /* Ancho fijo para equilibrar el centro */
-}
-
-/* -- CENTRO: Enlaces (Inicio, Productos) -- */
-.nav-links-center {
-  display: flex;
-  gap: 30px;
-  align-items: center;
-  justify-content: center;
-}
-
-.nav-link {
-  text-decoration: none;
-  color: var(--text-body);
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: color 0.2s;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.nav-link:hover {
-  color: var(--primary);
-}
-
-/* -- DERECHA: Botones (Login, Registro) -- */
-.nav-auth-buttons {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  width: 220px;
-  justify-content: flex-end; /* Alinear a la derecha */
-}
-
-/* Botón Iniciar Sesión (Solo texto) */
-.btn-login {
-  text-decoration: none;
-  color: var(--text-heading);
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-}
-.btn-login:hover {
-  color: var(--primary);
-}
-
-/* Botón Crear Cuenta (Azul sólido) */
-.btn-register-small {
-  background: var(--primary);
-  color: white;
-  text-decoration: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  text-decoration: none; padding: 8px 20px; border-radius: 8px;
+  font-weight: 600; font-size: 0.9rem; border: 1px solid transparent;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
   transition: all 0.2s;
-  border: none;
-  cursor: pointer;
 }
-.btn-register-small:hover {
-  background: var(--primary-hover);
+.btn-register-small:hover { 
+  background: var(--primary-hover); 
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
   transform: translateY(-1px);
 }
 
-/* Botón Hamburguesa (Móvil) - Oculto en PC */
+/* ================================================================= */
+/* 📱 MENÚ MÓVIL                                                     */
+/* ================================================================= */
 .mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-heading);
+  display: none; background: none; border: none; cursor: pointer; color: var(--text-heading);
 }
 
-/* 4. MENÚ MÓVIL DESPLEGABLE */
-/* IMPORTANTE: Display none por defecto para que NO salga en PC */
 .mobile-menu {
-  display: none; 
-  position: fixed;
-  top: var(--navbar-height);
-  left: 0;
-  width: 100%;
-  background: var(--bg-main);
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color);
-  flex-direction: column;
-  gap: 15px;
-  z-index: 999;
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+  display: none; position: fixed; top: var(--navbar-height); left: 0; width: 100%;
+  background: var(--bg-secondary); border-bottom: 1px solid var(--border-color);
+  padding: 20px; flex-direction: column; gap: 10px; z-index: 999;
 }
+.mobile-menu.open { display: flex; animation: slideDown 0.3s ease; }
 
-/* Estilos de los items del menú móvil */
 .mobile-nav-item {
-  text-decoration: none;
-  color: var(--text-heading);
-  font-weight: 600;
-  padding: 12px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  text-decoration: none; color: var(--text-heading); font-weight: 600;
+  padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 12px;
+  border: 1px solid transparent;
 }
-.mobile-nav-item:hover {
-  background: var(--bg-secondary);
-  color: var(--primary);
-}
+.mobile-nav-item:hover { background: var(--bg-tertiary); border-color: var(--border-color); }
 
-/* 5. CONTENIDO PRINCIPAL */
+/* ================================================================= */
+/* 🏠 CONTENIDO PRINCIPAL (Hero & Forms)                             */
+/* ================================================================= */
+
 .main-content {
   margin-top: var(--navbar-height);
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 80px 20px;
-  width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 20px; width: 100%;
 }
 
 /* Hero Section */
-.hero-wrapper {
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
-}
+.hero-wrapper { text-align: center; max-width: 900px; margin: 0 auto; }
 
 .hero-title {
-  font-size: 3.8rem;
-  font-weight: 800;
-  color: var(--text-heading);
-  line-height: 1.1;
-  margin-bottom: 24px;
-  letter-spacing: -0.03em;
+  font-size: 4rem; font-weight: 800; color: var(--text-heading);
+  line-height: 1.1; margin-bottom: 24px; letter-spacing: -0.03em;
+  /* Efecto degradado en el texto */
+  background: linear-gradient(135deg, #fff 30%, #93c5fd 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-  max-width: 600px;
-  margin: 0 auto 40px auto;
+  font-size: 1.25rem; color: var(--text-muted); line-height: 1.6;
+  max-width: 650px; margin: 0 auto 40px auto;
 }
 
-/* Botón Grande (Hero) */
+/* Botón Grande */
 .btn-hero {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 16px 32px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: transform 0.2s;
+  background: var(--primary); color: white; border: none; padding: 16px 36px;
+  border-radius: 12px; font-weight: 600; font-size: 1.1rem; cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 .btn-hero:hover {
+  background: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
 }
 
-/* Tarjetas (Features) */
+/* Tarjetas (Features/Forms) */
 .feature-wrapper {
-  background: var(--bg-main);
+  background: rgba(15, 23, 42, 0.6); /* Transparente oscuro */
+  backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
-  border-radius: 24px;
+  border-radius: 20px;
   padding: 40px;
-  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
-  max-width: 550px;
-  width: 100%;
-  text-align: center;
-  margin-top: 20px;
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+  max-width: 600px; width: 100%;
+  text-align: center; margin-top: 20px;
 }
 
-/* Inputs */
-.input-group {
-  margin-bottom: 20px;
-  text-align: left;
-}
+/* Inputs Oscuros */
+.input-group { margin-bottom: 24px; text-align: left; }
 .input-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-heading);
-  margin-bottom: 8px;
-  display: block;
+  font-size: 0.9rem; font-weight: 600; color: var(--text-body);
+  margin-bottom: 10px; display: block;
 }
+
 input, textarea {
   width: 100%;
-  background: var(--bg-secondary);
+  background: var(--bg-main); /* Fondo negro */
   border: 1px solid var(--border-color);
-  padding: 14px;
-  border-radius: 10px;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.2s;
+  color: var(--text-heading);
+  padding: 16px; border-radius: 10px; font-size: 1rem;
+  outline: none; transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
 }
 input:focus, textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-  background: white;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
-textarea {
-  min-height: 150px;
-  resize: vertical;
-}
+textarea { min-height: 150px; resize: vertical; }
 
-/* Result Link Box (Mejorado visualmente) */
+/* Link de Resultado */
 .result-link {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--primary);
-  padding: 15px;
-  border-radius: 10px;
-  font-family: monospace;
-  margin: 20px 0;
-  font-size: 0.95rem;
-  
-  /* Truco para que no ocupe 3 líneas y se vea limpio */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  padding: 16px; border-radius: 10px; font-family: monospace;
+  margin: 24px 0; font-size: 0.9rem;
+  word-break: break-all;
 }
 
-/* 6. RESPONSIVE (MEDIA QUERIES) */
+/* ================================================================= */
+/* 📱 RESPONSIVE & ANIMATIONS                                        */
+/* ================================================================= */
 
-/* En tablets y móviles (menos de 900px) */
 @media (max-width: 900px) {
-  /* Ocultamos la navegación de escritorio */
-  .nav-links-center, .nav-auth-buttons {
-    display: none;
-  }
-  
-  /* Mostramos el botón hamburguesa */
-  .mobile-menu-btn {
-    display: block;
-  }
-  
-  /* El menú móvil solo se ve si tiene la clase .open */
-  .mobile-menu.open {
-    display: flex;
-  }
-  
-  .navbar {
-    padding: 0 20px;
-  }
-  
-  .hero-title {
-    font-size: 2.5rem;
-  }
-  
-  .main-content {
-    padding: 40px 20px;
-  }
+  .nav-links-center, .nav-auth-buttons { display: none; }
+  .mobile-menu-btn { display: block; }
+  .navbar { padding: 0 20px; }
+  .hero-title { font-size: 2.8rem; }
+  .main-content { padding: 40px 20px; }
 }
 
-/* ESTILOS NUEVOS PARA EL REGISTRO (Auth Card) */
-.auth-container {
-  display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 40px;
-}
-.auth-card {
-  background: white; padding: 40px; border-radius: 24px;
-  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); border: 1px solid var(--border-color);
-  width: 100%; max-width: 420px; text-align: center;
-}
-.auth-title { font-size: 1.8rem; font-weight: 700; color: var(--text-heading); margin-bottom: 10px; }
-.auth-desc { color: var(--text-muted); margin-bottom: 30px; font-size: 0.95rem; }
-.auth-footer { margin-top: 25px; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 20px; }
-.auth-footer span { color: var(--primary); font-weight: 700; cursor: pointer; }
-
-/* En PC (más de 901px) - Aseguramos limpieza */
-@media (min-width: 901px) {
-  .mobile-menu, .mobile-menu.open {
-    display: none !important; /* Forzamos ocultar menú móvil */
-  }
-}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px) translateX(-50%); } to { opacity: 1; transform: translateY(0) translateX(-50%); } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
