@@ -1,25 +1,15 @@
 /* ================================================================= */
-/* 💎 ZYPHRO: ULTRA-PREMIUM DARK          */
+/* 💎 ZYPHRO 2.0: CLEAN & SECURE (Fixed Layout)                      */
 /* ================================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* --- PALETA "STEALTH" (Menos brillo, más elegancia) --- */
-  --bg-body: #020617;       /* Negro azulado muy profundo */
-  --bg-panel: #0b1121;      /* Casi negro, para tarjetas */
-  --bg-input: #131b2e;      /* Un poco más claro para inputs */
-  
-  --primary: #2563eb;       /* Azul puro */
-  --primary-glow: rgba(37, 99, 235, 0.4);
-  
+  --bg-body: #020617;       /* Negro azulado */
+  --primary: #2563eb;       /* Azul Zyphro */
   --text-main: #ffffff;
-  --text-sec: #94a3b8;      /* Gris medio */
-  
-  /* BORDES: La clave del estilo premium es que sean casi invisibles */
-  --border-subtle: rgba(255, 255, 255, 0.06); 
-  --border-focus: rgba(37, 99, 235, 0.5);
-
+  --text-sec: #94a3b8;      /* Gris */
+  --border: rgba(255, 255, 255, 0.08); 
   --nav-height: 80px;
 }
 
@@ -30,164 +20,134 @@ body {
   background-color: var(--bg-body);
   color: var(--text-main);
   line-height: 1.5;
-  overflow-x: hidden; /* Evita scroll lateral */
   -webkit-font-smoothing: antialiased;
 }
 
-.app-container {
-  display: flex; flex-direction: column; min-height: 100vh;
-}
+.app-container { display: flex; flex-direction: column; min-height: 100vh; }
 
 /* ================================================================= */
-/* 🧭 NAVBAR (Estructura Rígida de 3 Columnas)                       */
+/* 🧭 NAVBAR (Solución al "Menú Fantasma")                           */
 /* ================================================================= */
-/* Esto arregla que las cosas se monten o se muevan */
 
 .navbar {
   height: var(--nav-height);
   width: 100%;
   position: fixed; top: 0; z-index: 1000;
-  background: rgba(2, 6, 23, 0.85); /* Más opaco para leer mejor */
-  backdrop-filter: blur(12px);      /* Efecto cristal real */
-  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
   display: flex; justify-content: center;
 }
 
 .nav-container {
-  width: 100%; max-width: 1400px; padding: 0 40px;
-  display: grid;
-  /* TRUCO: 3 columnas. Izquierda y Derecha fijas, Centro flexible */
-  grid-template-columns: 250px 1fr 250px; 
-  align-items: center;
+  width: 100%; max-width: 1200px; padding: 0 20px;
+  display: flex; justify-content: space-between; align-items: center;
 }
 
-/* 1. IZQUIERDA: Logo */
+/* IZQUIERDA: Marca */
 .nav-brand {
-  display: flex; align-items: center; gap: 12px;
-  text-decoration: none; color: white; font-weight: 700; font-size: 1.2rem;
-  justify-self: start; /* Pegado a la izquierda */
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: white; font-weight: 700; font-size: 1.3rem;
 }
 
-/* 2. CENTRO: Enlaces */
+/* CENTRO: Enlaces */
 .nav-links-center {
-  display: flex; gap: 40px; justify-content: center; /* Centrado perfecto */
+  display: flex; gap: 30px; align-items: center;
 }
 
 .nav-link {
-  text-decoration: none; color: var(--text-sec); font-size: 0.9rem; font-weight: 500;
-  transition: color 0.2s; display: flex; align-items: center; gap: 6px;
+  color: var(--text-sec); text-decoration: none; font-size: 0.95rem; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 5px; transition: color 0.2s;
 }
 .nav-link:hover { color: white; }
 
-/* 3. DERECHA: Botones */
-.nav-auth-buttons {
-  display: flex; gap: 15px; align-items: center; 
-  justify-self: end; /* Pegado a la derecha */
+/* --- DROPDOWN (EL ARREGLO) --- */
+/* Esto asegura que el menú flote y no empuje el contenido */
+.dropdown-wrapper { position: relative; height: 100%; display: flex; align-items: center; }
+
+.dropdown-content {
+  position: absolute;
+  top: 100%; left: 50%; transform: translateX(-50%);
+  background: #0f172a; /* Fondo sólido oscuro */
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 200px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: none; /* OCULTO POR DEFECTO */
+  flex-direction: column; gap: 5px;
 }
 
-/* Estilos de botones del Navbar */
-.btn-login {
-  color: white; text-decoration: none; font-size: 0.9rem; font-weight: 500;
+/* Solo se muestra al pasar el ratón */
+.dropdown-wrapper:hover .dropdown-content { display: flex; }
+
+.dropdown-item {
+  text-decoration: none; color: var(--text-sec); padding: 10px 15px;
+  border-radius: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;
 }
+.dropdown-item:hover { background: rgba(255,255,255,0.05); color: white; }
+
+/* DERECHA: Auth */
+.nav-auth-buttons { display: flex; gap: 15px; align-items: center; }
+
+.btn-login { color: white; text-decoration: none; font-size: 0.95rem; font-weight: 500; }
 .btn-register-small {
   background: var(--primary); color: white; text-decoration: none;
-  padding: 8px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
-  transition: all 0.2s ease;
+  padding: 8px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+  transition: background 0.2s;
 }
 .btn-register-small:hover { background: #1d4ed8; }
 
 /* ================================================================= */
-/* 📱 MENÚ MÓVIL (CORRECCIÓN CRÍTICA)                                */
+/* 📱 MENÚ MÓVIL (Corrección Definitiva)                             */
 /* ================================================================= */
 
-/* POR DEFECTO: OCULTO SIEMPRE (Para arreglar el bug de tu foto) */
-.mobile-menu { display: none !important; } 
-.mobile-menu-btn { display: none; }
+.mobile-menu-btn { display: none; background: none; border: none; color: white; cursor: pointer; }
+.mobile-menu { display: none; } /* Siempre oculto en PC */
 
-/* SOLO visible en pantallas pequeñas */
+/* Solo visible en pantallas pequeñas */
 @media (max-width: 900px) {
-  .nav-container { display: flex; justify-content: space-between; } /* Cambiamos grid a flex en móvil */
-  .nav-links-center, .nav-auth-buttons { display: none; }
-  .mobile-menu-btn { display: block; background: none; border: none; color: white; cursor: pointer; }
+  .nav-links-center, .nav-auth-buttons { display: none; } /* Ocultar menú PC */
+  .mobile-menu-btn { display: block; } /* Mostrar botón hamburguesa */
   
-  /* Ahora sí permitimos que se vea SI está abierto */
   .mobile-menu.open {
-    display: flex !important;
+    display: flex; flex-direction: column;
     position: fixed; top: var(--nav-height); left: 0; right: 0;
-    background: var(--bg-body); border-bottom: 1px solid var(--border-subtle);
-    padding: 20px; flex-direction: column; gap: 15px;
+    background: var(--bg-body); border-bottom: 1px solid var(--border);
+    padding: 20px; z-index: 999;
   }
+  
+  .mobile-link {
+    padding: 15px; color: white; text-decoration: none; font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .mobile-link.highlight { color: var(--primary); }
 }
 
 /* ================================================================= */
-/* 🏠 HERO Y CONTENIDO (Menos brillo, más clase)                     */
+/* 🏠 RESTO DE LA WEB                                                */
 /* ================================================================= */
 
-.main-content {
-  margin-top: var(--nav-height);
-  padding: 80px 20px;
-  display: flex; flex-direction: column; align-items: center;
-  text-align: center;
-}
+.main-content { margin-top: var(--nav-height); padding: 80px 20px; text-align: center; flex: 1; }
 
-.hero-title {
-  font-size: 4rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 20px;
-  color: white; /* Blanco sólido, más nítido que el degradado */
-}
-
-.hero-subtitle {
-  color: var(--text-sec); font-size: 1.2rem; max-width: 600px; margin: 0 auto 40px;
-  font-weight: 300;
-}
+.hero-title { font-size: 4rem; font-weight: 800; margin-bottom: 20px; color: white; }
+.hero-subtitle { color: var(--text-sec); font-size: 1.2rem; max-width: 600px; margin: 0 auto 40px; }
 
 .btn-hero {
   background: var(--primary); color: white; border: none;
-  padding: 16px 40px; border-radius: 12px; font-size: 1rem; font-weight: 600;
-  cursor: pointer; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 16px 40px; border-radius: 12px; font-weight: 600; cursor: pointer;
 }
-.btn-hero:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5);
-}
-
-/* ================================================================= */
-/* 📦 CAJAS Y TARJETAS (Arreglo del "Brillo excesivo")               */
-/* ================================================================= */
 
 .feature-wrapper {
-  margin-top: 40px; width: 100%; max-width: 580px;
-  /* FONDO: Mucho más oscuro y opaco */
-  background: var(--bg-panel); 
-  border: 1px solid var(--border-subtle);
-  border-radius: 20px;
-  padding: 40px;
-  /* SOMBRA: Negra y difusa, no brillante */
-  box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.7);
+  margin: 40px auto; max-width: 600px; width: 100%;
+  background: #0f172a; border: 1px solid var(--border); border-radius: 20px;
+  padding: 40px; text-align: center;
 }
 
-.input-group { text-align: left; margin-bottom: 20px; }
-.input-label { display: block; color: var(--text-main); font-size: 0.9rem; margin-bottom: 8px; font-weight: 500; }
+.auth-wrapper { display: flex; justify-content: center; margin-top: 50px; }
+.footer { padding: 40px; text-align: center; color: var(--text-sec); border-top: 1px solid var(--border); }
 
-/* INPUTS: Oscuros y mate (sin brillo blanco) */
 input, textarea {
-  width: 100%;
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  color: white;
-  padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; font-family: inherit;
-  outline: none; transition: border-color 0.2s;
-}
-
-input:focus, textarea:focus {
-  border-color: var(--primary);
-  /* Eliminamos el anillo brillante exagerado */
-}
-
-.result-link {
-  background: rgba(37, 99, 235, 0.1); /* Azul muy tenue */
-  border: 1px solid rgba(37, 99, 235, 0.2);
-  color: #60a5fa;
-  padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem;
-  margin-top: 20px; word-break: break-all;
+  width: 100%; background: #1e293b; border: 1px solid var(--border);
+  color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px;
 }
