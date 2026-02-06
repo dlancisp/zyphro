@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { SignedIn, SignedOut, SignIn, SignUp, UserButton, RedirectToSignIn } from "@clerk/clerk-react"; // Importamos Clerk
 import './App.css';
 
 // --- COMPONENTES (Piezas UI) ---
@@ -12,8 +13,7 @@ import SecureDrop from './pages/SecureDrop';
 import DeadMansSwitch from './pages/DeadMansSwitch';
 import AnonymousMail from './pages/AnonymousMail';
 import Viewer from './pages/Viewer';
-import Register from './Register';
-import Login from './Login';
+import Dashboard from './pages/Dashboard'; // ¡Importamos el nuevo Dashboard!
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -53,12 +53,25 @@ function App() {
               <Link to="/mail" className="dropdown-item"><Icons.Send /> Anon Mail</Link>
             </div>
           </div>
+          {/* Si estamos logueados, mostramos enlace al Dashboard aquí también */}
+          <SignedIn>
+            <Link to="/dashboard" className="nav-link" style={{color:'var(--primary)'}}>Mi Panel</Link>
+          </SignedIn>
         </nav>
 
-        {/* Botones Auth */}
+        {/* Botones Auth (CAMBIADO PARA CLERK) */}
         <div className="nav-auth-buttons">
-          <Link to="/login" className="btn-login">Iniciar sesión</Link>
-          <Link to="/register" className="btn-register-small">Crear Cuenta</Link>
+          <SignedOut>
+            {/* Si NO estás logueado, ves esto */}
+            <Link to="/login" className="btn-login">Iniciar sesión</Link>
+            <Link to="/register" className="btn-register-small">Crear Cuenta</Link>
+          </SignedOut>
+          
+          <SignedIn>
+            {/* Si SÍ estás logueado, ves tu avatar y botón Dashboard */}
+            <Link to="/dashboard" className="btn-register-small" style={{marginRight:'10px'}}>Dashboard</Link>
+            <UserButton afterSignOutUrl="/"/>
+          </SignedIn>
         </div>
 
         {/* Menú Móvil */}
@@ -73,9 +86,18 @@ function App() {
         <Link to="/drop" className="mobile-nav-item" onClick={() => setMenuOpen(false)}><Icons.Lock /> Secure Drop</Link>
         <Link to="/switch" className="mobile-nav-item" onClick={() => setMenuOpen(false)}><Icons.Shield /> Dead Man Switch</Link>
         <Link to="/mail" className="mobile-nav-item" onClick={() => setMenuOpen(false)}><Icons.Send /> Anon Mail</Link>
+        
         <div style={{height:'1px', background:'var(--border-color)', margin:'10px 0'}}></div>
-        <Link to="/login" className="mobile-nav-item" onClick={() => setMenuOpen(false)}> Iniciar Sesión</Link>
-        <Link to="/register" className="mobile-nav-item" onClick={() => setMenuOpen(false)} style={{color:'var(--primary)'}}> Crear Cuenta</Link>
+        
+        {/* Lógica Móvil Auth */}
+        <SignedOut>
+            <Link to="/login" className="mobile-nav-item" onClick={() => setMenuOpen(false)}> Iniciar Sesión</Link>
+            <Link to="/register" className="mobile-nav-item" onClick={() => setMenuOpen(false)} style={{color:'var(--primary)'}}> Crear Cuenta</Link>
+        </SignedOut>
+        <SignedIn>
+            <Link to="/dashboard" className="mobile-nav-item" onClick={() => setMenuOpen(false)} style={{color:'var(--primary)'}}> Ir a mi Dashboard</Link>
+            <div className="mobile-nav-item"><UserButton /></div>
+        </SignedIn>
       </div>
 
       {/* 3. CONTENIDO PRINCIPAL (Rutas) */}
@@ -85,8 +107,25 @@ function App() {
           <Route path="/drop" element={<SecureDrop />} />
           <Route path="/switch" element={<DeadMansSwitch />} />
           <Route path="/mail" element={<AnonymousMail />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+          
+          {/* Rutas de Login/Registro controladas por Clerk */}
+          <Route path="/login/*" element={<div style={{display:'flex',justifyContent:'center',marginTop:'50px'}}><SignIn routing="path" path="/login" /></div>} />
+          <Route path="/register/*" element={<div style={{display:'flex',justifyContent:'center',marginTop:'50px'}}><SignUp routing="path" path="/register" /></div>} />
+
+          {/* RUTA PROTEGIDA: DASHBOARD */}
+          <Route
+            path="/dashboard"
+            element={
+              <>
+                <SignedIn>
+                  <Dashboard />
+                </SignedIn>
+                <SignedOut>
+                  <RedirectToSignIn />
+                </SignedOut>
+              </>
+            }
+          />
         </Routes>
       </main>
 
