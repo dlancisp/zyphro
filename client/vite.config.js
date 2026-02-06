@@ -1,18 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
+// Configuración limpia y estándar
 export default defineConfig({
   plugins: [react()],
   build: {
-    target: 'esnext', // Permite características modernas de JS
-    commonjsOptions: {
-      transformMixedEsModules: true, // Ayuda con librerías híbridas
-    },
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      target: 'esnext',
-    },
-  },
+    target: 'esnext' // Solo esto es necesario para criptografía moderna
+  }
 });
