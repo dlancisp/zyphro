@@ -2,45 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #F8FAFC; /* bg-main */
-  color: #0F172A; /* text-primary */
-  font-family: system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
+/* ----------------------------------------------------- */
+/* 🎨 TEMA: ZYPHRO DEEP BLUE (Cybersec Style)            */
+/* ----------------------------------------------------- */
+
+:root {
+  /* Fondo principal: Azul casi negro */
+  --bg-main: #020617;       /* Slate 950 */
+  /* Fondo secundario: Azul muy oscuro (para tarjetas) */
+  --bg-secondary: #0f172a;  /* Slate 900 */
+  /* Fondo terciario: Un poco más claro (para inputs/hovers) */
+  --bg-tertiary: #1e293b;   /* Slate 800 */
+  
+  /* Color de acento (Azul Eléctrico del logo) */
+  --primary: #3b82f6;       
+  --primary-hover: #2563eb; 
+
+  /* Textos */
+  --text-heading: #f8fafc;  /* Blanco puro */
+  --text-body: #cbd5e1;     /* Gris claro leíble */
+  --text-muted: #64748b;    /* Gris apagado */
+  
+  /* Bordes sutiles */
+  --border-color: #1e293b;  
+  
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Scrollbar moderna y sutil para fondo claro */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+  /* El efecto de resplandor superior */
+  background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, var(--bg-main) 70%);
+  background-attachment: fixed; /* Para que el fondo no se mueva al hacer scroll */
+  color: var(--text-body);
+  font-family: var(--font-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased; /* Texto más nítido */
+}
+
+/* ----------------------------------------------------- */
+/* 📜 SCROLLBAR OSCURA (Integrada con el tema)           */
+/* ----------------------------------------------------- */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg-main);
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1; /* Slate 300 */
-  border-radius: 10px;
-  border: 2px solid #F8FAFC; /* Para dar efecto flotante */
+  background: var(--bg-tertiary);
+  border-radius: 5px;
+  border: 2px solid var(--bg-main);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8; /* Slate 400 */
+  background: var(--primary); /* Se ilumina al tocarla */
 }
 
-/* CLASE PRINCIPAL: Tarjeta Corporativa (Reemplaza al glass-panel) */
+/* ----------------------------------------------------- */
+/* 🃏 TARJETAS (Estilo Glass/Dark)                       */
+/* ----------------------------------------------------- */
+/* Reemplazamos la tarjeta blanca por una oscura semitransparente */
 .card-panel {
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0; /* border-light */
-  border-radius: 1rem; /* rounded-2xl */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  background-color: rgba(15, 23, 42, 0.6); /* --bg-secondary con transparencia */
+  backdrop-filter: blur(12px); /* Efecto cristal borroso */
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Borde muy sutil */
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  color: var(--text-heading);
 }
 
 .card-panel:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-    border-color: #CBD5E1;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); /* Resplandor azul suave */
+    border-color: rgba(59, 130, 246, 0.3);
+    transform: translateY(-2px);
 }
 
-/* Inputs estilo corporativo */
+/* ----------------------------------------------------- */
+/* ⌨️ INPUTS (Estilo Hacker/Terminal)                    */
+/* ----------------------------------------------------- */
 .input-primary {
-  @apply w-full bg-white border border-border-light rounded-lg p-3 text-text-primary outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all font-sans text-sm placeholder-text-secondary;
+  width: 100%;
+  background-color: var(--bg-main); /* Fondo más oscuro que la tarjeta */
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: var(--text-heading);
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.input-primary:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); /* Anillo azul */
+}
+
+.input-primary::placeholder {
+  color: var(--text-muted);
+}
+
+/* Botones genéricos para ajustar al tema */
+.btn-hero {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-hero:hover {
+    background-color: var(--primary-hover);
 }
