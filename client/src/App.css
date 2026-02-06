@@ -189,3 +189,164 @@ input:focus, textarea:focus {
   color: #60a5fa; padding: 16px; border-radius: 10px; 
   font-family: monospace; font-size: 0.95rem; margin-top: 20px; word-break: break-all;
 }
+
+/* ================================================================= */
+/* 🚀 NUEVA HOME: ESTILO INTERNXT DARK                               */
+/* ================================================================= */
+
+.home-container {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.hero-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 Columnas iguales */
+  align-items: center;
+  gap: 60px;
+  padding-top: 40px;
+}
+
+/* --- COLUMNA IZQUIERDA --- */
+
+/* Chips de Servicios */
+.service-chips {
+  display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;
+}
+.chip {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  color: #60a5fa;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.chip svg { width: 14px; height: 14px; }
+
+/* Títulos */
+.hero-title {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  font-weight: 800;
+  margin-bottom: 20px;
+  text-align: left; /* Alineado a la izquierda, no centrado */
+}
+.text-gradient {
+  background: linear-gradient(to right, #3b82f6, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-desc {
+  font-size: 1.1rem;
+  color: var(--text-sec);
+  line-height: 1.6;
+  max-width: 500px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+/* Checklist (Lo nuevo que pediste) */
+.hero-checklist {
+  display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px;
+}
+.check-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1rem; color: var(--text-main); font-weight: 500;
+}
+.check-icon {
+  color: var(--primary);
+  font-weight: bold;
+  background: rgba(37, 99, 235, 0.1);
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+}
+
+/* Botones (ARREGLADO: Ya no es gigante) */
+.hero-actions {
+  display: flex; align-items: center; gap: 20px;
+}
+.btn-main {
+  width: fit-content; /* ✅ ESTO ARREGLA EL TAMAÑO */
+  padding: 14px 32px;
+  font-size: 1rem;
+}
+
+.trust-badge {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--text-sec); font-size: 0.9rem;
+}
+.dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+
+/* --- COLUMNA DERECHA: VISUAL CSS (Sin imagen) --- */
+.hero-visual {
+  position: relative;
+  display: flex; justify-content: center;
+}
+
+.glass-card-visual {
+  width: 100%; max-width: 450px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(2, 6, 23, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 30px 60px -15px rgba(0,0,0,0.5);
+  transform: perspective(1000px) rotateY(-5deg) rotateX(5deg); /* Efecto 3D */
+  transition: transform 0.5s ease;
+}
+.glass-card-visual:hover { transform: perspective(1000px) rotateY(0) rotateX(0); }
+
+.visual-header {
+  display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+  background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;
+}
+.visual-dots span { width: 10px; height: 10px; background: #334155; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.visual-bar { flex: 1; height: 8px; background: #1e293b; border-radius: 4px; color: #64748b; font-size: 0.7rem; display: flex; align-items: center; padding-left: 10px; font-family: monospace; }
+
+.visual-body { display: flex; flex-direction: column; gap: 15px; }
+.visual-row { display: flex; gap: 15px; align-items: center; }
+.visual-icon { width: 40px; height: 40px; background: rgba(37, 99, 235, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+.line { height: 8px; background: #334155; border-radius: 4px; margin-bottom: 6px; }
+.line.short { width: 60px; }
+.line.long { width: 150px; }
+
+.visual-code-block {
+  background: #000; padding: 15px; border-radius: 8px;
+  font-family: monospace; font-size: 0.8rem; color: #10b981;
+  overflow: hidden; opacity: 0.8;
+}
+
+.visual-btn {
+  background: var(--primary); height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 600; font-size: 0.9rem; margin-top: 5px;
+}
+
+/* Tarjeta flotante extra */
+.float-card {
+  position: absolute; bottom: -20px; right: -20px;
+  background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
+  backdrop-filter: blur(10px); color: #10b981;
+  padding: 10px 20px; border-radius: 12px;
+  display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* RESPONSIVE (Móvil) */
+@media (max-width: 900px) {
+  .hero-section { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+  .hero-content { display: flex; flex-direction: column; align-items: center; }
+  .hero-title, .hero-desc { text-align: center; }
+  .service-chips { justify-content: center; }
+  .hero-visual { display: none; /* Ocultamos la visual compleja en móvil o la simplificamos */ }
+  .glass-card-visual { transform: none; }
+}
