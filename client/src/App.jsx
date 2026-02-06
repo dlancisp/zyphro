@@ -116,8 +116,67 @@ function App() {
         </Routes>
       </main>
 
-      <footer className="footer">
-        <p>© 2026 Zyphro Security Inc.</p>
+      {/* 4. FOOTER CORPORATIVO */}
+      <footer className="big-footer">
+        <div className="footer-container">
+          
+          {/* GRID DE COLUMNAS */}
+          <div className="footer-grid">
+            
+            {/* COLUMNA 1: PRODUCTOS */}
+            <div className="footer-col">
+              <h4 className="footer-title">Productos</h4>
+              <Link to="/drop" className="footer-link">Secure Drop</Link>
+              <Link to="/switch" className="footer-link">Dead Man Switch</Link>
+              <Link to="/mail" className="footer-link">Anon Mail</Link>
+              <Link to="/precios" className="footer-link highlight">Precios y Planes</Link>
+            </div>
+
+            {/* COLUMNA 2: RECURSOS (GITHUB) */}
+            <div className="footer-col">
+              <h4 className="footer-title">Comunidad</h4>
+              <a href="https://github.com/tu-usuario/zyphro" target="_blank" rel="noopener noreferrer" className="footer-link">
+                GitHub (Open Source)
+              </a>
+              <Link to="/valores" className="footer-link">Whitepaper (Pronto)</Link>
+              <Link to="/docs" className="footer-link">Documentación API</Link>
+              <span className="footer-link disabled">Estado del Servidor</span>
+            </div>
+
+            {/* COLUMNA 3: COMPAÑÍA */}
+            <div className="footer-col">
+              <h4 className="footer-title">Compañía</h4>
+              <Link to="/nosotros" className="footer-link">Sobre Nosotros</Link>
+              <Link to="/valores" className="footer-link">Manifiesto de Privacidad</Link>
+              <Link to="/contacto" className="footer-link">Contacto</Link>
+              <Link to="/blog" className="footer-link">Blog de Seguridad</Link>
+            </div>
+
+            {/* COLUMNA 4: LEGAL */}
+            <div className="footer-col">
+              <h4 className="footer-title">Legal</h4>
+              <Link to="/legal" className="footer-link">Términos de Servicio</Link>
+              <Link to="/privacidad" className="footer-link">Política de Privacidad</Link>
+              <Link to="/cookies" className="footer-link">Política de Cookies</Link>
+              <Link to="/canary" className="footer-link">Canary Warrant</Link>
+            </div>
+          </div>
+
+          {/* BARRA INFERIOR (COPYRIGHT Y REDES) */}
+          <div className="footer-bottom">
+            <div className="footer-brand">
+              <Icons.Logo style={{height:'24px'}} />
+              <span>© 2026 Zyphro Security Inc.</span>
+            </div>
+            
+            <div className="footer-socials">
+              <a href="https://github.com" className="social-icon"><Icons.Github /></a>
+              <a href="https://twitter.com" className="social-icon"><Icons.Twitter /></a>
+              <a href="https://linkedin.com" className="social-icon"><Icons.Linkedin /></a>
+            </div>
+          </div>
+
+        </div>
       </footer>
 
       <Toaster position="bottom-center" />
