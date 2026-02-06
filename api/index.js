@@ -1,14 +1,14 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import morgan from 'morgan';
-import cookieParser from 'cookie-parser';
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
-// ✅ RUTAS CORREGIDAS SEGÚN TU FOTO (./routes porque están al lado)
-import authRoutes from './routes/auth.js';
-import secretRoutes from './routes/secrets.js';
+// Importamos las rutas (Compatible con tus archivos actuales)
+const authRoutes = require('./routes/auth');
+const secretRoutes = require('./routes/secrets');
 
 dotenv.config();
 
@@ -23,6 +23,7 @@ app.use(cookieParser());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 app.use(express.json({ limit: '50kb' }));
 
+// Configuración CORS blindada
 app.use(cors({
   origin: function (origin, callback) {
     const allowedDomains = [
@@ -41,11 +42,12 @@ app.use(cors({
   credentials: true
 }));
 
+// Preflight para evitar errores 405 en OPTIONS
+app.options('*', cors());
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
   message: { error: "Demasiadas peticiones." }
 });
 app.use(limiter);
@@ -57,12 +59,11 @@ app.use('/api', secretRoutes);
 app.get('/api/health', (req, res) => res.status(200).json({ status: 'OK' }));
 
 // --- ARRANQUE ---
-// Solo escuchamos el puerto si NO estamos en Vercel
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`🛡️  Zyphro API corriendo en puerto ${PORT}`);
   });
 }
 
-// ✅ EXPORTACIÓN VITAL PARA VERCEL
-export default app;
+// ✅ EXPORTACIÓN COMPATIBLE PARA VERCEL
+module.exports = app;
