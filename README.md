@@ -1,6 +1,6 @@
 # Zyphro: Zero-Knowledge Secret Sharing
 
-![Zyphro Banner](https://via.placeholder.com/1200x300/000000/ffffff?text=ZYPHRO+|+Secure+Infrastructure)
+![Zyphro Banner](./assets/banner-zyphro.png)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Status](https://img.shields.io/badge/Status-Beta-orange)]()

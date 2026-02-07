@@ -63,6 +63,7 @@ function SecureDrop() {
           <div className="input-group">
             <label className="input-label">CONTENIDO TOP SECRET</label>
             <textarea 
+              className="w-full bg-gray-900 text-white rounded-xl border border-gray-700 p-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none shadow-inner"
               placeholder="Escribe contraseñas, claves privadas o mensajes confidenciales..." 
               value={state.text} 
               onChange={e => setState({...state, text: e.target.value})} 

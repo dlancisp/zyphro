@@ -38,9 +38,11 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Rutas
-app.use('/api', authRoutes);
-app.use('/api', secretRoutes);
+// --- 🔴 AQUÍ ESTABA EL ERROR (CORREGIDO) ---
+// Usamos .default por si viene empaquetado, o la variable directa si no.
+app.use('/api', authRoutes.default || authRoutes);
+app.use('/api', secretRoutes.default || secretRoutes);
+// -------------------------------------------
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', env: process.env.NODE_ENV });
