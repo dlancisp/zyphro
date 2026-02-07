@@ -5,6 +5,9 @@ import { Toaster } from 'react-hot-toast';
 import { SignedIn, SignedOut, SignIn, SignUp, UserButton, RedirectToSignIn } from "@clerk/clerk-react";
 import AutoCheckIn from './components/AutoCheckIn'; // ✅ 1. ESTÁ IMPORTADO (BIEN)
 import './App.css';
+import Pricing from './pages/Pricing'; // <--- AÑADE ESTO
+import About from './pages/About'; // <--- AÑADE ESTO
+import Values from './pages/Values'; // <--- NUEVO
 
 // Componentes
 import { Icons } from './components/Icons';
@@ -116,9 +119,9 @@ function App() {
           <Route path="/dashboard" element={<><SignedIn><Dashboard /></SignedIn><SignedOut><RedirectToSignIn /></SignedOut></>} />
           
           {/* Páginas vacías para que no de error 404 al probar los links nuevos */}
-          <Route path="/precios" element={<div className="hero-wrapper"><h1 className="hero-title">Precios</h1></div>} />
-          <Route path="/nosotros" element={<div className="hero-wrapper"><h1 className="hero-title">Nosotros</h1></div>} />
-          <Route path="/valores" element={<div className="hero-wrapper"><h1 className="hero-title">Valores</h1></div>} />
+          <Route path="/precios" element={<Pricing />} />
+          <Route path="/nosotros" element={<About />} />
+          <Route path="/valores" element={<Values />} />
         </Routes>
       </main>
 
