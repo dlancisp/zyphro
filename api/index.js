@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
+const cronRoutes = require('./routes/cron');
 
 // Rutas
 const authRoutes = require('./routes/auth');
@@ -19,6 +20,7 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(express.json({ limit: '50kb' }));
+app.use('/api/cron', cronRoutes);
 
 // CORS Permitido
 app.use(cors({

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { SignedIn, SignedOut, SignIn, SignUp, UserButton, RedirectToSignIn } from "@clerk/clerk-react";
+import AutoCheckIn from './components/AutoCheckIn'; // ✅ 1. ESTÁ IMPORTADO (BIEN)
 import './App.css';
 
 // Componentes
@@ -34,6 +35,10 @@ function App() {
   return (
     <div className="app-container">
       
+      {/* ✅ 2. ¡AQUÍ ES DONDE FALTABA! */}
+      {/* Componente invisible que avisa que estás vivo al hacer login */}
+      <AutoCheckIn />
+
       {/* 1. BARRA DE NAVEGACIÓN */}
       <header className="navbar">
         <div className="nav-container">
@@ -171,7 +176,7 @@ function App() {
             </div>
             
             <div className="footer-socials">
-              <a href="https://github.com" className="social-icon"><Icons.Github /></a>
+              <a href="https://github.com/dlancisp/zyphro" className="social-icon"><Icons.Github /></a>
               <a href="https://twitter.com" className="social-icon"><Icons.Twitter /></a>
               <a href="https://linkedin.com" className="social-icon"><Icons.Linkedin /></a>
             </div>

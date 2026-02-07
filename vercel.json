@@ -1,5 +1,22 @@
 {
   "version": 2,
+  "crons": [
+    {
+      "path": "/api/cron/process-dms",
+      "schedule": "0 0 * * *" 
+    }
+  ],
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -7,7 +24,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/client/index.html"
     }
   ]
 }

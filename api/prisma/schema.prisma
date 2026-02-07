@@ -45,3 +45,15 @@ model Switch {
   userId           String?
   user             User?    @relation(fields: [userId], references: [id])
 }
+
+model DeadManSwitch {
+  id              String   @id @default(uuid())
+  userId          String   // ID del usuario de Clerk
+  recipientEmail  String   // A quién se le envía
+  encryptedNote   String   // El secreto cifrado
+  checkInInterval Int      // Cada cuántos días debe reportarse (ej: 30)
+  lastCheckIn     DateTime @default(now()) // Última vez que dio señal de vida
+  nextTriggerDate DateTime // Fecha límite (lastCheckIn + interval)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+}
