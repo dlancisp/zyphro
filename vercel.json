@@ -3,18 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/process-dms",
-      "schedule": "0 0 * * *" 
-    }
-  ],
-  "builds": [
-    {
-      "src": "api/index.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "schedule": "0 0 * * *"
     }
   ],
   "rewrites": [
@@ -24,7 +13,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/client/index.html"
+      "destination": "/index.html"
     }
   ]
 }
