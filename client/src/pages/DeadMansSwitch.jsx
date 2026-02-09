@@ -23,16 +23,22 @@ export default function DeadMansSwitch() {
 
   // 1. CARGAR ESTADO AL ENTRAR
   useEffect(() => {
-    if (isLoaded && userId) {
-      checkStatus();
+    if (isLoaded) {
+      if (!userId) {
+        // Si ya cargó Clerk pero no hay usuario, dejamos de cargar
+        setFetching(false);
+      } else {
+        // Si hay usuario, consultamos al servidor
+        checkStatus();
+      }
     }
   }, [isLoaded, userId]);
 
   const checkStatus = async () => {
     try {
       const token = await getToken();
-      // Nota: Necesitamos asegurar que esta ruta GET exista en el backend
-      const res = await fetch('/api/dms/status', {
+      // AÑADE API_URL AQUÍ
+      const res = await fetch(`${API_URL}/api/dms/status`, { 
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -48,6 +54,7 @@ export default function DeadMansSwitch() {
   };
 
   // 2. ACTIVAR EL PROTOCOLO (CREAR)
+  // 2. ACTIVAR EL PROTOCOLO (CREAR)
   const activate = async (e) => {
     e.preventDefault();
     if (!form.recipient || !form.note) return toast.error("Rellena todos los campos");
@@ -55,7 +62,9 @@ export default function DeadMansSwitch() {
     setLoading(true);
     try {
       const token = await getToken();
-      const res = await fetch('/api/dms', {
+      
+      // CAMBIO AQUÍ: Añadido ${API_URL} y cambiado comillas ' por `
+      const res = await fetch(`${API_URL}/api/dms`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,18 +87,21 @@ export default function DeadMansSwitch() {
         toast.error('Error: ' + data.error);
       }
     } catch (e) {
-      toast.error("Error de conexión");
+      console.error(e);
+      toast.error("Error de conexión con el servidor");
     } finally {
       setLoading(false);
     }
   };
 
-  // 3. CHECK-IN MANUAL (Opcional, ya que el automático lo hace)
+  /// 3. CHECK-IN MANUAL
   const manualCheckIn = async () => {
     setLoading(true);
     try {
       const token = await getToken();
-      const res = await fetch('/api/dms/checkin', {
+      
+      // CAMBIO AQUÍ: Añadido ${API_URL} y cambiado comillas ' por `
+      const res = await fetch(`${API_URL}/api/dms/checkin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,13 +116,26 @@ export default function DeadMansSwitch() {
         checkStatus(); // Actualizar fechas
       }
     } catch (e) {
-      toast.error("Error al conectar");
+      console.error(e);
+      toast.error("Error al conectar con el servidor");
     } finally {
       setLoading(false);
     }
   };
 
   if (fetching) return <div className="text-center mt-20 text-gray-500">Cargando estado...</div>;
+
+  if (!userId) {
+    return (
+      <div className="max-w-3xl mx-auto mt-20 p-8 text-center bg-gray-900 border border-red-900/30 rounded-2xl">
+        <h2 className="text-3xl font-bold text-white mb-4">Acceso Restringido</h2>
+        <p className="text-gray-400 mb-6">Necesitas identificarte para configurar tu Dead Man Switch.</p>
+        <Link to="/sign-in" className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-all">
+          Iniciar Sesión
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto mt-10 p-4">
