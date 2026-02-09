@@ -92,7 +92,7 @@ export default function DeadMansSwitch() {
     } finally {
       setLoading(false);
     }
-  };
+  }; 
 
   /// 3. CHECK-IN MANUAL
   const manualCheckIn = async () => {
