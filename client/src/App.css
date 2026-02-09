@@ -566,3 +566,19 @@ input:focus, textarea:focus {
     gap: 20px;
   }
 }
+
+/* Animación de flotación suave */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+/* Clase maestra para el efecto cristal (Glassmorphism) */
+/* Más transparente para que se integre mejor con el fondo */
+.glass-panel {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl;
+}

@@ -2,7 +2,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -10,50 +9,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Secret {
-  id         String   @id @default(uuid())
-  cipherText String   
-  createdAt  DateTime @default(now())
-  expiresAt  DateTime // NECESARIO: Tu backend usa esto para saber cuándo borrarlo
-
-  // Relación con Usuario (Opcional)
-  userId     String?
-  user       User?    @relation(fields: [userId], references: [id])
-}
-
+// EL USUARIO
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-
-  // Tus secretos y tus switches
-  secrets   Secret[]
-  switches  Switch[] 
-}
-
-model Switch {
-  id               String   @id @default(uuid())
-  recipientEmail   String
-  encryptedContent String
-  checkInFrequency Int
-  lastCheckIn      DateTime @default(now())
-  isActive         Boolean  @default(true)
-  createdAt        DateTime @default(now())
-
-  // Relación con Usuario (Opcional)
-  userId           String?
-  user             User?    @relation(fields: [userId], references: [id])
-}
-
-model DeadManSwitch {
-  id              String   @id @default(uuid())
-  userId          String   // ID del usuario de Clerk
-  recipientEmail  String   // A quién se le envía
-  encryptedNote   String   // El secreto cifrado
-  checkInInterval Int      // Cada cuántos días debe reportarse (ej: 30)
-  lastCheckIn     DateTime @default(now()) // Última vez que dio señal de vida
-  nextTriggerDate DateTime // Fecha límite (lastCheckIn + interval)
-  isActive        Boolean  @default(true)
+  id              String   @id // ID de Clerk
+  email           String   @unique
+  password        String?  // Opcional
   createdAt       DateTime @default(now())
+
+  // Configuración del Dead Man Switch
+  switchEnabled   Boolean  @default(false)
+  recipientEmail  String?
+  checkInInterval Int      @default(30)
+  lastCheckIn     DateTime?
+  nextTriggerDate DateTime?
+  dmsNote         String?  // Nota final
+
+  // Relación con los secretos de la bóveda
+  secrets         Secret[]
+}
+
+// LA BÓVEDA (Adaptada para XChaCha20)
+model Secret {
+  id        String   @id @default(cuid())
+  
+  title     String
+  type      String   // 'password', 'note', 'crypto', 'file'
+  
+  // DATOS CIFRADOS (XChaCha20-Poly1305)
+  content   String   // El Ciphertext (+ Auth Tag, que suele ir pegado al final)
+  nonce     String?  // El Nonce de 24 bytes (Necesario para descifrar)
+
+  createdAt DateTime @default(now())
+  
+  // Relación con Usuario
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }

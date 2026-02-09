@@ -1,271 +1,174 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
-import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
-import { useAuth, useUser, SignInButton } from '@clerk/clerk-react'
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Iconos simples (puedes usar tu componente Icons si prefieres)
-const ShieldIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>;
-const CheckIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>;
+// --- ESTILOS PERSONALIZADOS PARA EL PALPITAR LENTO ---
+// Esto crea una animación de "respiro" de 6 segundos, mucho más suave.
+const customStyles = `
+  @keyframes slow-breathe {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.02); }
+  }
+  .animate-slow-breathe {
+    animation: slow-breathe 6s ease-in-out infinite;
+  }
+`;
 
-export default function DeadMansSwitch() {
-  const { getToken, userId, isLoaded } = useAuth();
+// --- NUEVO ICONO: BATERÍA LLENA ---
+const BatteryFullIcon = className => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" className={className}>
+    {/* Carcasa */}
+    <rect x="2" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" className="text-gray-500/50"/>
+    {/* Polo positivo */}
+    <line x1="22" y1="10" x2="22" y2="14" stroke="currentColor" strokeWidth="2" className="text-gray-500/50"/>
+    {/* Carga interna (La que brilla) */}
+    <rect x="4" y="8" width="14" height="8" rx="1" fill="#10b981" className="drop-shadow-[0_0_10px_rgba(16,185,129,0.8)] animate-slow-breathe" />
+  </svg>
+);
+
+const LockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>;
+const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+const FileTextIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>;
+
+export default function DeadMansSwitchVault() {
   const { user } = useUser();
+  const [activeTab, setActiveTab] = useState('vault');
   
-  const [loading, setLoading] = useState(false);
-  const [activeSwitch, setActiveSwitch] = useState(null); // Guarda los datos si ya existe uno
-  const [fetching, setFetching] = useState(true);
+  const [vaultItems] = useState([
+    { id: 1, title: 'Acceso Binance', type: 'password', date: 'Hace 2 días' },
+    { id: 2, title: 'Carta para María', type: 'note', date: 'Hace 1 mes' },
+    { id: 3, title: 'Seed Phrase Ledger', type: 'crypto', date: 'Hoy' },
+  ]);
 
-  const [form, setForm] = useState({
-    recipient: '',
-    interval: '30', // Por defecto 30 días
-    note: ''
+  const [status] = useState({
+    state: 'ARMED',
+    nextCheck: '12 Días',
+    recipient: 'abogado@bufete.com'
   });
 
-  // 1. CARGAR ESTADO AL ENTRAR
-  useEffect(() => {
-    if (isLoaded) {
-      if (!userId) {
-        // Si ya cargó Clerk pero no hay usuario, dejamos de cargar
-        setFetching(false);
-      } else {
-        // Si hay usuario, consultamos al servidor
-        checkStatus();
-      }
-    }
-  }, [isLoaded, userId]);
-
-  const checkStatus = async () => {
-    try {
-      const token = await getToken();
-      // AÑADE API_URL AQUÍ
-      const res = await fetch(`${API_URL}/api/dms/status`, { 
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        // Si devuelve un objeto con ID, es que está activo
-        if (data && data.id) setActiveSwitch(data);
-      }
-    } catch (e) {
-      console.error("Error cargando estado:", e);
-    } finally {
-      setFetching(false);
-    }
-  };
-
-  // 2. ACTIVAR EL PROTOCOLO (CREAR)
-  // 2. ACTIVAR EL PROTOCOLO (CREAR)
-  const activate = async (e) => {
-    e.preventDefault();
-    if (!form.recipient || !form.note) return toast.error("Rellena todos los campos");
-
-    setLoading(true);
-    try {
-      const token = await getToken();
-      
-      // CAMBIO AQUÍ: Añadido ${API_URL} y cambiado comillas ' por `
-      const res = await fetch(`${API_URL}/api/dms`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          userId: userId,
-          recipientEmail: form.recipient,
-          note: form.note,
-          interval: form.interval
-        })
-      });
-
-      const data = await res.json();
-      
-      if (data.success) {
-        toast.success('Protocolo activado correctamente.');
-        checkStatus(); // Recargar para mostrar la pantalla de "Activo"
-      } else {
-        toast.error('Error: ' + data.error);
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error("Error de conexión con el servidor");
-    } finally {
-      setLoading(false);
-    }
-  }; 
-
-  /// 3. CHECK-IN MANUAL
-  const manualCheckIn = async () => {
-    setLoading(true);
-    try {
-      const token = await getToken();
-      
-      // CAMBIO AQUÍ: Añadido ${API_URL} y cambiado comillas ' por `
-      const res = await fetch(`${API_URL}/api/dms/checkin`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ userId }) 
-      });
-      
-      const data = await res.json();
-      if (data.success) {
-        toast.success('Vida confirmada. Contador reiniciado.');
-        checkStatus(); // Actualizar fechas
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error("Error al conectar con el servidor");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (fetching) return <div className="text-center mt-20 text-gray-500">Cargando estado...</div>;
-
-  // SI NO ESTÁ LOGUEADO
-  if (!userId) {
-    return (
-      <div className="max-w-3xl mx-auto mt-20 p-8 text-center bg-gray-900 border border-red-900/30 rounded-2xl shadow-2xl">
-        <div className="flex justify-center mb-4 text-red-500">
-           <ShieldIcon /> {/* Reutilizamos el icono */}
-        </div>
-        <h2 className="text-3xl font-bold text-white mb-4">Acceso Restringido</h2>
-        <p className="text-gray-400 mb-8 max-w-md mx-auto">
-          Para configurar tu "Interruptor de Hombre Muerto" y proteger tu legado, necesitamos verificar tu identidad.
-        </p>
-        
-        {/* BOTÓN MÁGICO DE CLERK */}
-        <SignInButton mode="modal">
-          <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-all transform hover:scale-105 shadow-lg shadow-red-900/50">
-            Iniciar Sesión / Registrarse
-          </button>
-        </SignInButton>
-
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-4">
-      
-      {/* CABECERA */}
-      <div className="mb-8 text-center">
-        <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-600 mb-2">
-          Dead Man's Switch
-        </h2>
-        <p className="text-gray-400">
-          Si dejas de dar señales de vida, nosotros entregamos tu legado.
-        </p>
+    <div className="min-h-screen text-white p-6 font-sans relative">
+      {/* Inyectamos los estilos personalizados */}
+      <style>{customStyles}</style>
+
+      {/* --- CABECERA DE ESTADO (MEJORADA) --- */}
+      <div className="max-w-4xl mx-auto mb-12 relative z-10">
+        {/* CAMBIO 1: Glassmorphism (fondo semitransparente y borroso) */}
+        <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between shadow-2xl relative overflow-hidden group">
+          
+          {/* Luz ambiental de fondo (Lenta) */}
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-emerald-900/10 via-emerald-500/5 to-emerald-900/10 animate-slow-breathe -z-10"></div>
+          
+          <div className="flex items-center gap-6">
+            {/* CAMBIO 2: La Batería */}
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-black/40 flex items-center justify-center border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                {/* CAMBIO 3: Icono de batería con carga interna palpitante */}
+                <BatteryFullIcon />
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-gray-400 text-xs tracking-[0.3em] uppercase font-bold mb-1">Estado del Sistema</h2>
+              <div className="flex items-baseline gap-3">
+                <span className="text-3xl font-black text-white tracking-tight drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">OPERATIVO</span>
+                <span className="text-emerald-400 text-[10px] font-bold px-2 py-1 bg-emerald-950/50 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-slow-breathe"></span>
+                  VIGILANDO
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 md:mt-0 flex items-center gap-8 text-right">
+            <div className="hidden md:block">
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Próximo Check-in</p>
+              <p className="text-2xl font-mono text-white font-bold">{status.nextCheck}</p>
+            </div>
+            
+            {/* Botón mejorado */}
+            <button className="group/btn relative bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white px-8 py-4 rounded-xl font-bold text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:-translate-y-1 overflow-hidden">
+              <span className="relative z-10 flex items-center gap-2">
+                Confirmar Vida
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:translate-x-1 transition-transform"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </span>
+              {/* Brillo al pasar el ratón */}
+              <div className="absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover/btn:animate-[shimmer_1.5s_infinite]"></div>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* PANTALLA: YA TIENE UN SWITCH ACTIVO */}
-      {activeSwitch ? (
-        <div className="bg-gray-900 border border-green-900/50 rounded-2xl p-8 text-center shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-green-500 animate-pulse"></div>
-          
-          <div className="text-green-500 mb-4 flex justify-center">
-            <ShieldIcon />
-          </div>
-          
-          <h3 className="text-2xl font-bold text-white mb-2">Monitoreo Activo</h3>
-          <p className="text-gray-400 mb-6">
-            El sistema está vigilando tu actividad. Tu última señal de vida fue detectada.
-          </p>
-
-          <div className="grid grid-cols-2 gap-4 mb-8 text-left bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-            <div>
-              <span className="text-xs text-gray-500 uppercase font-bold">Destinatario</span>
-              <p className="text-white truncate">{activeSwitch.recipientEmail}</p>
-            </div>
-            <div>
-              <span className="text-xs text-gray-500 uppercase font-bold">Frecuencia</span>
-              <p className="text-white">{activeSwitch.checkInInterval} Días</p>
-            </div>
-            <div className="col-span-2 mt-2">
-              <span className="text-xs text-gray-500 uppercase font-bold">Próximo Disparo</span>
-              <p className="text-red-400 font-mono text-lg">
-                {new Date(activeSwitch.nextTriggerDate).toLocaleDateString()} 
-                <span className="text-sm text-gray-500 ml-2">
-                   ({Math.ceil((new Date(activeSwitch.nextTriggerDate) - new Date()) / (1000 * 60 * 60 * 24))} días restantes)
-                </span>
-              </p>
-            </div>
-          </div>
-
-          <button 
-            onClick={manualCheckIn} 
-            disabled={loading}
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full transition-all flex items-center gap-2 mx-auto shadow-lg shadow-green-900/20"
-          >
-             {loading ? 'Confirmando...' : <><CheckIcon /> Confirmar Vida Ahora</>}
-          </button>
-          
-          <p className="text-xs text-gray-500 mt-4">
-            * Tu sesión activa ya ha renovado el contador automáticamente.
-          </p>
-        </div>
-      ) : (
-        /* PANTALLA: FORMULARIO DE CREACIÓN */
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
-          <form onSubmit={activate} className="space-y-6">
-            
-            {/* Destinatario */}
-            <div>
-              <label className="block text-gray-300 text-sm font-bold mb-2 tracking-wider">DESTINATARIO (EMAIL)</label>
-              <input 
-                type="email" 
-                value={form.recipient}
-                onChange={e => setForm({...form, recipient: e.target.value})}
-                className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3 focus:ring-2 focus:ring-red-500 outline-none"
-                placeholder="abogado@ejemplo.com"
-              />
-            </div>
-
-            {/* Mensaje */}
-            <div>
-              <label className="block text-gray-300 text-sm font-bold mb-2 tracking-wider">CONTENIDO SECRETO</label>
-              <textarea 
-                value={form.note}
-                onChange={e => setForm({...form, note: e.target.value})}
-                rows={5}
-                className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3 focus:ring-2 focus:ring-red-500 outline-none resize-none"
-                placeholder="Escribe aquí tus claves privadas, mensaje de despedida o instrucciones..."
-              />
-            </div>
-
-            {/* Tiempo */}
-            <div>
-              <label className="block text-gray-300 text-sm font-bold mb-2 tracking-wider">TIEMPO DE INACTIVIDAD</label>
-              <select 
-                value={form.interval}
-                onChange={e => setForm({...form, interval: e.target.value})}
-                className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-3 focus:ring-2 focus:ring-red-500 outline-none"
-              >
-                <option value="7">7 Días (1 Semana)</option>
-                <option value="15">15 Días</option>
-                <option value="30">30 Días (1 Mes)</option>
-                <option value="90">90 Días (3 Meses)</option>
-                <option value="365">365 Días (1 Año)</option>
-              </select>
-              <p className="text-xs text-gray-500 mt-2">
-                Si no inicias sesión en este tiempo, el mensaje se enviará.
-              </p>
-            </div>
-
+      {/* --- ZONA PRINCIPAL (VAULT) - Con fondo mejorado --- */}
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex gap-6 p-1 bg-white/5 rounded-full backdrop-blur-md border border-white/10">
             <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg transform hover:scale-[1.01]"
+              onClick={() => setActiveTab('vault')}
+              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'vault' ? 'bg-white/10 text-white shadow-inner' : 'text-gray-400 hover:text-white'}`}
             >
-              {loading ? 'Activando...' : 'ACTIVAR PROTOCOLO'}
+              MI BÓVEDA
             </button>
-          </form>
+            <button 
+              onClick={() => setActiveTab('settings')}
+              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'settings' ? 'bg-white/10 text-white shadow-inner' : 'text-gray-400 hover:text-white'}`}
+            >
+              CONFIGURACIÓN
+            </button>
+          </div>
+          
+          <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-3 rounded-full font-bold text-sm transition-all border border-white/10 hover:border-white/30 backdrop-blur-md shadow-lg">
+            <PlusIcon /> Nuevo Secreto
+          </button>
         </div>
-      )}
+
+        {/* BÓVEDA (Tarjetas con Glassmorphism también) */}
+        {activeTab === 'vault' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <AnimatePresence>
+              {vaultItems.map((item) => (
+                <motion.div 
+                  key={item.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)' }}
+                  // CAMBIO: Glassmorphism en las tarjetas
+                  className="group bg-black/30 backdrop-blur-md border border-white/10 p-6 rounded-2xl cursor-pointer transition-all relative overflow-hidden shadow-xl"
+                >
+                  <div className="flex items-start gap-5">
+                    <div className="w-12 h-12 rounded-xl bg-black/50 flex items-center justify-center text-gray-400 border border-white/5 group-hover:border-white/20 group-hover:text-white transition-colors">
+                      {item.type === 'password' ? <LockIcon /> : <FileTextIcon />}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-1 group-hover:text-red-400 transition-colors">{item.title}</h3>
+                      <p className="text-xs text-gray-500 font-medium">Añadido: {item.date}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+              
+              {/* TARJETA VACÍA */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                whileHover={{ scale: 1.02 }}
+                className="border-2 border-dashed border-white/10 hover:border-white/30 rounded-2xl p-6 flex flex-col items-center justify-center text-gray-500 hover:text-white transition-all cursor-pointer min-h-[120px] bg-white/5 backdrop-blur-sm"
+              >
+                <PlusIcon />
+                <span className="text-xs mt-3 font-bold tracking-wider uppercase">Añadir otro ítem</span>
+              </motion.div>
+
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* CONFIGURACIÓN (Placeholder) */}
+        {activeTab === 'settings' && (
+           <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-2xl p-8 text-center text-gray-400">
+               Panel de configuración en construcción...
+           </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -49,9 +49,14 @@ export default function About() {
           </p>
         </div>
 
-        {/* 2. TARJETA GRANDE: EL ORIGEN */}
-        <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-3xl p-8 md:p-12 mb-24 flex flex-col md:flex-row gap-12 items-center">
-           <div className="md:w-1/2">
+        {/* 2. TARJETA GRANDE: EL ORIGEN (CORREGIDO) */}
+        {/* Añadimos 'flex flex-col md:flex-row items-center gap-12' para que se pongan lado a lado */}
+        <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-3xl p-10 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-12">
+          
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
+           
+           {/* COLUMNA TEXTO */}
+           <div className="md:w-1/2 relative z-10">
              <h2 className="text-3xl font-bold text-white mb-6">El Manifiesto Zyphro</h2>
              <div className="space-y-4 text-gray-300 leading-relaxed">
                <p>
@@ -65,12 +70,24 @@ export default function About() {
                </p>
              </div>
            </div>
-           <div className="md:w-1/2 flex justify-center">
-             {/* Ilustración abstracta con iconos */}
-             <div className="relative w-64 h-64 bg-gradient-to-br from-blue-900/20 to-purple-900/20 rounded-full flex items-center justify-center border border-blue-500/30 animate-pulse-slow">
-                <Icons.Shield style={{width: '80px', height: '80px', color: '#60a5fa'}} />
-                <div className="absolute top-0 right-0 animate-bounce-slow"><Icons.Lock style={{color: '#a78bfa'}} /></div>
-                <div className="absolute bottom-4 left-4"><Icons.Database style={{color: '#60a5fa'}} /></div>
+
+           {/* COLUMNA IMAGEN (ICONOS) */}
+           <div className="md:w-1/2 flex justify-center relative z-10">
+             {/* Añadimos animate-float-slow aquí para el movimiento */}
+             <div className="relative w-64 h-64 bg-gradient-to-br from-blue-900/20 to-purple-900/20 rounded-full flex items-center justify-center border border-blue-500/30 animate-float-slow shadow-[0_0_50px_rgba(59,130,246,0.2)]">
+                
+                {/* Aseguramos que los iconos tengan tamaño y color explícito */}
+                <div className="relative z-10">
+                    <Icons.Shield style={{width: '80px', height: '80px', color: '#60a5fa'}} />
+                </div>
+                
+                <div className="absolute top-4 right-8 animate-bounce">
+                    <Icons.Lock style={{width: '30px', height: '30px', color: '#a78bfa'}} />
+                </div>
+                
+                <div className="absolute bottom-6 left-8">
+                    <Icons.Database style={{width: '30px', height: '30px', color: '#60a5fa'}} />
+                </div>
              </div>
            </div>
         </div>

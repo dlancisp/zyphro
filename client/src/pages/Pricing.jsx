@@ -52,7 +52,7 @@ export default function Pricing() {
         <div className="grid md:grid-cols-3 gap-8 items-start">
           
           {/* --- PLAN GRATIS (Start) --- */}
-          <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-3xl p-8 hover:border-gray-600 transition-all duration-300">
+          <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:bg-white/5 transition-all">
             <h3 className="text-xl font-bold text-gray-300 mb-2">Agente (Gratis)</h3>
             <div className="text-4xl font-bold text-white mb-6">0€ <span className="text-lg text-gray-500 font-normal">/mes</span></div>
             <p className="text-gray-400 text-sm mb-8">Para uso personal y envío ocasional de secretos.</p>
@@ -72,11 +72,10 @@ export default function Pricing() {
           </div>
 
           {/* --- PLAN PRO (Recomendado) --- */}
-          <div className="relative bg-gray-900/80 backdrop-blur-xl border border-blue-500/50 rounded-3xl p-8 transform md:-translate-y-4 shadow-2xl shadow-blue-900/20 hover:scale-[1.02] transition-transform duration-300">
-            {/* Etiqueta Popular */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">
-              Más Popular
-            </div>
+          <div className="glass-panel rounded-3xl p-8 relative transform scale-105 z-10 animate-float-slow border-red-500/30">
+           <div className="absolute -top-4 inset-x-0 flex justify-center">
+             <span className="bg-red-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Más Popular</span>
+           </div>
 
             <h3 className="text-xl font-bold text-white mb-2">Operativo (Pro)</h3>
             <div className="text-4xl font-bold text-white mb-6">9€ <span className="text-lg text-gray-500 font-normal">/mes</span></div>
@@ -97,7 +96,7 @@ export default function Pricing() {
           </div>
 
           {/* --- PLAN ENTERPRISE --- */}
-          <div className="bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-3xl p-8 hover:border-gray-600 transition-all duration-300">
+          <div className="bg-black/40 backdrop-blur-xl border border-red-500/50 rounded-2xl p-8 relative shadow-[0_0_30px_rgba(220,38,38,0.2)]">
             <h3 className="text-xl font-bold text-gray-300 mb-2">Agencia (Corp)</h3>
             <div className="text-4xl font-bold text-white mb-6">Custom</div>
             <p className="text-gray-400 text-sm mb-8">Para organizaciones que requieren control total y auditoría.</p>
