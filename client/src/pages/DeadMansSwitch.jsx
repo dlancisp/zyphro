@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import { useAuth, useUser, SignInButton } from '@clerk/clerk-react'
 
 // Iconos simples (puedes usar tu componente Icons si prefieres)
 const ShieldIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>;
@@ -125,14 +126,25 @@ export default function DeadMansSwitch() {
 
   if (fetching) return <div className="text-center mt-20 text-gray-500">Cargando estado...</div>;
 
+  // SI NO ESTÁ LOGUEADO
   if (!userId) {
     return (
-      <div className="max-w-3xl mx-auto mt-20 p-8 text-center bg-gray-900 border border-red-900/30 rounded-2xl">
+      <div className="max-w-3xl mx-auto mt-20 p-8 text-center bg-gray-900 border border-red-900/30 rounded-2xl shadow-2xl">
+        <div className="flex justify-center mb-4 text-red-500">
+           <ShieldIcon /> {/* Reutilizamos el icono */}
+        </div>
         <h2 className="text-3xl font-bold text-white mb-4">Acceso Restringido</h2>
-        <p className="text-gray-400 mb-6">Necesitas identificarte para configurar tu Dead Man Switch.</p>
-        <Link to="/sign-in" className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-all">
-          Iniciar Sesión
-        </Link>
+        <p className="text-gray-400 mb-8 max-w-md mx-auto">
+          Para configurar tu "Interruptor de Hombre Muerto" y proteger tu legado, necesitamos verificar tu identidad.
+        </p>
+        
+        {/* BOTÓN MÁGICO DE CLERK */}
+        <SignInButton mode="modal">
+          <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-all transform hover:scale-105 shadow-lg shadow-red-900/50">
+            Iniciar Sesión / Registrarse
+          </button>
+        </SignInButton>
+
       </div>
     );
   }
