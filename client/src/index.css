@@ -119,3 +119,73 @@ body {
 .btn-hero:hover {
     background-color: var(--primary-hover);
 }
+
+/* --- 🌌 ZYPHRO DARK CORE (Efectos de Neón) --- */
+
+/* 1. Fondo de Espacio Profundo para el Drop */
+.drop-space-bg {
+  background: #0f172a; /* Fondo oscuro base */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
+}
+
+/* 2. Pulso de Neón (Reposo) */
+@keyframes neon-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+.animate-neon-pulse {
+  animation: neon-pulse 2s infinite;
+}
+
+/* 3. Radar de Escaneo (Buscando) */
+@keyframes radar-scan {
+  0% { transform: scale(0.8); opacity: 0; border-width: 2px; }
+  50% { opacity: 1; }
+  100% { transform: scale(2); opacity: 0; border-width: 0px; }
+}
+.radar-ring-dark::before, .radar-ring-dark::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid #38bdf8; opacity: 0;
+  animation: radar-scan 2s linear infinite;
+}
+.radar-ring-dark::after { animation-delay: 1s; }
+
+/* 4. Vórtice Giratorio (Transfiriendo) */
+@keyframes spin-glow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.vortex-glow {
+  background: conic-gradient(from 0deg, transparent 0%, #2563eb 40%, #22d3ee 60%, transparent 100%);
+  filter: blur(20px);
+  animation: spin-glow 2s linear infinite;
+}
+
+/* Animación de flotación suave */
+@keyframes float-slow {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+/* Brillo que recorre la barra de carga */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s infinite;
+}
+
+/* Sombra corporativa suave */
+.shadow-corporate {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+}

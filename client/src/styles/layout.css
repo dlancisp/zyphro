@@ -1,0 +1,129 @@
+/* ========================================== */
+/* 🏗️ ZYPHRO LAYOUT: Estructura & Páginas     */
+/* ========================================== */
+
+.main-content { margin-top: var(--nav-height); flex: 1; }
+.home-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 60px 24px; }
+
+/* --- 🚀 HERO SECTION --- */
+.hero-section {
+  display: grid; grid-template-columns: 1fr 1fr;
+  /* CAMBIO AQUÍ: Añadimos padding-top generoso y alineamos al centro */
+  align-items: center; gap: 80px; padding-bottom: 100px; padding-top: 60px;
+  min-height: 80vh; /* Asegura que ocupe buen alto en pantallas grandes */
+}
+
+/* Títulos */
+.hero-title {
+  font-size: 3.5rem; line-height: 1.1; font-weight: 800; margin-bottom: 24px;
+  color: var(--text-main);
+}
+.text-gradient {
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-desc {
+  font-size: 1.15rem; color: var(--text-sec); max-width: 500px; margin-bottom: 40px;
+}
+
+/* Chips */
+.service-chips { display: flex; gap: 12px; margin-bottom: 30px; }
+.chip {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--primary-light); color: var(--primary);
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 0.9rem; font-weight: 600;
+}
+
+/* Lista de características */
+.feature-list { list-style: none; margin-top: 40px; display: flex; flex-direction: column; gap: 16px; }
+.feature-list li { 
+    display: flex; align-items: center; gap: 12px; color: var(--text-sec); font-size: 1rem; 
+}
+.feature-list li svg { color: var(--primary); }
+
+
+/* --- 🖥️ PANEL DERECHO ANIMADO (Elegante) --- */
+.hero-visual {
+    perspective: 1000px;
+}
+.glass-card-visual {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  box-shadow: var(--tech-shadow);
+  position: relative; overflow: hidden;
+  transform: rotateY(-5deg) rotateX(2deg);
+  transition: transform 0.3s ease;
+}
+.glass-card-visual:hover { transform: rotateY(0) rotateX(0); }
+
+/* Animación de escaneo sutil */
+.glass-card-visual::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(transparent 0%, rgba(37, 99, 235, 0.05) 50%, transparent 100%);
+    animation: scan-light 3s linear infinite; pointer-events: none;
+}
+@keyframes scan-light { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+
+.visual-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px;
+}
+.visual-dots span { width: 10px; height: 10px; background: var(--border); border-radius: 50%; display: inline-block; margin-right: 6px; }
+.visual-title { font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-sec); font-weight: 500; }
+
+.encryption-process {
+    display: flex; flex-direction: column; gap: 20px;
+}
+.process-step {
+    display: flex; align-items: center; gap: 16px;
+    font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-sec);
+}
+.step-icon { color: var(--primary); }
+.step-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--primary); border-radius: 3px; animation: fill-bar 2s ease-out forwards; }
+@keyframes fill-bar { from { width: 0; } to { width: 100%; } }
+
+.process-status {
+    margin-top: 24px; padding: 16px; background: var(--primary-light);
+    border-radius: var(--radius-md); color: var(--primary-dark);
+    font-weight: 600; text-align: center; font-family: var(--font-mono);
+}
+
+
+/* --- 🦶 FOOTER (Limpio estilo Internxt) --- */
+.big-footer {
+  background: var(--bg-panel); /* Fondo blanco */
+  border-top: 1px solid var(--border);
+  padding: 80px 0 40px; color: var(--text-sec);
+}
+.footer-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+.footer-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; /* Columna de marca más ancha */
+  gap: 40px; margin-bottom: 60px;
+}
+
+.footer-brand-col .nav-brand { font-size: 1.8rem; margin-bottom: 16px; display: inline-block; }
+.footer-desc { font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; max-width: 300px; }
+
+.footer-title {
+  color: var(--text-main); font-weight: 700; margin-bottom: 20px; font-size: 1rem;
+}
+.footer-link {
+  color: var(--text-sec); text-decoration: none; transition: color 0.2s;
+  font-weight: 500; display: block; padding: 6px 0; font-size: 0.95rem;
+}
+.footer-link:hover { color: var(--primary); }
+
+.footer-bottom {
+    border-top: 1px solid var(--border); padding-top: 32px;
+    display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;
+}
+.footer-socials { display: flex; gap: 16px; }
+.social-icon { color: var(--text-muted); transition: color 0.2s; }
+.social-icon:hover { color: var(--primary); }

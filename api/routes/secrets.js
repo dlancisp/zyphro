@@ -1,66 +1,71 @@
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
-import { z } from 'zod';
-import { SecretSchema, CheckInSchema } from '../utils/schemas.js';
-
+const express = require('express');
 const router = express.Router();
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// ➤ CREAR SECRETO
+// POST /api/secret
 router.post('/secret', async (req, res) => {
   try {
-    const { cipherText } = SecretSchema.parse(req.body);
+    console.log("📥 Recibiendo petición Secure Drop:", req.body);
+
+    const { cipherText, nonce, ttl } = req.body;
+
+    // Validación básica: Solo necesitamos el texto cifrado
+    if (!cipherText) {
+      console.error("❌ Falta cipherText");
+      return res.status(400).json({ error: 'No se recibió el contenido cifrado' });
+    }
+
+    // Calcular caducidad (Default 24h)
+    const timeToLive = ttl ? parseInt(ttl) : 86400;
+    const expiresAt = new Date(Date.now() + timeToLive * 1000);
+
+    // Guardar en DB
     const newSecret = await prisma.secret.create({
       data: {
-        cipherText, 
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+        title: "Secure Drop",
+        type: "drop",
+        content: cipherText,
+        // Si no hay nonce, guardamos null (la DB ahora lo permite gracias al paso 1)
+        nonce: nonce || null, 
+        expiresAt: expiresAt,
+        userId: null
       }
     });
+
+    console.log("✅ Drop creado con ID:", newSecret.id);
     res.json({ id: newSecret.id });
+
   } catch (error) {
-    if (error instanceof z.ZodError) return res.status(400).json({ error: 'Datos inválidos' });
-    res.status(500).json({ error: 'Error servidor' });
+    console.error("🔥 Error CRÍTICO en Drop:", error);
+    // Devolvemos JSON siempre, nunca HTML, con detalles del error
+    res.status(500).json({ 
+      error: 'Error interno del servidor', 
+      details: error.message 
+    });
   }
 });
 
-// ➤ LEER SECRETO (Burn on read)
+// GET /api/secret/:id
 router.get('/secret/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const secret = await prisma.secret.findUnique({ where: { id } });
-    if (!secret) return res.status(404).json({ error: 'No existe o expiró' });
-    
-    await prisma.secret.delete({ where: { id } }); 
-    res.json({ cipherText: secret.cipherText });
+
+    if (!secret) return res.status(404).json({ error: 'Secreto no encontrado' });
+
+    // Burn on read
+    await prisma.secret.delete({ where: { id } });
+
+    res.json({ 
+      cipherText: secret.content,
+      nonce: secret.nonce 
+    });
+
   } catch (error) {
-    res.status(500).json({ error: 'Error lectura' });
+    console.error("Error Lectura:", error);
+    res.status(500).json({ error: 'Error al leer' });
   }
 });
 
-// ➤ DEAD MAN SWITCH (Básico)
-router.post('/switch/create', async (req, res) => {
-  try {
-    const { recipientEmail, encryptedContent, checkInFrequency } = req.body;
-    if(!recipientEmail || !encryptedContent) return res.status(400).json({error: "Faltan datos"});
-    const newSwitch = await prisma.switch.create({
-      data: {
-        recipientEmail,
-        encryptedContent,
-        checkInFrequency: parseInt(checkInFrequency),
-        lastCheckIn: new Date(),
-        isActive: true
-      }
-    });
-    res.json({ id: newSwitch.id });
-  } catch (e) { res.status(500).json({ error: 'Error creando switch' }); }
-});
-
-router.post('/switch/checkin', async (req, res) => {
-  try {
-    const { id } = CheckInSchema.parse(req.body);
-    await prisma.switch.update({ where: { id }, data: { lastCheckIn: new Date() } });
-    res.json({ success: true });
-  } catch (e) { res.status(400).json({ error: 'Error check-in' }); }
-});
-
-export default router;
+module.exports = router;

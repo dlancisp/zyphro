@@ -1,0 +1,54 @@
+/* ========================================== */
+/* 🧬 ZYPHRO DNA: Corporate Tech Theme (Light) */
+/* ========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* 🎨 Paleta de Colores (Light Mode) */
+  --bg-body: #f8fafc;       /* Fondo principal claro (gris muy suave) */
+  --bg-panel: #ffffff;      /* Fondo de paneles (blanco puro) */
+  --bg-input: #f1f5f9;      /* Fondo de inputs */
+  
+  /* Color Principal: Azul Corporativo */
+  --primary: #2563eb;       /* Azul vibrante para acciones principales */
+  --primary-dark: #1e40af;  /* Azul más oscuro para hovers */
+  --primary-light: #dbeafe; /* Azul muy claro para fondos sutiles */
+
+  /* Color Secundario: Cian Tecnológico */
+  --accent: #06b6d4;
+
+  /* Textos */
+  --text-main: #0f172a;     /* Azul muy oscuro para texto principal (casi negro) */
+  --text-sec: #475569;      /* Gris azulado para texto secundario */
+  --text-muted: #94a3b8;    /* Gris más claro para detalles */
+
+  --border: #e2e8f0;        /* Bordes sutiles */
+
+  /* 📏 Tipografía */
+  --font-sans: 'Inter', sans-serif; /* Fuente principal moderna y limpia */
+  --font-mono: 'JetBrains Mono', monospace; /* Fuente técnica para detalles */
+
+  /* 📏 Medidas Globales */
+  --nav-height: 70px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  /* Patrón de fondo sutil y tecnológico */
+  background-image: radial-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Utilidades */
+.tech-shadow {
+    box-shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.1), 0 4px 10px -3px rgba(37, 99, 235, 0.05);
+}

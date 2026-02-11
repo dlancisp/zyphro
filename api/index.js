@@ -1,79 +1,63 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import dotenv from 'dotenv';
+import { createServer } from 'http'; // Necesario para Socket.io
+import { Server } from 'socket.io';  // La librería que acabamos de instalar
 
-// ✅ NUEVO: Importamos el SDK de Clerk
-const { ClerkExpressWithAuth } = require('@clerk/clerk-sdk-node');
+// Tus rutas actuales (asegúrate de que los archivos existen en /routes)
+import authRoutes from './routes/auth.js';
+// import dropRoutes from './routes/storage.js'; // Descomenta cuando renombres vault.js a storage.js
+// import switchRoutes from './routes/switch.js'; // Descomenta cuando renombres dms.js a switch.js
+// import cronRoutes from './routes/cron.js';    // Descomenta si tienes cron.js
 
-const cronRoutes = require('./routes/cron');
-const dmsRoutes = require('./routes/dms');
-const vaultRoutes = require('./routes/vault');
-const authRoutes = require('./routes/auth');
-const secretRoutes = require('./routes/secrets');
+dotenv.config();
 
 const app = express();
 
-app.set('trust proxy', 1);
+// 1. Creamos el servidor HTTP explícitamente para unir Express + Socket.io
+const httpServer = createServer(app);
 
-// --- MIDDLEWARES (El orden es CRÍTICO) ---
+// 2. Configuramos Socket.io (El cerebro del P2P)
+const io = new Server(httpServer, {
+  cors: { 
+    origin: "*", // En producción esto deberá ser tu dominio real (zyphro.net)
+    methods: ["GET", "POST"] 
+  }
+});
 
-// 1. Seguridad básica
-app.use(helmet());
-
-// 2. ✅ MOVIDO: CORS debe ir ANTES de las rutas
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://zyphro.vercel.app", // Añade tu dominio de Vercel si es distinto
-    "https://zyphro.com",
-    "https://www.zyphro.com"
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}));
-
-// 3. Parsers y Logs
-app.use(cookieParser());
+app.use(express.json({ limit: '50mb' }));
+app.use(cors());
 app.use(morgan('dev'));
-app.use(express.json({ limit: '50kb' }));
 
-// 4. Rate Limit
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
-});
-app.use(limiter);
-
-// 5. ✅ NUEVO: Autenticación Global de Clerk
-// Esto lee el token del usuario y lo pone en req.auth (si existe)
-// No bloquea la ruta, pero permite saber quién es el usuario.
-app.use(ClerkExpressWithAuth());
-
-
-// --- RUTAS ---
-app.use('/api/cron', cronRoutes);
-app.use('/api/dms', dmsRoutes);
-app.use('/api/vault', vaultRoutes); 
-
-// Rutas antiguas / públicas
-app.use('/api', authRoutes.default || authRoutes);
-app.use('/api', secretRoutes.default || secretRoutes);
-
-// Health Check
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK', env: process.env.NODE_ENV });
-});
-
-// Server Listen (Solo local, Vercel no usa esto)
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// 3. Lógica de Señalización P2P (Esto conecta a Alice con Bob)
+io.on('connection', (socket) => {
+  console.log('🔗 Usuario conectado al Socket:', socket.id);
+  
+  // Cuando alguien quiere iniciar una llamada P2P
+  socket.on('callUser', (data) => {
+    io.to(data.userToCall).emit('callUser', { signal: data.signalData, from: data.from });
   });
-}
 
-module.exports = app;
+  // Cuando el otro responde
+  socket.on('answerCall', (data) => {
+    io.to(data.to).emit('callAccepted', data.signal);
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('Usuario desconectado:', socket.id);
+  });
+});
+
+// Rutas API REST normales
+app.use('/api/auth', authRoutes);
+// app.use('/api/drop', dropRoutes);
+// app.use('/api/switch', switchRoutes);
+// app.use('/api/cron', cronRoutes);
+
+const PORT = process.env.PORT || 3000;
+
+// IMPORTANTE: Usamos httpServer.listen en vez de app.listen
+httpServer.listen(PORT, () => {
+  console.log(`🚀 Zyphro API + Sockets corriendo en puerto ${PORT}`);
+});

@@ -1,0 +1,79 @@
+/* ========================================== */
+/* 🧩 ZYPHRO UI: Componentes Corporativos     */
+/* ========================================== */
+
+/* --- 🧭 NAVBAR --- */
+.navbar {
+  height: var(--nav-height);
+  width: 100%;
+  position: fixed; top: 0; z-index: 1000;
+  background: rgba(255, 255, 255, 0.9); /* Fondo blanco semitransparente */
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; align-items: center;
+}
+
+.nav-container {
+  width: 100%; max-width: 1200px; padding: 0 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  height: 100%;
+}
+
+/* Marca (Logo) */
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--primary); /* Color azul corporativo */
+  font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px;
+}
+.nav-brand span {
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Enlaces */
+.nav-links-center { 
+    display: flex; gap: 32px; align-items: center; height: 100%; 
+}
+.nav-link {
+  color: var(--text-sec); text-decoration: none; font-size: 0.95rem; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;
+  height: 100%;
+}
+.nav-link:hover { color: var(--primary); }
+
+/* Botones Auth */
+.btn-login { 
+    color: var(--text-sec); text-decoration: none; font-size: 0.95rem; font-weight: 600; 
+    transition: color 0.2s;
+}
+.btn-login:hover { color: var(--primary); }
+
+.btn-register-small {
+  background: var(--primary); color: white; text-decoration: none;
+  padding: 10px 20px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.btn-register-small:hover { background: var(--primary-dark); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+
+
+/* --- 🔘 BOTONES PRINCIPALES --- */
+.btn-hero {
+  background: var(--primary); color: white; border: none;
+  padding: 16px 32px; border-radius: var(--radius-md); 
+  font-weight: 700; font-size: 1.1rem; cursor: pointer; width: fit-content; 
+  transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 12px;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+.btn-hero:hover { 
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* --- 📦 CARDS --- */
+.feature-wrapper {
+  background: var(--bg-panel); border: 1px solid var(--border); 
+  border-radius: var(--radius-lg); padding: 40px; text-align: center;
+  box-shadow: var(--tech-shadow);
+}

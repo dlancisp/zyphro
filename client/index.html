@@ -17,7 +17,15 @@
     <meta property="og:image" content="https://zyphro.com/favicon.svg" />
 
     <meta name="theme-color" content="#111827" />
-  </head>
+
+    <script>
+      // Esto engaña al navegador para que crea que es un servidor Node.js
+      // Sin esto, la librería 'simple-peer' rompe la página.
+      if (typeof global === 'undefined') {
+        window.global = window;
+      }
+    </script>
+    </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

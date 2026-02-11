@@ -1,136 +1,166 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Icons } from '../components/Icons';
+import { Shield, Zap, Lock, FileKey, Send, Check, Github, File, LockKeyhole, Share2 } from 'lucide-react';
 
-function Home() {
+const Home = () => {
   return (
-    <div className="home-container">
-      
-      {/* --- SECCIÓN 1: HERO (Ya la tenías) --- */}
-      <section className="hero-section">
-        <div className="hero-content">
-          <div className="service-chips">
-            <div className="chip"><Icons.Lock /> Secure Drop</div>
-            <div className="chip"><Icons.Shield /> Dead Man Switch</div>
-            <div className="chip"><Icons.Send /> Anon Mail</div>
-          </div>
-
-          <h1 className="hero-title">
-            Tu privacidad no es negociable.<br />
-            <span className="text-gradient">Es matemática pura.</span>
-          </h1>
-
-          <p className="hero-desc">
-            Infraestructura de intercambio de secretos <strong>Zero-Knowledge</strong>. 
-            Protegido con XChaCha20-Poly1305. Nosotros no podemos leer tus datos.
-          </p>
-
-          <div className="hero-checklist">
-            <div className="check-item"><span className="check-icon">✓</span> Código Abierto y Auditable</div>
-            <div className="check-item"><span className="check-icon">✓</span> Sin registros (No-Logs Policy)</div>
-            <div className="check-item"><span className="check-icon">✓</span> Cifrado en tu dispositivo</div>
-          </div>
-
-          <div className="hero-actions">
-            <Link to="/register" className="btn-hero btn-main">Empezar Gratis</Link>
-            <div className="trust-badge"><span className="dot"></span> Garantía de anonimato</div>
-          </div>
+    <div className="min-h-screen bg-[#F8FAFC] overflow-hidden"> 
+      <div className="max-w-7xl mx-auto px-6 pt-24 lg:pt-32 pb-20 relative">
+        
+        {/* ELEMENTOS FLOTANTES DE FONDO (ESTILO INTERNXT) */}
+        <div className="absolute top-40 right-[10%] w-16 h-16 bg-white shadow-corporate rounded-2xl flex items-center justify-center animate-float-slow hidden lg:flex">
+            <File className="text-accent" size={28} />
+        </div>
+        <div className="absolute bottom-40 right-[40%] w-12 h-12 bg-accent-light rounded-xl flex items-center justify-center animate-float-slow delay-700 hidden lg:flex">
+            <LockKeyhole className="text-accent" size={20} />
+        </div>
+        <div className="absolute top-60 right-[35%] w-14 h-14 bg-white shadow-corporate rounded-full flex items-center justify-center animate-float-slow delay-1000 hidden lg:flex border border-slate-100">
+            <Share2 className="text-accent" size={24} />
         </div>
 
-        <div className="hero-visual">
-          <div className="glass-card-visual">
-            <div className="visual-header">
-              <div className="visual-dots"><span></span><span></span><span></span></div>
-              <div className="visual-bar">zyphro.com/secure-drop</div>
-            </div>
-            <div className="visual-body">
-              <div className="visual-row">
-                <div className="visual-icon"><Icons.Lock /></div>
-                <div className="visual-text">
-                  <div className="line short"></div>
-                  <div className="line long"></div>
-                </div>
-              </div>
-              <div className="visual-code-block">Lx8/oOshN3SYLL4Vp0BeXjrLc3...</div>
-              <div className="visual-btn">Encriptar</div>
-            </div>
-            <div className="float-card"><Icons.Shield /><span>100% Secure</span></div>
-          </div>
-        </div>
-      </section>
-
-
-      {/* --- SECCIÓN 2: PRECIOS (NUEVA) --- */}
-      <section className="pricing-section">
-        <div className="pricing-header">
-          <h2 className="section-title-center">Planes simples y transparentes</h2>
-          <p className="section-subtitle">Elige el nivel de anonimato que necesitas.</p>
-        </div>
-
-        <div className="pricing-grid">
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
-          {/* TARJETA 1: GRATIS */}
-          <div className="pricing-card">
-            <h3 className="plan-name">Anónimo</h3>
-            <div className="price-tag">
-              <span className="amount">€0</span>
-              <span className="period">/mes</span>
+          {/* CONTENIDO IZQUIERDA (6 Columnas) */}
+          <div className="lg:col-span-6 z-10">
+            <div className="flex gap-2 mb-6">
+              <span className="bg-accent-light text-accent px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border border-accent/10">
+                <Shield size={14} /> ZERO-KNOWLEDGE
+              </span>
+              <span className="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+                <Zap size={14} /> P2P LIMITLESS
+              </span>
             </div>
-            <p className="plan-desc">Para enviar secretos puntuales.</p>
-            <Link to="/register" className="btn-outline">Crear Cuenta</Link>
+
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-text-primary mb-6 leading-[1.1] tracking-tight">
+              Tu internet más <br />
+              <span className="text-accent">ético y privado.</span>
+            </h1>
             
-            <ul className="feature-list">
-              <li><Icons.Check /> 10 Secretos al día</li>
-              <li><Icons.Check /> Cifrado XChaCha20</li>
-              <li><Icons.Check /> Caducidad: 24 horas</li>
-              <li className="disabled">❌ Dead Man Switch</li>
-              <li className="disabled">❌ Anon Mail</li>
-            </ul>
+            <p className="text-lg lg:text-xl text-text-secondary mb-8 max-w-lg leading-relaxed">
+              Zyphro es la alternativa europea segura. Envía archivos sin límites de tamaño con cifrado post-cuántico real.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                <Link to="/drop" className="bg-accent hover:bg-accent-dark text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all shadow-corporate-lg hover:-translate-y-1">
+                <Send size={20} /> Enviar Archivo Ahora
+                </Link>
+                <button className="bg-white border border-border-light text-text-primary px-8 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all">
+                Saber más
+                </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-text-secondary font-medium text-sm">
+                <div className="bg-green-100 p-1 rounded-full"><Check className="text-success" size={14} /></div>
+                Cifrado XChaCha20-Poly1305.
+              </div>
+              <div className="flex items-center gap-3 text-text-secondary font-medium text-sm">
+                <div className="bg-green-100 p-1 rounded-full"><Check className="text-success" size={14} /></div>
+                Código 100% abierto y auditable.
+              </div>
+            </div>
           </div>
 
-          {/* TARJETA 2: PRO (DESTACADA) */}
-          <div className="pricing-card featured">
-            <div className="recommended-badge">Recomendado</div>
-            <h3 className="plan-name">Agente</h3>
-            <div className="price-tag">
-              <span className="amount">€4.99</span>
-              <span className="old-price">€9.00</span>
-            </div>
-            <p className="plan-desc">Privacidad total y herramientas activas.</p>
-            <Link to="/register" className="btn-hero btn-full">Seleccionar Plan</Link>
-            
-            <ul className="feature-list">
-              <li><Icons.Check /> <strong>Secretos Ilimitados</strong></li>
-              <li><Icons.Check /> Caducidad: Hasta 30 días</li>
-              <li><Icons.Check /> Dead Man Switch (1 activo)</li>
-              <li><Icons.Check /> Anon Mail (5/día)</li>
-              <li><Icons.Check /> Soporte Prioritario</li>
-            </ul>
-          </div>
+          {/* DASHBOARD DERECHA (6 Columnas) */}
+          <div className="lg:col-span-6 relative mt-12 lg:mt-0">
+            {/* CAJA PRINCIPAL ANIMADA */}
+            <div className="bg-white p-8 rounded-[2.5rem] shadow-corporate-lg border border-border-light relative z-20 overflow-hidden transition-transform hover:scale-[1.02] duration-500">
+               <div className="flex items-center justify-between mb-10">
+                 <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-slate-100"></div>
+                    <div className="w-3 h-3 rounded-full bg-slate-100"></div>
+                    <div className="w-3 h-3 rounded-full bg-slate-100"></div>
+                 </div>
+                 <div className="text-[10px] font-mono font-bold text-slate-400 tracking-widest uppercase">Secure Transfer Protocol</div>
+               </div>
 
-          {/* TARJETA 3: EMPRESAS */}
-          <div className="pricing-card">
-            <h3 className="plan-name">Organización</h3>
-            <div className="price-tag">
-              <span className="amount">€19</span>
-              <span className="period">/mes</span>
-            </div>
-            <p className="plan-desc">Para equipos de seguridad y periodistas.</p>
-            <Link to="/register" className="btn-outline">Contactar Ventas</Link>
-            
-            <ul className="feature-list">
-              <li><Icons.Check /> Todo lo de Agente</li>
-              <li><Icons.Check /> Dead Man Switch Ilimitado</li>
-              <li><Icons.Check /> Anon Mail Ilimitado</li>
-              <li><Icons.Check /> Panel de Auditoría</li>
-              <li><Icons.Check /> API Access</li>
-            </ul>
-          </div>
+               <div className="space-y-8">
+                 <div className="flex items-center gap-5">
+                    <div className="bg-accent-light p-4 rounded-2xl">
+                        <FileKey className="text-accent" size={32} />
+                    </div>
+                    <div className="flex-1 space-y-3">
+                        <div className="h-2.5 bg-slate-100 rounded-full w-full overflow-hidden relative">
+                            <div className="absolute inset-0 bg-accent w-2/3 animate-shimmer"></div>
+                        </div>
+                        <div className="h-2 bg-slate-50 rounded-full w-1/2"></div>
+                    </div>
+                 </div>
 
+                 <div className="bg-slate-900 p-6 rounded-2xl font-mono text-xs leading-relaxed shadow-inner">
+                    <div className="text-accent flex gap-2"><span>{">"}</span> <span className="text-white opacity-80">sharding_file...</span> <span className="text-success">OK</span></div>
+                    <div className="text-accent flex gap-2"><span>{">"}</span> <span className="text-white opacity-80">generating_ephemeral_keys...</span></div>
+                    <div className="text-accent flex gap-2"><span>{">"}</span> <span className="text-white opacity-80">cipher:</span> <span className="text-cyan-400">XChaCha20</span></div>
+                 </div>
+
+                 <div className="w-full py-4 bg-accent text-white text-center rounded-2xl font-bold tracking-wide shadow-lg shadow-accent/20 animate-pulse">
+                    TRANSFERENCIA LISTA
+                 </div>
+               </div>
+            </div>
+
+            {/* MINI CAJA ADICIONAL (Dinamismo) */}
+            <div className="absolute -bottom-6 -left-10 bg-white p-4 rounded-2xl shadow-corporate border border-border-light z-30 flex items-center gap-4 animate-float-slow hidden xl:flex">
+                <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
+                    <Shield className="text-success" size={20} />
+                </div>
+                <div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Status</div>
+                    <div className="text-xs font-bold text-text-primary leading-none">Protección Activa</div>
+                </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* FOOTER ESTILO INTERNXT */}
+      <footer className="bg-white border-t border-border-light pt-20 pb-10">
+        <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-20 text-sm">
+                <div className="col-span-2">
+                    <h2 className="text-3xl font-black text-accent mb-6 tracking-tighter italic">ZYPHRO</h2>
+                    <p className="text-text-secondary max-w-xs leading-relaxed font-medium">
+                        Construyendo el transporte de datos más seguro del planeta mediante arquitectura de conocimiento cero.
+                    </p>
+                </div>
+                <div>
+                    <h4 className="font-bold text-text-primary mb-6">Producto</h4>
+                    <ul className="space-y-4 text-slate-500 font-medium">
+                        <li className="hover:text-accent transition-colors"><Link to="/drop">Secure Drop</Link></li>
+                        <li className="hover:text-accent transition-colors"><Link to="/switch">Dead Man Switch</Link></li>
+                        <li className="hover:text-accent transition-colors">Anon Mail</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 className="font-bold text-text-primary mb-6">Recursos</h4>
+                    <ul className="space-y-4 text-slate-500 font-medium">
+                        <li className="hover:text-accent transition-colors">Criptografía</li>
+                        <li className="hover:text-accent transition-colors">Auditoría</li>
+                        <li className="hover:text-accent transition-colors">Whitepaper</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 className="font-bold text-text-primary mb-6">Legal</h4>
+                    <ul className="space-y-4 text-slate-500 font-medium">
+                        <li className="hover:text-accent transition-colors">Privacidad</li>
+                        <li className="hover:text-accent transition-colors">Seguridad</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="text-slate-400 text-xs font-bold">
+                    ZYPHRO © 2026. PROTECTED BY XCHACHA20.
+                </div>
+                <div className="flex gap-6 items-center grayscale opacity-60">
+                    <Github size={18} className="cursor-pointer hover:grayscale-0 transition-all" />
+                    <div className="font-black italic text-xl text-slate-900 tracking-tighter">reddit</div>
+                </div>
+            </div>
         </div>
-      </section>
-
+      </footer>
     </div>
   );
-}
+};
 
 export default Home;

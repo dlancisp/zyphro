@@ -28,20 +28,19 @@ model User {
   secrets         Secret[]
 }
 
-// LA BÓVEDA (Adaptada para XChaCha20)
+// LA BÓVEDA Y LOS DROPS
 model Secret {
   id        String   @id @default(cuid())
-  
   title     String
-  type      String   // 'password', 'note', 'crypto', 'file'
+  type      String   // 'password', 'note', 'drop'
   
-  // DATOS CIFRADOS (XChaCha20-Poly1305)
-  content   String   // El Ciphertext (+ Auth Tag, que suele ir pegado al final)
-  nonce     String?  // El Nonce de 24 bytes (Necesario para descifrar)
+  content   String   // El texto cifrado
+  
+  // 👇 CAMBIO IMPORTANTE: Añade '?' al final para hacerlo opcional
+  nonce     String?  
 
   createdAt DateTime @default(now())
-  
-  // Relación con Usuario
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime?
+  userId    String?  
+  user      User?    @relation(fields: [userId], references: [id])
 }
