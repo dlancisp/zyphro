@@ -2,26 +2,29 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { createServer } from 'http'; // Necesario para Socket.io
-import { Server } from 'socket.io';  // La librería que acabamos de instalar
+import { createServer } from 'http'; 
+import { Server } from 'socket.io'; 
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Tus rutas actuales (asegúrate de que los archivos existen en /routes)
+// Rutas (Asegúrate de tener estos archivos creados o déjalos comentados)
 import authRoutes from './routes/auth.js';
-// import dropRoutes from './routes/storage.js'; // Descomenta cuando renombres vault.js a storage.js
-// import switchRoutes from './routes/switch.js'; // Descomenta cuando renombres dms.js a switch.js
-// import cronRoutes from './routes/cron.js';    // Descomenta si tienes cron.js
+// import dropRoutes from './routes/storage.js'; 
+// import switchRoutes from './routes/switch.js'; 
 
 dotenv.config();
 
 const app = express();
-
-// 1. Creamos el servidor HTTP explícitamente para unir Express + Socket.io
 const httpServer = createServer(app);
 
-// 2. Configuramos Socket.io (El cerebro del P2P)
+// Configuración de rutas para ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Socket.io con configuración adaptable
 const io = new Server(httpServer, {
   cors: { 
-    origin: "*", // En producción esto deberá ser tu dominio real (zyphro.net)
+    origin: "*", 
     methods: ["GET", "POST"] 
   }
 });
@@ -30,34 +33,40 @@ app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 app.use(morgan('dev'));
 
-// 3. Lógica de Señalización P2P (Esto conecta a Alice con Bob)
+// Lógica de Señalización P2P
 io.on('connection', (socket) => {
-  console.log('🔗 Usuario conectado al Socket:', socket.id);
+  console.log('🔗 Usuario conectado:', socket.id);
   
-  // Cuando alguien quiere iniciar una llamada P2P
   socket.on('callUser', (data) => {
     io.to(data.userToCall).emit('callUser', { signal: data.signalData, from: data.from });
   });
 
-  // Cuando el otro responde
   socket.on('answerCall', (data) => {
     io.to(data.to).emit('callAccepted', data.signal);
   });
   
   socket.on('disconnect', () => {
-    console.log('Usuario desconectado:', socket.id);
+    console.log('Usuario desconectado');
   });
 });
 
-// Rutas API REST normales
+// Rutas API
 app.use('/api/auth', authRoutes);
-// app.use('/api/drop', dropRoutes);
-// app.use('/api/switch', switchRoutes);
-// app.use('/api/cron', cronRoutes);
+
+// --- 🌍 CONFIGURACIÓN PARA DESPLIEGUE (PRODUCCIÓN) ---
+// Si estamos en producción, servimos el Frontend compilado
+if (process.env.NODE_ENV === 'production') {
+  // Apuntamos a la carpeta 'dist' que genera Vite al compilar
+  app.use(express.static(path.join(__dirname, '../client/dist')));
+
+  // Cualquier ruta que no sea de la API, carga el index.html del cliente
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
+  });
+}
 
 const PORT = process.env.PORT || 3000;
 
-// IMPORTANTE: Usamos httpServer.listen en vez de app.listen
 httpServer.listen(PORT, () => {
-  console.log(`🚀 Zyphro API + Sockets corriendo en puerto ${PORT}`);
+  console.log(`🚀 Zyphro Online en puerto ${PORT}`);
 });
