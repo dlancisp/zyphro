@@ -24,7 +24,10 @@ const __dirname = path.dirname(__filename);
 // Socket.io con configuración adaptable
 const io = new Server(httpServer, {
   cors: { 
-    origin: "*", 
+    // Permitimos cualquier origen en producción o configuramos tu dominio
+    origin: process.env.NODE_ENV === 'production' 
+      ? ["https://zyphro.com", "https://zyphro.vercel.app"] 
+      : "*", 
     methods: ["GET", "POST"] 
   }
 });
@@ -35,18 +38,20 @@ app.use(morgan('dev'));
 
 // Lógica de Señalización P2P
 io.on('connection', (socket) => {
-  console.log('🔗 Usuario conectado:', socket.id);
-  
+  // Cuando el receptor abre el link, avisa al emisor
+  socket.on('notifyEntry', (emisorId) => {
+    io.to(emisorId).emit('requestSignal', socket.id);
+  });
+
   socket.on('callUser', (data) => {
-    io.to(data.userToCall).emit('callUser', { signal: data.signalData, from: data.from });
+    io.to(data.userToCall).emit('callUser', { 
+      signalData: data.signalData, 
+      from: data.from 
+    });
   });
 
   socket.on('answerCall', (data) => {
     io.to(data.to).emit('callAccepted', data.signal);
-  });
-  
-  socket.on('disconnect', () => {
-    console.log('Usuario desconectado');
   });
 });
 
