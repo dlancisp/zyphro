@@ -2,69 +2,44 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { createServer } from 'http'; 
-import { Server } from 'socket.io'; 
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Rutas (Asegúrate de tener estos archivos creados o déjalos comentados)
+// Importación de Rutas
 import authRoutes from './routes/auth.js';
-// import dropRoutes from './routes/storage.js'; 
-// import switchRoutes from './routes/switch.js'; 
+import secretRoutes from './routes/secrets.js'; 
+import switchRoutes from './routes/switch.js';
 
 dotenv.config();
 
 const app = express();
-const httpServer = createServer(app);
 
 // Configuración de rutas para ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Socket.io con configuración adaptable
-const io = new Server(httpServer, {
-  cors: { 
-    // Permitimos cualquier origen en producción o configuramos tu dominio
-    origin: process.env.NODE_ENV === 'production' 
-      ? ["https://zyphro.com", "https://zyphro.vercel.app"] 
-      : "*", 
-    methods: ["GET", "POST"] 
-  }
-});
-
-app.use(express.json({ limit: '50mb' }));
+// Middlewares Globales
+app.use(express.json({ limit: '10mb' })); // Optimizado para mensajes de texto cifrados
 app.use(cors());
 app.use(morgan('dev'));
 
-// Lógica de Señalización P2P
-io.on('connection', (socket) => {
-  // Cuando el receptor abre el link, avisa al emisor
-  socket.on('notifyEntry', (emisorId) => {
-    io.to(emisorId).emit('requestSignal', socket.id);
-  });
+// --- 🛣️ RUTAS DE LA API ---
 
-  socket.on('callUser', (data) => {
-    io.to(data.userToCall).emit('callUser', { 
-      signalData: data.signalData, 
-      from: data.from 
-    });
-  });
+// Ruta para Mensajes Efímeros (Secure Drop)
+app.use('/api/messages', secretRoutes); 
 
-  socket.on('answerCall', (data) => {
-    io.to(data.to).emit('callAccepted', data.signal);
-  });
-});
-
-// Rutas API
+// Ruta para Autenticación (Clerk)
 app.use('/api/auth', authRoutes);
 
-// --- 🌍 CONFIGURACIÓN PARA DESPLIEGUE (PRODUCCIÓN) ---
-// Si estamos en producción, servimos el Frontend compilado
+// Ruta para el Dead Man Switch
+app.use('/api/switch', switchRoutes);
+
+// --- 🌍 CONFIGURACIÓN PARA PRODUCCIÓN ---
 if (process.env.NODE_ENV === 'production') {
-  // Apuntamos a la carpeta 'dist' que genera Vite al compilar
+  // Servimos los archivos estáticos de la carpeta 'dist' del cliente
   app.use(express.static(path.join(__dirname, '../client/dist')));
 
-  // Cualquier ruta que no sea de la API, carga el index.html del cliente
+  // Cualquier ruta que no sea de la API carga el index.html del Frontend
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
   });
@@ -72,6 +47,14 @@ if (process.env.NODE_ENV === 'production') {
 
 const PORT = process.env.PORT || 3000;
 
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Zyphro Online en puerto ${PORT}`);
+// Usamos app.listen directamente (ya no necesitamos httpServer para Sockets)
+app.listen(PORT, () => {
+  console.log(`
+  🚀 ZYPHRO CORE ACTIVO
+  ---------------------------
+  📍 Puerto: ${PORT}
+  🔐 Modo: Mensajería Efímera (Drop)
+  🐘 Database: Neon PostgreSQL
+  ---------------------------
+  `);
 });

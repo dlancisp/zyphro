@@ -1,71 +1,63 @@
-const express = require('express');
+import express from 'express';
+import { PrismaClient } from '@prisma/client';
+
 const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// POST /api/secret
-router.post('/secret', async (req, res) => {
+// POST /api/secrets/create -> Crear mensaje con XChaCha20
+router.post('/create', async (req, res) => {
   try {
-    console.log("📥 Recibiendo petición Secure Drop:", req.body);
+    const { content, nonce, viewOnce } = req.body;
 
-    const { cipherText, nonce, ttl } = req.body;
-
-    // Validación básica: Solo necesitamos el texto cifrado
-    if (!cipherText) {
-      console.error("❌ Falta cipherText");
-      return res.status(400).json({ error: 'No se recibió el contenido cifrado' });
+    if (!content) {
+      return res.status(400).json({ error: 'Contenido cifrado obligatorio' });
     }
 
-    // Calcular caducidad (Default 24h)
-    const timeToLive = ttl ? parseInt(ttl) : 86400;
-    const expiresAt = new Date(Date.now() + timeToLive * 1000);
+    // Configuración de caducidad (24 horas por defecto)
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    // Guardar en DB
     const newSecret = await prisma.secret.create({
       data: {
-        title: "Secure Drop",
-        type: "drop",
-        content: cipherText,
-        // Si no hay nonce, guardamos null (la DB ahora lo permite gracias al paso 1)
-        nonce: nonce || null, 
+        title: "Mensaje Efímero",
+        type: "note", // Lo marcamos como nota para diferenciarlo de archivos
+        content: content,
+        nonce: nonce || null,
         expiresAt: expiresAt,
-        userId: null
+        // Usamos fileName como metadato temporal para saber si es "Burn on Read"
+        fileName: viewOnce ? "view-once" : "standard", 
+        userId: null // Los mensajes de Drop son anónimos por defecto
       }
     });
 
-    console.log("✅ Drop creado con ID:", newSecret.id);
     res.json({ id: newSecret.id });
-
   } catch (error) {
-    console.error("🔥 Error CRÍTICO en Drop:", error);
-    // Devolvemos JSON siempre, nunca HTML, con detalles del error
-    res.status(500).json({ 
-      error: 'Error interno del servidor', 
-      details: error.message 
-    });
+    console.error("🔥 Error en Neon:", error);
+    res.status(500).json({ error: 'Fallo en la infraestructura de seguridad', details: error.message });
   }
 });
 
-// GET /api/secret/:id
-router.get('/secret/:id', async (req, res) => {
+// GET /api/secrets/:id -> Lectura y Autodestrucción
+router.get('/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const secret = await prisma.secret.findUnique({ where: { id } });
+    const secret = await prisma.secret.findUnique({ where: { id: req.params.id } });
 
-    if (!secret) return res.status(404).json({ error: 'Secreto no encontrado' });
+    if (!secret) return res.status(404).json({ error: 'No encontrado' });
 
-    // Burn on read
-    await prisma.secret.delete({ where: { id } });
-
+    // IMPORTANTE: Envía expiresAt y fileName (para saber si es view-once o 24h)
     res.json({ 
-      cipherText: secret.content,
-      nonce: secret.nonce 
+      content: secret.content,
+      nonce: secret.nonce,
+      expiresAt: secret.expiresAt, // 👈 Esto activa el contador
+      fileName: secret.fileName    // 👈 Esto quita el mensaje de "borrado" erróneo
     });
 
+    // Si es de un solo uso, lo borramos DESPUÉS de enviar la respuesta
+    if (secret.fileName === "view-once") {
+      await prisma.secret.delete({ where: { id: secret.id } });
+    }
   } catch (error) {
-    console.error("Error Lectura:", error);
-    res.status(500).json({ error: 'Error al leer' });
+    res.status(500).json({ error: 'Error' });
   }
 });
 
-module.exports = router;
+export default router;
