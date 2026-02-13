@@ -9,38 +9,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// EL USUARIO
+// EL USUARIO (Integrado con Clerk)
 model User {
-  id              String   @id // ID de Clerk
+  id              String   @id // ID de Clerk (user_...)
   email           String   @unique
-  password        String?  // Opcional
   createdAt       DateTime @default(now())
 
-  // Configuración del Dead Man Switch
-  switchEnabled   Boolean  @default(false)
+  // Configuración Maestra del Dead Man Switch (DMS)
+  switchEnabled   Boolean   @default(false)
   recipientEmail  String?
-  checkInInterval Int      @default(30)
-  lastCheckIn     DateTime?
-  nextTriggerDate DateTime?
-  dmsNote         String?  // Nota final
+  checkInInterval Int       @default(30) // Días entre check-ins
+  lastCheckIn     DateTime? @default(now())
+  nextTriggerDate DateTime? // Fecha en la que el sistema enviará los datos si no hay check-in
+  dmsNote         String?   // Mensaje final cifrado
 
-  // Relación con los secretos de la bóveda
+  // Relaciones
   secrets         Secret[]
 }
 
-// LA BÓVEDA Y LOS DROPS
+// LA BÓVEDA, DROPS Y SECRETOS
 model Secret {
   id        String   @id @default(cuid())
-  title     String
-  type      String   // 'password', 'note', 'drop'
-  
-  content   String   // El texto cifrado
-  
-  // 👇 CAMBIO IMPORTANTE: Añade '?' al final para hacerlo opcional
-  nonce     String?  
-
-  createdAt DateTime @default(now())
-  expiresAt DateTime?
-  userId    String?  
+  userId    String?  // Opcional para permitir "Cloud Drops" anónimos
   user      User?    @relation(fields: [userId], references: [id])
+  
+  title     String   // ej: "Archivo de 24h" o "Password Facebook"
+  type      String   // 'password', 'note', 'drop'
+  content   String   // El contenido cifrado o la URL del archivo en la nube
+  nonce     String?  // Parámetro técnico para el cifrado XChaCha20
+  
+  // Metadatos para archivos (Drops)
+  fileSize  Int?     // Tamaño en bytes
+  fileName  String?
+  
+  createdAt DateTime @default(now())
+  expiresAt DateTime? // Para el modo "Cloud 24h", esto será createdAt + 24h
 }

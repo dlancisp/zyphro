@@ -1,101 +1,78 @@
-// Archivo: api/routes/cron.js
-const express = require('express');
-const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
-const { Resend } = require('resend');
+import express from 'express';
+import { PrismaClient } from '@prisma/client';
+import { Resend } from 'resend';
 
+const router = express.Router();
 const prisma = new PrismaClient();
-// Asegúrate de que esta variable existe en tu .env
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// La ruta final será: /api/cron/process-dms
-// (Porque en index.js ya definiste que este archivo empieza por /api/cron)
-router.get('/process-dms', async (req, res) => {
-  console.log("💀 CRON JOB: Iniciando comprobación de vida...");
+router.get('/process-all', async (req, res) => {
+  console.log("🛠️ CRON: Iniciando mantenimiento global...");
+  const now = new Date();
+  let results = { deletedDrops: 0, triggeredDMS: 0 };
 
   try {
-    // 1. Buscamos usuarios con el Switch ACTIVADO
-    const activeSwitches = await prisma.user.findMany({
+    // --- 1. LIMPIEZA DE CLOUD DROPS (24H) ---
+    const deleted = await prisma.secret.deleteMany({
       where: {
-        switchEnabled: true
+        type: 'drop',
+        expiresAt: { lt: now }
       }
     });
+    results.deletedDrops = deleted.count;
+    if (deleted.count > 0) console.log(`🧹 Borrados ${deleted.count} drops caducados.`);
 
-    let triggeredCount = 0;
-    const now = new Date();
+    // --- 2. PROCESAMIENTO DEAD MAN SWITCH ---
+    const activeSwitches = await prisma.user.findMany({
+      where: { switchEnabled: true }
+    });
 
-    console.log(`🔍 Usuarios activos encontrados: ${activeSwitches.length}`);
-
-    // 2. Revisamos uno por uno
     for (const user of activeSwitches) {
-      // Si no tiene fecha de último check-in, la creamos ahora y saltamos
-      if (!user.lastCheckIn) {
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { lastCheckIn: new Date() }
-        });
-        continue;
-      }
+      if (!user.lastCheckIn || !user.recipientEmail) continue;
 
-      // Calculamos la fecha límite (Check-in + Días configurados)
+      // Calculamos la fecha límite
       const deadline = new Date(user.lastCheckIn);
       deadline.setDate(deadline.getDate() + user.checkInInterval);
 
-      // 3. ¿Ha muerto? (Si HOY es mayor que la FECHA LÍMITE)
       if (now > deadline) {
-        console.log(`⚠️ ALERTA: Usuario ${user.email} excedió el tiempo. Enviando legado...`);
+        console.log(`⚠️ TRIGGER: Enviando legado de ${user.email}`);
 
-        // A. Enviamos el email
-        const { data, error } = await resend.emails.send({
-          from: 'Zyphro Security <onboarding@resend.dev>', // Cambia esto cuando tengas dominio propio
+        // Usamos dmsNote que es el campo de tu schema actual
+        const { error } = await resend.emails.send({
+          from: 'Zyphro Security <onboarding@resend.dev>',
           to: user.recipientEmail,
           subject: '🚨 URGENTE: Protocolo Dead Man Switch Activado',
           html: `
-            <div style="font-family: sans-serif; padding: 20px; border: 1px solid #333; border-radius: 10px;">
-              <h1 style="color: #d32f2f;">Protocolo de Seguridad Activado</h1>
-              <p>El usuario <strong>${user.email}</strong> no ha dado señales de vida en ${user.checkInInterval} días.</p>
-              <hr />
-              <h3>Mensaje Confidencial:</h3>
-              <div style="background-color: #f5f5f5; padding: 15px; border-left: 5px solid #d32f2f;">
-                ${user.note}
+            <div style="font-family: sans-serif; padding: 40px; background-color: #f8fafc;">
+              <div style="max-width: 600px; margin: 0 auto; bg-color: #ffffff; padding: 30px; border-radius: 20px; border: 1px solid #e2e8f0;">
+                <h1 style="color: #2563eb; font-size: 24px;">Protocolo de Seguridad Zyphro</h1>
+                <p>Se ha detectado inactividad prolongada por parte de <strong>${user.email}</strong>.</p>
+                <div style="background-color: #f1f5f9; padding: 20px; border-radius: 12px; margin: 20px 0; font-family: monospace;">
+                  ${user.dmsNote || 'No se incluyó una nota de texto.'}
+                </div>
+                <p style="font-size: 12px; color: #94a3b8;">Este es un mensaje automático del sistema de herencia digital Zyphro.</p>
               </div>
-              <hr />
-              <p style="font-size: 12px; color: #666;">Este mensaje ha sido enviado automáticamente por el sistema de seguridad Zyphro.</p>
             </div>
           `
         });
 
-        if (error) {
-          console.error("❌ Error enviando email:", error);
-          continue; 
+        if (!error) {
+          // Desactivamos para no repetir el envío
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { switchEnabled: false }
+          });
+          results.triggeredDMS++;
         }
-
-        console.log("✅ Email enviado correctamente.");
-
-        // B. Desactivamos el switch para no spamear
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { 
-            switchEnabled: false,
-            // Opcional: lastCheckIn: new Date() 
-          }
-        });
-
-        triggeredCount++;
       }
     }
 
-    // 4. Respuesta final para Vercel
-    res.status(200).json({ 
-      success: true, 
-      processed: activeSwitches.length,
-      triggered: triggeredCount 
-    });
+    res.json({ success: true, results });
 
   } catch (error) {
-    console.error("🔥 Error crítico en Cron:", error);
+    console.error("🔥 Error en Cron:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
-module.exports = router;
+export default router;
