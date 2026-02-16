@@ -9,39 +9,89 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// EL USUARIO (Integrado con Clerk)
+// ---------------------------------------------------------
+// INFRAESTRUCTURA DE USUARIO Y FACTURACIÓN
+// ---------------------------------------------------------
+
 model User {
-  id              String   @id // ID de Clerk (user_...)
-  email           String   @unique
-  createdAt       DateTime @default(now())
+  id            String   @id // ID de Clerk (user_...)
+  email         String   @unique
+  createdAt     DateTime @default(now())
+  
+  // Nivel de Suscripción (Para cobrar a empresas)
+  plan          Plan     @default(FREE)
+  stripeCustomerId String? // Futura integración de pagos
 
   // Configuración Maestra del Dead Man Switch (DMS)
   switchEnabled   Boolean   @default(false)
   recipientEmail  String?
   checkInInterval Int       @default(30) // Días entre check-ins
   lastCheckIn     DateTime? @default(now())
-  nextTriggerDate DateTime? // Fecha en la que el sistema enviará los datos si no hay check-in
+  nextTriggerDate DateTime? // Cuándo se libera el secreto
   dmsNote         String?   // Mensaje final cifrado
+  dmsStatus       DmsStatus @default(IDLE) // ESTADO DEL INTERRUPTOR
 
   // Relaciones
-  secrets         Secret[]
+  secrets Secret[]
+  apiKeys ApiKey[] // NUEVO: Para que puedan usar el SDK
 }
 
-// LA BÓVEDA, DROPS Y SECRETOS
+// ---------------------------------------------------------
+// INFRAESTRUCTURA B2B (API KEYS & SDK)
+// ---------------------------------------------------------
+
+model ApiKey {
+  id           String   @id @default(cuid())
+  key          String   @unique // El "sk_live_..." que le das al desarrollador
+  name         String   // Ej: "Producción App Salud"
+  
+  // Control de Uso (Para limitar y cobrar)
+  isEnabled    Boolean  @default(true)
+  requestsUsed Int      @default(0)
+  requestsLimit Int     @default(1000) // Límite mensual gratuito
+  lastUsedAt   DateTime?
+  createdAt    DateTime @default(now())
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+// ---------------------------------------------------------
+// EL NÚCLEO (VÓRTICES Y SECRETOS)
+// ---------------------------------------------------------
+
 model Secret {
   id        String   @id @default(cuid())
-  userId    String?  // Opcional para permitir "Cloud Drops" anónimos
+  userId    String?  // Opcional (Anónimo o Registrado)
   user      User?    @relation(fields: [userId], references: [id])
-  
-  title     String   // ej: "Archivo de 24h" o "Password Facebook"
-  type      String   // 'password', 'note', 'drop'
-  content   String   // El contenido cifrado o la URL del archivo en la nube
-  nonce     String?  // Parámetro técnico para el cifrado XChaCha20
-  
-  // Metadatos para archivos (Drops)
-  fileSize  Int?     // Tamaño en bytes
+   
+  title     String   // ej: "Archivo de 24h"
+  type      String   // 'password', 'note', 'drop', 'dms_payload'
+  content   String   // Contenido cifrado o URL de S3/R2
+  nonce     String?  // XChaCha20 nonce
+   
+  // Metadatos y Seguridad
+  fileSize  Int?
   fileName  String?
-  
+  viewCount Int      @default(0) // Cuántas veces se ha abierto
+  maxViews  Int      @default(1) // Autodestrucción tras X vistas (Por defecto 1)
+   
   createdAt DateTime @default(now())
-  expiresAt DateTime? // Para el modo "Cloud 24h", esto será createdAt + 24h
+  expiresAt DateTime? // TTL (Time To Live)
+}
+
+// ---------------------------------------------------------
+// ENUMS (ESTADOS Y PLANES)
+// ---------------------------------------------------------
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum DmsStatus {
+  IDLE      // Todo bien, esperando
+  WARNING   // Se acerca la fecha, enviando avisos
+  TRIGGERED // El usuario "murió", secretos liberados
 }

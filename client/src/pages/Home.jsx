@@ -1,26 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Zap, Lock, FileKey, Send, Check, Github, File, LockKeyhole, Share2 } from 'lucide-react';
+import { Shield, Zap, FileKey, Send, Check, Github } from 'lucide-react';
 
 const Home = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] overflow-hidden"> 
       <div className="max-w-7xl mx-auto px-6 pt-24 lg:pt-32 pb-20 relative">
         
-        {/* ELEMENTOS FLOTANTES DE FONDO (ESTILO INTERNXT) */}
-        <div className="absolute top-40 right-[10%] w-16 h-16 bg-white shadow-corporate rounded-2xl flex items-center justify-center animate-float-slow hidden lg:flex">
-            <File className="text-accent" size={28} />
-        </div>
-        <div className="absolute bottom-40 right-[40%] w-12 h-12 bg-accent-light rounded-xl flex items-center justify-center animate-float-slow delay-700 hidden lg:flex">
-            <LockKeyhole className="text-accent" size={20} />
-        </div>
-        <div className="absolute top-60 right-[35%] w-14 h-14 bg-white shadow-corporate rounded-full flex items-center justify-center animate-float-slow delay-1000 hidden lg:flex border border-slate-100">
-            <Share2 className="text-accent" size={24} />
-        </div>
+        {/* FONDO LIMPIO: Se han eliminado los elementos flotantes */}
 
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
-          {/* CONTENIDO IZQUIERDA (6 Columnas) */}
+          {/* CONTENIDO IZQUIERDA */}
           <div className="lg:col-span-6 z-10">
             <div className="flex gap-2 mb-6">
               <span className="bg-accent-light text-accent px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border border-accent/10">
@@ -41,12 +32,12 @@ const Home = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                <Link to="/drop" className="bg-accent hover:bg-accent-dark text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all shadow-corporate-lg hover:-translate-y-1">
+              <Link to="/drop" className="bg-accent hover:bg-accent-dark text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all shadow-corporate-lg hover:-translate-y-1">
                 <Send size={20} /> Enviar Archivo Ahora
-                </Link>
-                <button className="bg-white border border-border-light text-text-primary px-8 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all">
+              </Link>
+              <button className="bg-white border border-border-light text-text-primary px-8 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all">
                 Saber más
-                </button>
+              </button>
             </div>
 
             <div className="space-y-3">
@@ -61,9 +52,8 @@ const Home = () => {
             </div>
           </div>
 
-          {/* DASHBOARD DERECHA (6 Columnas) */}
+          {/* DASHBOARD DERECHA: El cuadrado grande ahora es el único protagonista */}
           <div className="lg:col-span-6 relative mt-12 lg:mt-0">
-            {/* CAJA PRINCIPAL ANIMADA */}
             <div className="bg-white p-8 rounded-[2.5rem] shadow-corporate-lg border border-border-light relative z-20 overflow-hidden transition-transform hover:scale-[1.02] duration-500">
                <div className="flex items-center justify-between mb-10">
                  <div className="flex gap-1.5">
@@ -98,22 +88,11 @@ const Home = () => {
                  </div>
                </div>
             </div>
-
-            {/* MINI CAJA ADICIONAL (Dinamismo) */}
-            <div className="absolute -bottom-6 -left-10 bg-white p-4 rounded-2xl shadow-corporate border border-border-light z-30 flex items-center gap-4 animate-float-slow hidden xl:flex">
-                <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
-                    <Shield className="text-success" size={20} />
-                </div>
-                <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Status</div>
-                    <div className="text-xs font-bold text-text-primary leading-none">Protección Activa</div>
-                </div>
-            </div>
           </div>
         </section>
       </div>
 
-      {/* FOOTER ESTILO INTERNXT */}
+      {/* FOOTER */}
       <footer className="bg-white border-t border-border-light pt-20 pb-10">
         <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-20 text-sm">

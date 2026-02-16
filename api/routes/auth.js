@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { RegisterSchema, LoginSchema } from '../utils/schemas.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken } from '../middlewares/auth.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();

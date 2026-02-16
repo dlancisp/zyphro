@@ -7,7 +7,7 @@ import Mail from './pages/Mail';
 import Dashboard from './pages/Dashboard';
 import Viewer from './pages/Viewer';
 import { Toaster } from 'react-hot-toast';
-import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, RedirectToSignIn, SignIn, SignUp } from "@clerk/clerk-react"; // <--- HE AÑADIDO SignIn y SignUp AQUÍ
 
 function App() {
   return (
@@ -20,6 +20,24 @@ function App() {
         <Route path="/drop" element={<><Navbar /><Drop /></>} />
         <Route path="/mail" element={<><Navbar /><Mail /></>} />
         <Route path="/d/:fileId" element={<><Navbar /><Viewer /></>} />
+
+        {/* --- NUEVAS RUTAS DE AUTENTICACIÓN (CLERK) --- */}
+        <Route 
+          path="/sign-in/*" 
+          element={
+            <div className="flex items-center justify-center min-h-screen bg-zinc-950">
+              <SignIn routing="path" path="/sign-in" />
+            </div>
+          } 
+        />
+        <Route 
+          path="/sign-up/*" 
+          element={
+            <div className="flex items-center justify-center min-h-screen bg-zinc-950">
+              <SignUp routing="path" path="/sign-up" />
+            </div>
+          } 
+        />
 
         {/* RUTA DASHBOARD (SIN NAVBAR GLOBAL - USARÁ EL LOGO NUEVO) */}
         <Route

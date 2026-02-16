@@ -4,9 +4,13 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import apiKeyRoutes from "./routes/apiKeyRoutes.js";
+import vortexRoutes from "./routes/vortexRoutes.js";
+import cron from 'node-cron';
+import { checkDeadManSwitches } from './utils/deathClock.js';
 
 // Importación de Rutas
-import authRoutes from './routes/auth.js';
+
 import secretRoutes from './routes/secrets.js'; 
 import switchRoutes from './routes/switch.js';
 
@@ -25,11 +29,13 @@ app.use(morgan('dev'));
 
 // --- 🛣️ RUTAS DE LA API ---
 
+app.use("/api/v1/vortex", vortexRoutes);
+
+// Rutas de Infraestructura B2B
+app.use("/api/keys", apiKeyRoutes);
+
 // Ruta para Mensajes Efímeros (Secure Drop)
 app.use('/api/messages', secretRoutes); 
-
-// Ruta para Autenticación (Clerk)
-app.use('/api/auth', authRoutes);
 
 // Ruta para el Dead Man Switch
 app.use('/api/switch', switchRoutes);
@@ -47,7 +53,10 @@ if (process.env.NODE_ENV === 'production') {
 
 const PORT = process.env.PORT || 3000;
 
-// Usamos app.listen directamente (ya no necesitamos httpServer para Sockets)
+cron.schedule('* * * * *', () => {
+  checkDeadManSwitches();
+});
+
 app.listen(PORT, () => {
   console.log(`
   🚀 ZYPHRO CORE ACTIVO
