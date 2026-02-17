@@ -1,7 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../prisma.ts";
 import crypto from "crypto"; 
 
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 // Generar una nueva API Key
 export const createApiKey = async (req, res) => {

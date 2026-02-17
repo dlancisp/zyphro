@@ -1,23 +1,17 @@
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../prisma.ts"; 
 
-const prisma = new PrismaClient();
 
 export const hybridAuth = async (req, res, next) => {
   try {
-    // 1. Miramos si trae una credencial de Máquina (API Key)
     const apiKeyHeader = req.headers['x-api-key'];
 
     if (apiKeyHeader) {
-      // --- CAMINO B2B (MÁQUINA/SDK) ---
-
-      // Buscamos la llave en la base de datos
       const keyRecord = await prisma.apiKey.findUnique({
         where: { key: apiKeyHeader },
         include: { user: true }
       });
 
-      // Validaciones de seguridad
       if (!keyRecord) {
         return res.status(401).json({ error: "API Key inválida" });
       }
@@ -25,12 +19,11 @@ export const hybridAuth = async (req, res, next) => {
         return res.status(403).json({ error: "API Key revocada o desactivada" });
       }
 
-      // Control de Cuotas (Billing)
       if (keyRecord.requestsUsed >= keyRecord.requestsLimit) {
         return res.status(429).json({ error: "Límite de cuota excedido" });
       }
 
-      // Actualizamos el contador de uso (Fire & Forget)
+      // Actualizamos métricas de forma asíncrona
       prisma.apiKey.update({
         where: { id: keyRecord.id },
         data: { 
@@ -39,15 +32,13 @@ export const hybridAuth = async (req, res, next) => {
         }
       }).catch(err => console.error("Error métricas:", err));
 
-      // Inyectamos la identidad
       req.auth = { userId: keyRecord.userId };
-      req.isMachine = true; // Marca para saber que es una automatización
+      req.isMachine = true; 
       
-      return next(); // Pasa al siguiente paso
+      return next();
     }
 
-    // 2. Si NO hay API Key, asumimos que es un Humano (Web)
-    // Usamos Clerk para validar la sesión del navegador
+    // Si es un humano, Clerk hace el resto
     return ClerkExpressRequireAuth()(req, res, next);
 
   } catch (error) {
