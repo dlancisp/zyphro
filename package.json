@@ -8,6 +8,7 @@
     "node": "20.x"
   },
   "dependencies": {
+    "@clerk/themes": "^2.4.52",
     "@react-three/drei": "^9.88.11",
     "@react-three/fiber": "^8.15.11",
     "@types/three": "^0.182.0",
