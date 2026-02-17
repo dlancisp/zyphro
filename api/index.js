@@ -11,7 +11,7 @@ import apiKeyRoutes from "./routes/apiKeyRoutes.js";
 import vortexRoutes from "./routes/vortexRoutes.js";
 import secretRoutes from './routes/secrets.js'; 
 import switchRoutes from './routes/switch.js';
-import { checkDeadManSwitches } from './utils/deathClock.js';
+import { checkDeadManSwitches } from './_lib/utils/deathClock.js';
 
 
 const app = express();

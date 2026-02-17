@@ -1,7 +1,7 @@
 // api/routes/apiKeyRoutes.js
 
 import express from "express";
-import { createApiKey, listApiKeys, revokeApiKey } from "../controllers/apiKeyController.js";
+import { createApiKey, listApiKeys, revokeApiKey } from "../_lib/controllers/apiKeyController.js";
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
 
 const router = express.Router();
