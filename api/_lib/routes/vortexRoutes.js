@@ -1,5 +1,5 @@
 import express from "express";
-import { hybridAuth } from "../middlewares/hybridAuth.js"; // Importamos nuestro portero
+import { hybridAuth } from "../_lib/middlewares/hybridAuth.js"; // Importamos nuestro portero
 // Aquí importarías tus controladores (createVortex, getVortex, etc.)
 // import { createVortex, getVortex } from "../controllers/vortexController.js";
 

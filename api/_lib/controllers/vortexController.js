@@ -1,8 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../prisma.js";
 import { encryptSecret } from "../utils/crypto.js";
 import sodium from 'libsodium-wrappers';
 
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 export const createVortex = async (req, res) => {
   try {

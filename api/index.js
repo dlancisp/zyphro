@@ -6,11 +6,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cron from 'node-cron';
 
-
-import apiKeyRoutes from "./routes/apiKeyRoutes.js";
-import vortexRoutes from "./routes/vortexRoutes.js";
-import secretRoutes from './routes/secrets.js'; 
-import switchRoutes from './routes/switch.js';
+// --- 🏗️ IMPORTACIÓN DE RUTAS (CORREGIDAS A _LIB) ---
+import apiKeyRoutes from "./_lib/routes/apiKeyRoutes.js";
+import vortexRoutes from "./_lib/routes/vortexRoutes.js";
+import secretRoutes from './_lib/routes/secrets.js'; 
+import switchRoutes from './_lib/routes/switch.js';
 import { checkDeadManSwitches } from './_lib/utils/deathClock.js';
 
 
