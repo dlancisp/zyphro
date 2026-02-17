@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth, SignInButton } from '@clerk/clerk-react';
+import { useAuth, SignInButton, SignedIn, UserButton } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
+import { 
+  Lock, Eye, X, Plus, ChevronRight, Copy, ShieldCheck, 
+  Terminal, Trash2, Clock, ChevronDown, Cloud, Mail as MailIcon, Skull 
+} from 'lucide-react';
 
-// --- CONFIGURACIÓN URL ---
 const API_URL = ''; 
 
 export default function DeadManSwitch() {
@@ -14,15 +18,14 @@ export default function DeadManSwitch() {
 
   // Estados de interfaz
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // ESTADO NUEVO: El secreto que estamos "inspeccionando"
   const [selectedSecret, setSelectedSecret] = useState(null);
-  const [isRevealed, setIsRevealed] = useState(false); // Para el efecto de blur
+  const [isRevealed, setIsRevealed] = useState(false);
 
-  // --- CARGA DE DATOS ---
   useEffect(() => {
     if (isLoaded && userId) {
       fetchSecrets();
@@ -39,7 +42,6 @@ export default function DeadManSwitch() {
       const data = await res.json();
       setSecrets(data);
     } catch (err) {
-      console.error(err);
       setError('No se pudo conectar con la bóveda.');
     } finally {
       setLoading(false);
@@ -49,7 +51,6 @@ export default function DeadManSwitch() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!newTitle || !newContent) return;
-
     setSaving(true);
     try {
       const token = await getToken();
@@ -59,16 +60,9 @@ export default function DeadManSwitch() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          title: newTitle,
-          content: newContent,
-          type: 'note',
-          nonce: null
-        })
+        body: JSON.stringify({ title: newTitle, content: newContent, type: 'note', nonce: null })
       });
-
       if (!res.ok) throw new Error('Error al guardar');
-
       await fetchSecrets();
       setNewTitle('');
       setNewContent('');
@@ -80,209 +74,210 @@ export default function DeadManSwitch() {
     }
   };
 
-  // Función para copiar al portapapeles
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    alert("Copiado al portapapeles");
   };
 
-  // --- RENDERIZADO CONDICIONAL ---
+  if (!isLoaded) return <div className="min-h-screen flex items-center justify-center bg-[#020617] text-blue-500 font-mono text-xs tracking-[0.3em] uppercase">Sincronizando...</div>;
 
-  // 1. Cargando identidad
-  if (!isLoaded) return <div className="min-h-screen pt-32 text-center text-white font-mono">Verificando identidad...</div>;
-
-  // 2. NO LOGUEADO (Botón Arreglado)
-  if (!userId) {
-    return (
-      <div className="min-h-screen bg-[#050505] text-white pt-32 px-6 flex flex-col items-center justify-center">
-        <InternalIcons.Lock className="w-16 h-16 text-gray-600 mb-6" />
-        <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 text-center">
-          Bóveda Encriptada
-        </h1>
-        <p className="text-gray-400 max-w-md text-center mb-8">
-          Almacenamiento de grado militar para tus activos digitales más importantes.
-        </p>
-        
-        {/* BOTÓN DE CLERK OFICIAL */}
-        <SignInButton mode="modal">
-          <button className="bg-white text-black px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform flex items-center gap-2">
-            Acceder / Crear Bóveda
-            <InternalIcons.ChevronRight />
-          </button>
-        </SignInButton>
-      </div>
-    );
-  }
-
-  // 3. LOGUEADO (Interfaz Principal)
   return (
-    <div className="min-h-screen bg-[#050505] text-white pt-24 pb-12 px-6 relative">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden">
+      
+      {/* --- NAVBAR PREMIUM UNIFICADO --- */}
+      <nav className="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center relative z-[100]">
+        <Link to="/" className="flex items-center group">
+          <span style={{ fontSize: '1.875rem', fontWeight: '900', fontStyle: 'italic', letterSpacing: '-0.05em', textTransform: 'uppercase', color: '#2563eb', display: 'inline-block', paddingRight: '0.4em' }}>
+            ZYPHRO
+          </span>
+        </Link>
+
+        <div className="hidden md:flex items-center gap-10">
+          <Link to="/" className="text-[10px] font-black tracking-widest uppercase text-slate-400 hover:text-white transition-colors">Home</Link>
+          <div className="relative" onMouseEnter={() => setIsServicesOpen(true)} onMouseLeave={() => setIsServicesOpen(false)}>
+            <button className="flex items-center gap-2 text-[10px] font-black tracking-widest uppercase text-white transition-all cursor-pointer outline-none">
+              Servicios <ChevronDown size={12} className={isServicesOpen ? 'rotate-180' : ''} />
+            </button>
+            {isServicesOpen && (
+              <div className="absolute top-full -left-4 pt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="w-64 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl text-left">
+                  <Link to="/drop" className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group">
+                    <div className="bg-blue-600/20 p-2 rounded-lg text-blue-500"><Cloud size={16} /></div>
+                    <p className="text-[10px] font-black uppercase">Secure Drop</p>
+                  </Link>
+                  <Link to="/mail" className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 mt-1 transition-all">
+                    <MailIcon size={16} className="text-emerald-500" />
+                    <p className="text-[10px] font-black uppercase tracking-widest">Anon Mail</p>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+           <Link to="/dashboard" className="text-[10px] font-black tracking-widest uppercase text-slate-400 hover:text-white transition-all">Dashboard</Link>
+           <SignedIn><UserButton afterSignOutUrl="/" appearance={{ elements: { userButtonAvatarBox: "w-9 h-9 border border-blue-500/50" } }} /></SignedIn>
+        </div>
+      </nav>
+
+      {/* --- CONTENIDO PRINCIPAL --- */}
+      <main className="max-w-5xl mx-auto px-6 pt-12 pb-24 relative z-10">
         
-        {/* CABECERA */}
-        <div className="flex justify-between items-end mb-12">
+        {/* CABECERA DE LA BÓVEDA */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight">
-              Bóveda Digital
-            </h1>
-            <p className="text-gray-500 text-sm md:text-base font-mono">
-              Protocolo de seguridad activo.
+            <div className="flex items-center gap-2 mb-4">
+               <div className="px-3 py-1 bg-blue-600/10 border border-blue-600/20 rounded-full text-[9px] font-black text-blue-500 uppercase tracking-widest">Protocolo Switch Activo</div>
+            </div>
+            <h1 className="text-5xl font-black tracking-tighter text-white italic uppercase">Bóveda Digital</h1>
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
+              <ShieldCheck size={14} className="text-blue-600" /> Cifrado de grado militar XChaCha20
             </p>
           </div>
           
           <button 
             onClick={() => setIsFormOpen(!isFormOpen)}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-900/20"
+            className="group bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl shadow-blue-600/20 active:scale-95"
           >
-            {isFormOpen ? <InternalIcons.Close /> : <InternalIcons.Plus />}
-            {isFormOpen ? 'Cancelar' : 'Añadir Item'}
+            {isFormOpen ? <X size={16} /> : <Plus size={16} />}
+            {isFormOpen ? 'Cerrar Terminal' : 'Inyectar Secreto'}
           </button>
         </div>
 
-        {/* FORMULARIO */}
+        {/* FORMULARIO ESTILO TERMINAL */}
         {isFormOpen && (
-          <div className="mb-12 bg-gray-900/80 border border-white/10 p-8 rounded-2xl backdrop-blur-xl animate-fade-in-down shadow-2xl">
-            <form onSubmit={handleSave} className="space-y-4">
-              <div>
-                <label className="block text-xs font-mono text-gray-500 mb-2 uppercase tracking-wider">Título del Activo</label>
-                <input 
-                  type="text" 
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none font-medium"
-                  placeholder="Ej: Seed Phrase Ledger"
-                />
+          <div className="mb-16 bg-slate-900/40 border border-white/10 p-10 rounded-[2.5rem] backdrop-blur-3xl animate-in slide-in-from-top-4 duration-500 shadow-2xl">
+            <form onSubmit={handleSave} className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2">Título del Activo</label>
+                  <input 
+                    type="text" 
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-sm text-white focus:border-blue-600 outline-none font-bold transition-all"
+                    placeholder="Ej: Acceso Servidor Central"
+                  />
+                </div>
+                <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2">Estado del Nodo</label>
+                    <div className="w-full bg-black/20 border border-white/5 rounded-2xl p-4 text-[10px] font-mono text-emerald-500 uppercase">
+                        {">"} Node_Ready_for_encryption
+                    </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-mono text-gray-500 mb-2 uppercase tracking-wider">Contenido Seguro</label>
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-2">Contenido Seguro (Payload)</label>
                 <textarea 
                   value={newContent}
                   onChange={(e) => setNewContent(e.target.value)}
-                  className="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white h-32 focus:border-blue-500 outline-none font-mono text-sm"
-                  placeholder="Pegar contenido sensible aquí..."
+                  className="w-full bg-black/40 border border-white/10 rounded-2xl p-6 text-blue-50 h-40 focus:border-blue-600 outline-none font-mono text-sm resize-none transition-all shadow-inner"
+                  placeholder="Introduce la información que será liberada..."
                 />
               </div>
               <button 
                 disabled={saving}
-                className="w-full bg-white text-black hover:bg-gray-200 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 mt-4"
+                className="w-full bg-white text-black hover:bg-slate-200 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all disabled:opacity-50"
               >
-                {saving ? 'Encriptando...' : 'Guardar y Encriptar'}
+                {saving ? 'Cifrando Bits...' : 'Confirmar e Inyectar en Bóveda'}
               </button>
             </form>
           </div>
         )}
 
-        {/* LISTA DE SECRETOS */}
+        {/* CUADRÍCULA DE SECRETOS */}
         {loading ? (
-           <div className="text-center py-20 text-gray-500 animate-pulse">Sincronizando con la nube...</div>
+           <div className="text-center py-20 text-slate-600 font-mono text-[10px] uppercase tracking-[0.4em] animate-pulse italic">Escaneando sectores de memoria...</div>
         ) : secrets.length === 0 ? (
-          <div className="text-center py-20 border border-dashed border-gray-800 rounded-3xl">
-            <div className="mx-auto h-12 w-12 text-gray-700 mb-4 flex justify-center"><InternalIcons.Lock /></div>
-            <p className="text-gray-500">Bóveda vacía. Añade tu primer secreto.</p>
+          <div className="text-center py-24 border-2 border-dashed border-white/5 rounded-[3rem] bg-white/2 group hover:border-blue-600/20 transition-all">
+            <Lock className="mx-auto h-12 w-12 text-slate-800 group-hover:text-blue-900 transition-colors mb-6" />
+            <p className="text-slate-500 font-black text-[10px] uppercase tracking-widest">La bóveda está vacía. No hay secretos activos.</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {secrets.map((secret) => (
               <div 
                 key={secret.id} 
                 onClick={() => { setSelectedSecret(secret); setIsRevealed(false); }}
-                className="bg-gray-900/40 border border-white/5 p-5 rounded-xl hover:bg-gray-800/50 hover:border-blue-500/30 transition-all cursor-pointer group"
+                className="bg-slate-900/40 border border-white/5 p-8 rounded-[2rem] hover:bg-slate-800/60 hover:border-blue-600/30 transition-all cursor-pointer group shadow-xl"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="bg-blue-500/10 p-2 rounded text-blue-400">
-                    <InternalIcons.Lock />
+                <div className="flex justify-between items-start mb-6">
+                  <div className="bg-blue-600/10 p-3 rounded-xl text-blue-500 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    <Lock size={18} />
                   </div>
-                  <span className="text-xs font-mono text-gray-600">
+                  <span className="text-[9px] font-mono text-slate-600 group-hover:text-slate-400 transition-colors">
                     {new Date(secret.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <h3 className="text-lg font-bold text-gray-200 mb-1 group-hover:text-white transition-colors">{secret.title}</h3>
-                <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
-                   <span className="w-2 h-2 rounded-full bg-green-500/50 animate-pulse"></span>
-                   ENCRIPTADO
+                <h3 className="text-lg font-black italic uppercase tracking-tight text-slate-200 group-hover:text-white transition-colors mb-4">{secret.title}</h3>
+                <div className="flex items-center gap-2 text-[9px] text-emerald-500 font-black tracking-widest">
+                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                   CIFRADO_ACTIVO
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* --- MODAL DE DETALLES (Sofisticado) --- */}
+        {/* --- MODAL DE DETALLES PREMIUM --- */}
         {selectedSecret && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
-            <div className="bg-[#0A0A0A] border border-gray-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative">
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-[#020617]/95 backdrop-blur-md animate-in fade-in duration-300">
+            <div className="bg-slate-900 border border-white/10 w-full max-w-xl rounded-[2.5rem] shadow-[0_0_100px_rgba(37,99,235,0.15)] overflow-hidden">
               
-              {/* Header del Modal */}
-              <div className="bg-gray-900/50 p-6 border-b border-gray-800 flex justify-between items-center">
+              <div className="bg-white/5 p-8 border-b border-white/5 flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white">{selectedSecret.title}</h2>
-                  <p className="text-xs text-gray-500 font-mono mt-1">ID: {selectedSecret.id.slice(0, 8)}...</p>
+                  <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1">Inspección de Objeto</p>
+                  <h2 className="text-2xl font-black italic uppercase tracking-tighter text-white">{selectedSecret.title}</h2>
                 </div>
-                <button 
-                  onClick={() => setSelectedSecret(null)}
-                  className="text-gray-500 hover:text-white transition-colors"
-                >
-                  <InternalIcons.Close />
+                <button onClick={() => setSelectedSecret(null)} className="text-slate-500 hover:text-white transition-colors p-2 bg-white/5 rounded-full">
+                  <X size={20} />
                 </button>
               </div>
 
-              {/* Contenido Seguro */}
-              <div className="p-6 relative">
-                <p className="text-xs text-gray-500 font-mono mb-2 uppercase tracking-widest">Contenido Descifrado</p>
+              <div className="p-10">
+                <p className="text-[9px] font-black text-slate-600 mb-4 uppercase tracking-[0.3em]">Capa de Datos (XChaCha20)</p>
                 
-                <div className="relative group">
-                  {/* El contenido real */}
-                  <div className={`bg-black border border-gray-800 p-4 rounded-lg font-mono text-sm text-gray-300 break-all transition-all duration-500 ${isRevealed ? 'blur-none' : 'blur-md select-none'}`}>
+                <div className="relative">
+                  <div className={`bg-black/60 border border-white/5 p-8 rounded-[1.5rem] font-mono text-sm text-blue-100 break-all transition-all duration-700 ${isRevealed ? 'blur-none' : 'blur-xl select-none'}`}>
                     {selectedSecret.content}
                   </div>
 
-                  {/* Capa de protección (Blur Overlay) */}
                   {!isRevealed && (
                     <div 
                       onClick={() => setIsRevealed(true)}
-                      className="absolute inset-0 flex items-center justify-center cursor-pointer z-10 hover:bg-white/5 transition-colors rounded-lg"
+                      className="absolute inset-0 flex items-center justify-center cursor-pointer group"
                     >
-                      <div className="bg-black/80 backdrop-blur-sm border border-gray-700 px-4 py-2 rounded-full flex items-center gap-2 text-sm text-white shadow-xl">
-                        <InternalIcons.Eye />
-                        <span>Hacer clic para revelar</span>
+                      <div className="bg-blue-600 text-white px-6 py-3 rounded-full flex items-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-2xl group-hover:scale-110 transition-transform">
+                        <Eye size={16} /> Ver Contenido
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Acciones */}
-                <div className="flex gap-3 mt-6">
+                <div className="flex gap-4 mt-10">
                   <button 
-                    onClick={() => copyToClipboard(selectedSecret.content)}
-                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2 border border-gray-700"
+                    onClick={() => {copyToClipboard(selectedSecret.content); alert("Copiado")}}
+                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-2"
                   >
-                    <InternalIcons.Copy /> Copiar
+                    <Copy size={16} /> Copiar
                   </button>
                   <button 
                     onClick={() => setSelectedSecret(null)}
-                    className="flex-1 bg-transparent hover:bg-gray-900 text-gray-400 hover:text-white py-3 rounded-lg font-bold text-sm transition-colors border border-transparent hover:border-gray-800"
+                    className="flex-1 bg-slate-800 text-slate-400 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest"
                   >
-                    Cerrar
+                    Cerrar Bóveda
                   </button>
                 </div>
               </div>
-
-              {/* Decoración Footer */}
-              <div className="bg-blue-900/20 h-1 w-full"></div>
             </div>
           </div>
         )}
 
-      </div>
+      </main>
+
+      <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-white/5 flex justify-center opacity-30">
+          <span className="text-[9px] font-black text-slate-600 tracking-[0.5em] uppercase italic underline underline-offset-8 decoration-blue-500">Zyphro Encryption Vault v2.0</span>
+      </footer>
     </div>
   );
 }
-
-// --- ICONOS INTERNOS ---
-const InternalIcons = {
-  Lock: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>,
-  Eye: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>,
-  Close: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
-  Plus: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
-  ChevronRight: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>,
-  Copy: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-};

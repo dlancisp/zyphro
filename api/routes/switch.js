@@ -5,7 +5,7 @@ import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// OBTENER CONFIGURACIÓN (El frontend la pide al cargar)
+// OBTENER CONFIGURACIÓN
 router.get('/config', ClerkExpressRequireAuth(), async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -17,30 +17,35 @@ router.get('/config', ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
-// ACTUALIZAR CONFIGURACIÓN (Cuando das a Guardar)
+// ACTUALIZAR CONFIGURACIÓN
 router.post('/update', ClerkExpressRequireAuth(), async (req, res) => {
   try {
-    const { switchEnabled, recipientEmail, checkInInterval } = req.body;
+    const { switchEnabled, recipientEmail, checkInInterval, dmsNote } = req.body;
     
+    // ESTO ES PARA DEPURAR: Mira la terminal de tu backend al dar a guardar
+    console.log("📥 Datos recibidos en el servidor:", req.body);
+
     const updated = await prisma.user.update({
       where: { id: req.auth.userId },
       data: { 
         switchEnabled, 
         recipientEmail, 
         checkInInterval: parseInt(checkInInterval),
-        lastCheckIn: new Date(), // El guardado cuenta como señal de vida
-        dmsStatus: "IDLE" // Reiniciamos estado si estaba en alerta
+        dmsNote: dmsNote, // <--- Asegúrate de que esta línea esté así
+        lastCheckIn: new Date(), 
+        dmsStatus: "IDLE" 
       }
     });
     
     res.json({ success: true, data: updated });
   } catch (error) {
-    console.error("Error en Update DMS:", error);
+    console.error("🔥 Error en el guardado:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// CHECK-IN MANUAL (CONFIRMAR VIDA)
+
+// CHECK-IN MANUAL
 router.post('/checkin', ClerkExpressRequireAuth(), async (req, res) => {
   try {
     await prisma.user.update({

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Clock, Mail, Save, AlertTriangle } from 'lucide-react';
+import { Shield, Clock, Mail, Save, AlertTriangle, MessageSquare } from 'lucide-react';
 import { useAuth } from "@clerk/clerk-react";
 import toast from 'react-hot-toast';
 
@@ -11,13 +11,11 @@ const DmsConfig = () => {
     switchEnabled: false,
     recipientEmail: '',
     checkInInterval: 30,
+    dmsNote: '',
     dmsStatus: 'IDLE'
   });
 
-  // Cargar configuración inicial
-  useEffect(() => {
-    fetchConfig();
-  }, []);
+  useEffect(() => { fetchConfig(); }, []);
 
   const fetchConfig = async () => {
     try {
@@ -26,7 +24,7 @@ const DmsConfig = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      if (res.ok) setConfig(data);
+      if (res.ok && data) setConfig(data);
     } catch (err) {
       console.error("Error al cargar DMS:", err);
     } finally {
@@ -44,9 +42,15 @@ const DmsConfig = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}` 
         },
-        body: JSON.stringify(config)
+        body: JSON.stringify({
+          switchEnabled: config.switchEnabled,
+          recipientEmail: config.recipientEmail,
+          checkInInterval: parseInt(config.checkInInterval),
+          dmsNote: config.dmsNote // <--- ESTO ES LO QUE ESTABA FALLANDO
+        })
       });
-      if (res.ok) toast.success("Configuración de seguridad guardada");
+
+      if (res.ok) toast.success("Protocolo actualizado y mensaje asegurado");
       else toast.error("Error al guardar");
     } catch (err) {
       toast.error("Error de conexión");
@@ -55,79 +59,80 @@ const DmsConfig = () => {
     }
   };
 
-  if (loading) return <div className="text-zinc-500 animate-pulse">Cargando protocolos de seguridad...</div>;
+  if (loading) return <div className="p-10 text-slate-400 animate-pulse font-medium">Sincronizando bóveda...</div>;
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mt-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-emerald-500/10 rounded-lg">
-          <Shield className="text-emerald-500" size={24} />
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mt-6">
+      <div className="bg-blue-600 p-6 flex items-center gap-4">
+        <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm text-white">
+          <Shield size={24} />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-white">Interruptor de Hombre Muerto</h3>
-          <p className="text-zinc-400 text-sm">Si dejas de dar señales de vida, liberaremos tus secretos.</p>
+          <h3 className="text-xl font-bold text-white">Dead Man Switch</h3>
+          <p className="text-blue-100 text-sm">Protocolo de liberación de activos.</p>
         </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Estado del Interruptor */}
-        <div className="flex items-center justify-between p-4 bg-zinc-950 rounded-lg border border-zinc-800">
-          <div className="flex flex-col">
-            <span className="text-white font-medium">Estado del Sistema</span>
-            <span className="text-xs text-zinc-500">Activa o desactiva la vigilancia global.</span>
+      <div className="p-6 space-y-6 text-slate-900 font-sans">
+        <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+          <div>
+            <span className="text-slate-900 font-bold block italic uppercase text-[10px] tracking-widest">Estado</span>
+            <span className="text-xs text-slate-500 font-medium">Vigilancia activa</span>
           </div>
           <button 
             onClick={() => setConfig({...config, switchEnabled: !config.switchEnabled})}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.switchEnabled ? 'bg-emerald-600' : 'bg-zinc-700'}`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${config.switchEnabled ? 'bg-blue-600' : 'bg-slate-300'}`}
           >
             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${config.switchEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
           </button>
         </div>
 
-        {/* Configuración de Tiempo y Email */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm text-zinc-400 flex items-center gap-2">
-              <Clock size={14} /> Intervalo de Check-in (Días)
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <Clock size={12} /> Intervalo (Días)
             </label>
             <input 
               type="number" 
               value={config.checkInInterval}
-              onChange={(e) => setConfig({...config, checkInInterval: parseInt(e.target.value)})}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+              onChange={(e) => setConfig({...config, checkInInterval: e.target.value})}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-blue-600 transition-all"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm text-zinc-400 flex items-center gap-2">
-              <Mail size={14} /> Email del Heredero
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <Mail size={12} /> Email del Heredero
             </label>
             <input 
               type="email" 
-              placeholder="ejemplo@correo.com"
+              placeholder="heredero@zyphro.com"
               value={config.recipientEmail || ''}
               onChange={(e) => setConfig({...config, recipientEmail: e.target.value})}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-blue-600 transition-all"
             />
           </div>
         </div>
 
-        {/* Advertencia de Estado */}
-        {config.dmsStatus === 'TRIGGERED' && (
-          <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg flex gap-3 items-start">
-            <AlertTriangle className="text-red-500 shrink-0" size={20} />
-            <p className="text-sm text-red-200">
-              <span className="font-bold">SISTEMA DISPARADO:</span> El tiempo ha expirado y los secretos han sido liberados o están en proceso de envío.
-            </p>
-          </div>
-        )}
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <MessageSquare size={12} /> Nota de Última Voluntad
+          </label>
+          <textarea 
+            rows="4"
+            placeholder="Introduce aquí las claves o el mensaje secreto..."
+            value={config.dmsNote || ''}
+            onChange={(e) => setConfig({...config, dmsNote: e.target.value})}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium outline-none focus:border-blue-600 transition-all resize-none shadow-inner"
+          />
+        </div>
 
         <button 
           onClick={handleSave}
           disabled={saving}
-          className="w-full bg-white text-black font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-zinc-200 transition-colors"
+          className="w-full bg-blue-600 text-white font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-500/20 text-[10px] uppercase tracking-widest"
         >
-          <Save size={18} />
-          {saving ? "Guardando..." : "Guardar Configuración de Seguridad"}
+          <Save size={16} />
+          {saving ? "Asegurando..." : "Actualizar Protocolo de Seguridad"}
         </button>
       </div>
     </div>

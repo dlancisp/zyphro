@@ -1,20 +1,18 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cron from 'node-cron';
+
+
 import apiKeyRoutes from "./routes/apiKeyRoutes.js";
 import vortexRoutes from "./routes/vortexRoutes.js";
-import cron from 'node-cron';
-import { checkDeadManSwitches } from './utils/deathClock.js';
-
-// Importación de Rutas
-
 import secretRoutes from './routes/secrets.js'; 
 import switchRoutes from './routes/switch.js';
+import { checkDeadManSwitches } from './utils/deathClock.js';
 
-dotenv.config();
 
 const app = express();
 
