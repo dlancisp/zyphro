@@ -1,5 +1,5 @@
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
-import { prisma } from "../../prisma.ts"; 
+import { prisma } from "../../prisma.js";
 
 
 export const hybridAuth = async (req, res, next) => {
