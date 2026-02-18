@@ -62,22 +62,21 @@ model ApiKey {
 
 model Secret {
   id        String   @id @default(cuid())
-  userId    String?  // Opcional (Anónimo o Registrado)
+  userId    String?  
   user      User?    @relation(fields: [userId], references: [id])
    
-  title     String   // ej: "Archivo de 24h"
-  type      String   // 'password', 'note', 'drop', 'dms_payload'
-  content   String   // Contenido cifrado o URL de S3/R2
-  nonce     String?  // XChaCha20 nonce
+  title     String   
+  type      String   
+  content   String   
+  nonce     String?  
    
-  // Metadatos y Seguridad
-  fileSize  Int?
-  fileName  String?
-  viewCount Int      @default(0) // Cuántas veces se ha abierto
-  maxViews  Int      @default(1) // Autodestrucción tras X vistas (Por defecto 1)
+  viewCount Int      @default(0) 
+  maxViews  Int      @default(1) 
    
   createdAt DateTime @default(now())
-  expiresAt DateTime? // TTL (Time To Live)
+  // Cambiamos esto para que sea obligatorio en la lógica, 
+  // aunque en la DB pueda ser null inicialmente
+  expiresAt DateTime 
 }
 
 // ---------------------------------------------------------
