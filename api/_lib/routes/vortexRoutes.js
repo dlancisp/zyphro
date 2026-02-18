@@ -1,22 +1,18 @@
 import express from "express";
 import { hybridAuth } from "../middlewares/hybridAuth.js"; 
-// Importamos también 'getVortex' que acabamos de crear
 import { createVortex, heartbeat, getVortex } from "../controllers/vortexController.js"; 
 
 const router = express.Router();
 
-// --- RUTAS PROTEGIDAS (Requieren Login o API Key) ---
+// --- RUTA PÚBLICA (Sin registro) ---
+// Quitamos hybridAuth para que cualquiera pueda crear un drop
+router.post("/create", createVortex); 
 
-// 1. Crear un Vórtice (Adri usa esta para generar el secreto)
-router.post("/create", hybridAuth, createVortex);
-
-// 2. Registrar Latido (Para el Dead Man Switch)
+// --- RUTAS PROTEGIDAS (Solo usuarios registrados/TI) ---
+// El heartbeat sí debe ser privado porque afecta al perfil del usuario
 router.post("/heartbeat", hybridAuth, heartbeat);
 
-// --- RUTAS PÚBLICAS (Cualquiera con el enlace/ID) ---
-
-// 3. Obtener el Vórtice (El empleado usa esta para ver el secreto)
-// El ID viene en la URL: /api/v1/vortex/get/ID_DEL_SECRETO
+// --- RUTAS DE CONSULTA ---
 router.get("/get/:id", getVortex);
 
 export default router;

@@ -1,5 +1,5 @@
 //import { PrismaClient } from "@prisma/client";
-import { prisma } from "../../prisma.js";
+import { prisma } from "../../db.js"; 
 import crypto from "crypto"; 
 
 //const prisma = new PrismaClient();

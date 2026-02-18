@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Zap, Trash2, Clock, Eye, RotateCcw, ArrowLeft, Lock, ChevronDown, Cloud, Skull, Mail as MailIcon } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ShieldCheck, Zap, Trash2, Clock, Eye, RotateCcw, ArrowLeft, Lock, ChevronDown, Cloud, Mail as MailIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { SignedIn, UserButton } from "@clerk/clerk-react";
+import { SignedIn, UserButton } from "@clerk/clerk-react"; 
 import toast from 'react-hot-toast';
 import { cryptoUtils } from '../utils/crypto';
 
@@ -37,26 +37,38 @@ const CountdownTimer = ({ expiresAt }) => {
 
 export default function SecureDrop() {
   const [text, setText] = useState('');
-  // Nuevos estados para la "Mejora Adri"
   const [maxViews, setMaxViews] = useState(1);
   const [expirationHours, setExpirationHours] = useState(24);
   const [link, setLink] = useState('');
   const [incomingMsg, setIncomingMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  
+  // SOLUCIÓN AL DOBLE CONTEO:
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    // Si ya hemos hecho fetch, no hacemos nada más
+    if (hasFetched.current) return;
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     const key = window.location.hash.substring(1);
-    if (id && key) fetchAndDecryptMessage(id, key);
+    
+    if (id && key) {
+      hasFetched.current = true; // Marcamos que ya se ha pedido
+      fetchAndDecryptMessage(id, key);
+    }
   }, []);
 
   const fetchAndDecryptMessage = async (id, key) => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/v1/vortex/get/${id}`); // Ruta actualizada a v1
-      if (!res.ok) throw new Error("Mensaje destruido o inexistente.");
+      const res = await fetch(`${API_URL}/api/v1/vortex/get/${id}`);
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Mensaje destruido o inexistente.");
+      }
       const data = await res.json();
       const decryptedText = await cryptoUtils.decryptData(data.content, key);
       setIncomingMsg({ ...data, content: decryptedText });
@@ -85,11 +97,16 @@ export default function SecureDrop() {
       });
       
       const data = await res.json();
-      // Usamos vortexId que es lo que devuelve el nuevo controlador
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Fallo en el servidor");
+      }
+
       setLink(`${window.location.origin}/drop?id=${data.vortexId}#${masterKey}`);
       toast.success("Vórtice generado");
     } catch (err) { 
-      toast.error("Error al generar"); 
+      console.error(err);
+      toast.error(err.message || "Error al generar"); 
     } finally { 
       setLoading(false); 
     }
@@ -98,7 +115,6 @@ export default function SecureDrop() {
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden">
       
-      {/* NAVBAR */}
       <nav className="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center relative z-[100]">
         <Link to="/" className="flex items-center">
           <span className="text-[1.875rem] font-[900] italic tracking-[-0.05em] uppercase text-[#2563eb] pr-[0.4em]">
@@ -161,7 +177,6 @@ export default function SecureDrop() {
                     className="w-full h-48 bg-black/40 border border-white/10 rounded-3xl p-8 text-sm focus:border-blue-600/50 outline-none resize-none text-blue-50 placeholder:text-slate-700"
                     placeholder="Escribe el secreto..." />
                   
-                  {/* SELECTORES NUEVOS PARA ADRI */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
                       <label className="text-[9px] font-black uppercase text-slate-500 ml-2">Visitas Máximas</label>
@@ -191,14 +206,14 @@ export default function SecureDrop() {
                     </div>
                   </div>
 
-                  <button onClick={handleCreate} className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-blue-700 transition-all">Generar Vórtice</button>
+                  <button onClick={handleCreate} className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">Generar Vórtice Seguro</button>
                 </div>
               ) : (
                 <div className="text-center space-y-8 py-4">
                   <div className="w-20 h-20 bg-blue-600/20 rounded-3xl flex items-center justify-center mx-auto border border-blue-600/30"><Zap className="text-blue-500" size={32} fill="currentColor" /></div>
                   <div className="bg-black/60 p-6 rounded-3xl border border-white/5">
                     <input readOnly value={link} className="bg-transparent text-blue-400 font-mono text-[10px] w-full text-center outline-none mb-4" />
-                    <button onClick={() => {navigator.clipboard.writeText(link); toast.success("Copiado!")}} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[10px] uppercase border-none cursor-pointer">Copiar Enlace</button>
+                    <button onClick={() => {navigator.clipboard.writeText(link); toast.success("Copiado!")}} className="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-[10px] uppercase border-none cursor-pointer transition-all hover:bg-blue-700">Copiar Enlace</button>
                   </div>
                 </div>
               )
@@ -206,11 +221,11 @@ export default function SecureDrop() {
               <div className="space-y-8">
                 <div className="flex flex-col items-center gap-3">
                   <CountdownTimer expiresAt={incomingMsg.expiresAt} />
-                  <div className="text-[9px] font-black uppercase text-slate-500 tracking-widest">
+                  <div className="text-[9px] font-black uppercase text-slate-500 tracking-widest bg-slate-500/10 px-4 py-2 rounded-full border border-white/5">
                     Visitas restantes: {incomingMsg.remainingViews}
                   </div>
                 </div>
-                <div className="bg-black/40 border-l-4 border-blue-600 rounded-2xl p-10 font-mono text-sm text-blue-50 shadow-inner">{incomingMsg.content}</div>
+                <div className="bg-black/40 border-l-4 border-blue-600 rounded-2xl p-10 font-mono text-sm text-blue-50 shadow-inner break-words">{incomingMsg.content}</div>
               </div>
             )}
           </div>
