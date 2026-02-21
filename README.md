@@ -1,68 +1,67 @@
-# Zyphro: Zero-Knowledge Secret Sharing
+# Zyphro: Zero-Knowledge Secret Sharing Infrastructure
 
 ![Zyphro Banner](./assets/banner-zyphro.png)
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Status](https://img.shields.io/badge/Status-Beta-orange)]()
-[![Encryption](https://img.shields.io/badge/Encryption-AES--GCM-green)]()
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Status](https://img.shields.io/badge/Status-Production--Ready-brightgreen)]()
+[![Encryption](https://img.shields.io/badge/Encryption-XChaCha20--Poly1305-blueviolet)]()
+[![Security](https://img.shields.io/badge/Security-Zero--Knowledge-success)]()
 
-**Zyphro** is an open-source, **Zero-Knowledge** secret sharing infrastructure. It allows you to securely send passwords, private keys, and confidential messages that permanently self-destruct after being read ("Burn on read").
+**Zyphro** es una infraestructura de código abierto para el intercambio de secretos con arquitectura **Zero-Knowledge**. Permite enviar contraseñas, claves privadas y mensajes confidenciales que se autodestruyen permanentemente tras su lectura ("Burn on read").
 
-Unlike other services, **encryption keys are never sent to the server**. All cryptographic operations occur locally in your browser using the native **Web Crypto API**.
+A diferencia de otros servicios, **las llaves de cifrado nunca tocan el servidor**. Todas las operaciones criptográficas ocurren localmente en el navegador del usuario utilizando librerías auditadas de alto rendimiento.
 
-## 🔐 Security Architecture
+## 🔐 Arquitectura de Seguridad (Military-Grade)
 
-- **True E2E Encryption:** We utilize hardware-accelerated **AES-256-GCM** on the client side.
-- **Zero-Knowledge:** The server only stores encrypted blobs (`ciphertext`) and anonymous metadata. We cannot read your messages even if legally compelled.
-- **Guaranteed Self-Destruction:** Data is hard-deleted from the database immediately after the first read or upon expiration.
-- **Privacy First:** No tracking logs, IP storage, or user fingerprinting.
+Zyphro no confía en nadie, ni siquiera en sus propios administradores:
 
-## 🚀 Tech Stack
-
-- **Frontend:** React 19 + Vite + TailwindCSS
-- **Backend:** Node.js (Express) + Helmet + Rate Limiting
-- **Database:** PostgreSQL (Neon Tech) + Prisma ORM
-- **Infrastructure:** Vercel (Edge Network)
+- **XChaCha20-Poly1305:** Hemos migrado de AES a XChaCha20 para eliminar los riesgos de reutilización de nonces, utilizando nonces de 192 bits para una seguridad probabilística superior.
+- **Derivación Robusta (PBKDF2):** Las claves se derivan mediante PBKDF2 con 100,000 iteraciones y SHA-256, garantizando resistencia contra ataques de fuerza bruta.
+- **Zero-Knowledge:** El servidor solo almacena *blobs* cifrados e identificadores anónimos. La Master Key viaja únicamente en el fragmento URL (`#`), el cual el navegador jamás envía al servidor.
+- **Autodestrucción Garantizada:** Los datos se eliminan físicamente de la base de datos (Hard Delete) inmediatamente después de alcanzar el límite de visitas o la fecha de expiración.
 
 
-## 🗺️ Security Roadmap
 
-We are following a strict security hardening path towards SOC 2 compliance.
+## 🚀 Tech Stack Industrial
 
-### Phase 1: Critical Hardening (Current)
-- [x] **Modular Architecture:** Refactoring frontend to isolate cryptographic components.
-- [ ] **Key Derivation Upgrade:** Implementing **PBKDF2** (310k iterations) to remove the key from the URL hash.
-- [ ] **Authenticated Encryption:** Adding AAD (Additional Authenticated Data) to AES-GCM payloads to prevent context confusion.
-- [ ] **CSP Headers:** Implementing strict Content-Security-Policy to prevent XSS.
+- **Frontend:** React 19 + Vite + TailwindCSS (Cyberpunk UI)
+- **Autenticación:** Clerk Auth (Gestión de identidad segura)
+- **Criptografía:** `@noble/ciphers` & `@noble/hashes` (JS Auditado)
+- **Backend:** Node.js (Express) + Prisma ORM
+- **Base de Datos:** PostgreSQL (Neon Tech)
+- **Infraestructura:** Vercel (Edge Runtime)
 
-### Phase 2: Advanced Cryptography (Next)
-- [ ] **XChaCha20-Poly1305:** Migrating from AES-GCM to XChaCha20 to eliminate nonce-reuse risks (192-bit nonces).
-- [ ] **Backend Rate Limiting:** Advanced protection against brute-force attacks.
-- [ ] **Passphrase Strength Meter:** Integrated zxcvbn estimator for user passwords.
+## 🗺️ Roadmap de Seguridad 2026
 
-### Phase 3: Audit & Compliance (2026)
-- [ ] **External Audit:** Scheduled security review by firms like Cure53 or Trail of Bits.
-- [ ] **Bug Bounty Program:** Launching a public reward program for security researchers.
-- [ ] **SOC 2 Type II:** Achieving operational security certification.
+### Fase 1: Consolidación (Completada ✅)
+- [x] Migración a **XChaCha20-Poly1305**.
+- [x] Implementación de **PBKDF2** para derivación de claves.
+- [x] Dashboard de gestión de Vórtices para usuarios autenticados.
+- [x] Persistencia local de llaves para el creador.
 
+### Fase 2: Blindaje de Red (Próximamente)
+- [ ] **Rate Limiting Avanzado:** Protección contra ataques de enumeración de IDs.
+- [ ] **Secret Brushing:** Añadido de ruido aleatorio (padding) para ocultar el tamaño real del secreto cifrado.
+- [ ] **SDK para Desarrolladores:** Librería NPM para integrar el cifrado de Zyphro en otras apps.
 
-## 🛠️ Installation & Self-Hosting
+### Fase 3: Cumplimiento & Auditoría
+- [ ] **Auditoría Externa:** Revisión de código por firmas independientes.
+- [ ] **SOC 2 Type II:** Certificación de procesos de seguridad operativa.
 
-To run your own instance of Zyphro locally:
+## 🛠️ Instalación y Despliegue Local
 
 ```bash
-# 1. Clone the repository
-git clone [https://github.com/YOUR_USERNAME/zyphro-core.git](https://github.com/YOUR_USERNAME/zyphro-core.git)
+# 1. Clonar el repositorio
+git clone [https://github.com/tu-usuario/zyphro-core.git](https://github.com/tu-usuario/zyphro-core.git)
 cd zyphro-core
 
-# 2. Install dependencies (Root, Client, and API)
+# 2. Instalar dependencias
 npm install
-cd client && npm install
-cd ../api && npm install
 
-# 3. Configure environment variables
-# Copy .env.example to .env and fill in your database credentials
+# 3. Configurar variables de entorno (.env)
+# DATABASE_URL=...
+# CLERK_SECRET_KEY=...
+# VITE_CLERK_PUBLISHABLE_KEY=...
 
-# 4. Start development server
+# 4. Iniciar en modo desarrollo
 npm run dev

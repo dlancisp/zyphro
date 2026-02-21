@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-// IMPORTANTE: He añadido 'Link as LinkIcon' para evitar el choque de nombres
 import { 
   Zap, Clock, RotateCcw, ArrowLeft, Lock, ChevronDown, 
   Cloud, Mail as MailIcon, Eye, Gauge, ShieldCheck, Link as LinkIcon 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { SignedIn, UserButton } from "@clerk/clerk-react"; 
+import { SignedIn, UserButton, useAuth } from "@clerk/clerk-react"; // AÑADIDO useAuth
 import toast from 'react-hot-toast';
 import { cryptoUtils } from '../utils/crypto';
 
@@ -50,6 +49,7 @@ export default function SecureDrop() {
   const [loading, setLoading] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   
+  const { getToken } = useAuth(); // EXTRAEMOS EL TOKEN DE CLERK
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -83,46 +83,60 @@ export default function SecureDrop() {
   };
 
   const handleCreate = async () => {
-    if (!text) return toast.error("Escribe algo");
-    setLoading(true);
-    try {
-      const masterKey = await cryptoUtils.generateKey();
-      const encryptedBase64 = await cryptoUtils.encryptData(text, masterKey);
-      
-      const res = await fetch(`${API_URL}/api/v1/vortex/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          content: encryptedBase64, 
-          maxViews: parseInt(maxViews), 
-          expirationHours: parseInt(expirationHours) 
-        })
-      });
-      
-      const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.error || "Fallo en el servidor");
+  if (!text) return toast.error("Escribe algo");
+  setLoading(true);
+  try {
+    // 1. Obtener el token de seguridad de Clerk
+    const token = await getToken(); 
+    
+    // 2. Cifrado Zero-Knowledge en cliente
+    const masterKey = await cryptoUtils.generateKey();
+    const encryptedBase64 = await cryptoUtils.encryptData(text, masterKey);
+    
+    // 3. Envío al servidor
+    const res = await fetch(`${API_URL}/api/v1/vortex/create`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ 
+        content: encryptedBase64, 
+        maxViews: parseInt(maxViews), 
+        expirationHours: parseInt(expirationHours) 
+      })
+    });
+    
+    const data = await res.json();
 
-      setLink(`${window.location.origin}/drop?id=${data.vortexId}#${masterKey}`);
-      toast.success("Vórtice generado");
-    } catch (err) { 
-      console.error(err);
-      toast.error(err.message || "Error al generar"); 
-    } finally { 
-      setLoading(false); 
+    // 4. GESTIÓN DE RESPUESTA
+    if (!res.ok) {
+      throw new Error(data.error || "Fallo en el servidor");
     }
-  };
 
-  // ESTILOS CYBERPUNK LIMPIOS
+    // SI TODO VA BIEN:
+    // Guardamos la llave localmente para que el Dashboard la encuentre después
+    localStorage.setItem(`vortex_key_${data.vortexId}`, masterKey);
+
+    // Generamos el link completo con la llave
+    setLink(`${window.location.origin}/drop?id=${data.vortexId}#${masterKey}`);
+    toast.success("Vórtice generado y guardado en local");
+
+  } catch (err) { 
+    console.error(err);
+    toast.error(err.message || "Error al generar"); 
+  } finally { 
+    setLoading(false); 
+  }
+};
+
+  // ESTILOS CYBERPUNK
   const labelStyle = "text-[10px] font-black uppercase text-blue-300/60 ml-3 tracking-widest mb-2 flex items-center gap-2";
   const selectContainerStyle = "relative group";
-  // appearance-none es vital para quitar el estilo feo del navegador
   const selectStyle = "appearance-none w-full bg-[#0a101f]/80 backdrop-blur-xl border border-blue-900/30 rounded-2xl p-4 pr-12 text-xs font-bold uppercase text-blue-100 outline-none transition-all duration-300 group-hover:border-blue-500/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer tracking-wider placeholder-blue-900";
   const iconStyle = "absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none transition-transform duration-300 group-focus-within:rotate-180 group-hover:text-blue-400";
 
-
   return (
-    // z-50 y bg-[#020617] sólido aseguran que tapemos cualquier fondo raro de "cuadrados"
     <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden relative z-50">
       
       {/* NAVBAR */}
@@ -196,10 +210,7 @@ export default function SecureDrop() {
                     </div>
                   </div>
                   
-                  {/* SELECTORES ELEGANTES */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    {/* Selector Visitas */}
                     <div>
                       <label className={labelStyle}><Eye size={12}/> Límite de Visualizaciones</label>
                       <div className={selectContainerStyle}>
@@ -213,7 +224,6 @@ export default function SecureDrop() {
                       </div>
                     </div>
 
-                    {/* Selector Tiempo */}
                     <div>
                       <label className={labelStyle}><Clock size={12}/> Tiempo de Expiración</label>
                       <div className={selectContainerStyle}>
@@ -226,7 +236,6 @@ export default function SecureDrop() {
                         <ChevronDown size={18} className={iconStyle} />
                       </div>
                     </div>
-
                   </div>
 
                   <button onClick={handleCreate} className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-6 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-900/30 border border-blue-500/20 relative overflow-hidden group">
@@ -237,7 +246,6 @@ export default function SecureDrop() {
                   </button>
                 </div>
               ) : (
-                // VISTA DEL ENLACE GENERADO
                 <div className="text-center space-y-10 py-8">
                   <div className="relative">
                     <div className="w-24 h-24 bg-blue-600/10 rounded-full flex items-center justify-center mx-auto border border-blue-500/30 animate-pulse">
@@ -252,7 +260,6 @@ export default function SecureDrop() {
                   </div>
 
                   <div className="bg-[#0a101f]/80 backdrop-blur-xl p-1 rounded-3xl border border-blue-900/30 flex items-center group focus-within:border-blue-500/50 transition-all">
-                    {/* AQUÍ USAMOS EL LINKICON RENOMBRADO PARA QUE NO HAYA CONFLICTO */}
                     <div className="p-4 text-blue-500"><LinkIcon size={18} /></div>
                     <input readOnly value={link} className="bg-transparent text-blue-100 font-mono text-[10px] w-full outline-none truncate tracking-wider pl-2" />
                     <button onClick={() => {navigator.clipboard.writeText(link); toast.success("Enlace copiado")}} className="bg-blue-600 hover:bg-blue-700 text-white m-1 px-6 py-4 rounded-2xl font-black text-[10px] uppercase border-none cursor-pointer transition-all flex items-center gap-2 whitespace-nowrap">
@@ -262,7 +269,6 @@ export default function SecureDrop() {
                 </div>
               )
             ) : (
-              // VISTA DEL MENSAJE RECIBIDO
               <div className="space-y-10">
                 <div className="flex flex-col items-center gap-4">
                   <CountdownTimer expiresAt={incomingMsg.expiresAt} />

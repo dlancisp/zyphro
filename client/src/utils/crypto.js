@@ -7,7 +7,7 @@ function randomBytes(length) {
   return window.crypto.getRandomValues(new Uint8Array(length));
 }
 
-// 2. Conversión segura a Base64 para URLs (reemplaza + y /)
+// 2. Conversión segura a Base64 para URLs (Sustituye + y / y maneja el padding)
 function bytesToBase64(bytes) {
   let binary = '';
   const len = bytes.byteLength;
@@ -20,9 +20,15 @@ function bytesToBase64(bytes) {
     .replace(/=/g, '');
 }
 
-// 3. Reversión de Base64 seguro para URL a Uint8Array
+// 3. Reversión de Base64 con FIX de Padding (Solo una versión, la buena)
 function base64ToBytes(base64) {
-  const normalized = base64.replace(/-/g, '+').replace(/_/g, '/');
+  let normalized = base64.replace(/-/g, '+').replace(/_/g, '/');
+  
+  // Recomponer el padding para que atob() no falle
+  while (normalized.length % 4 !== 0) {
+    normalized += '=';
+  }
+
   const binaryStr = atob(normalized);
   const bytes = new Uint8Array(binaryStr.length);
   for (let i = 0; i < binaryStr.length; i++) {
@@ -35,13 +41,13 @@ const enc = new TextEncoder();
 const dec = new TextDecoder();
 
 export const cryptoUtils = {
-  // Genera la clave maestra que irá en el link (#hash)
+  // Genera la clave maestra para el link (#hash)
   generateKey: () => {
     const keyBytes = randomBytes(32); 
     return Promise.resolve(bytesToBase64(keyBytes));
   },
 
-  // Derivación de clave robusta con PBKDF2 (100,000 iteraciones)
+  // Derivación de clave con PBKDF2
   deriveKey: async (password, salt) => {
     return await pbkdf2Async(sha256, password, salt, { c: 100000, dkLen: 32 });
   },
@@ -50,12 +56,11 @@ export const cryptoUtils = {
   encryptData: async (text, password) => {
     const salt = randomBytes(16);
     const key = await cryptoUtils.deriveKey(password, salt);
-    const nonce = randomBytes(24); // Nonce específico para XChaCha20
+    const nonce = randomBytes(24); 
     
     const contentBytes = enc.encode(text);
     const cipherText = xchacha20poly1305(key, nonce).encrypt(contentBytes);
 
-    // Combinamos Salt + Nonce + CipherText para el transporte
     const combined = new Uint8Array(salt.length + nonce.length + cipherText.length);
     combined.set(salt);
     combined.set(nonce, salt.length);
@@ -64,7 +69,7 @@ export const cryptoUtils = {
     return bytesToBase64(combined);
   },
 
-  // Desencriptación con validación de integridad
+  // Desencriptación con validación
   decryptData: async (base64Data, password) => {
     try {
       const bytes = base64ToBytes(base64Data);
@@ -78,7 +83,8 @@ export const cryptoUtils = {
       const decrypted = xchacha20poly1305(key, nonce).decrypt(cipherText);
       return dec.decode(decrypted);
     } catch (e) {
-      throw new Error('Clave incorrecta, enlace manipulado o datos corruptos');
+      console.error("Error descifrando:", e);
+      throw new Error('Clave incorrecta o datos corruptos');
     }
   }
 };

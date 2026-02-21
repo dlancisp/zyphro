@@ -3,6 +3,8 @@ import { prisma } from "../../db.js";
 
 // --- CREAR VÓRTICE (Público y Anónimo) ---
 export const createVortex = async (req, res) => {
+  console.log("¿Token presente?:", req.headers.authorization ? "SÍ" : "NO");
+  console.log("ID de Usuario Clerk:", req.auth?.userId || "NULL");
   try {
     // CORRECCIÓN CRÍTICA: Manejo seguro de usuario anónimo
     // Si req.auth no existe, userId será null en lugar de lanzar error
@@ -49,6 +51,7 @@ export const createVortex = async (req, res) => {
 };
 
 // --- LEER Y DESTRUIR (Lógica de acceso) ---
+// --- LEER Y DESTRUIR (Versión Blindada) ---
 export const getVortex = async (req, res) => {
   try {
     const { id } = req.params;
@@ -57,40 +60,33 @@ export const getVortex = async (req, res) => {
       where: { id }
     });
 
-    // Validar existencia
-    if (!secret) {
-      return res.status(404).json({ error: "Vórtice no encontrado o ya destruido" });
-    }
+    if (!secret) return res.status(404).json({ error: "Vórtice no encontrado" });
 
-    // 1. Validar Expiración por Tiempo
+    // 1. Validar Expiración
     if (new Date() > new Date(secret.expiresAt)) {
-      await prisma.secret.delete({ where: { id } }); // Borrado diferido (lazy delete)
-      return res.status(410).json({ error: "Este mensaje ha caducado por tiempo" });
+      await prisma.secret.delete({ where: { id } });
+      return res.status(410).json({ error: "Caducado y destruido" });
     }
 
-    // 2. Validar Límite de Visitas
+    // 2. Validar Límite antes de procesar
     if (secret.viewCount >= secret.maxViews) {
       await prisma.secret.delete({ where: { id } });
-      return res.status(410).json({ error: "Este mensaje ya ha superado el límite de lecturas" });
+      return res.status(410).json({ error: "Límite alcanzado" });
     }
 
-    // 3. Incrementar contador (Atómico)
-    // Incrementamos ANTES de devolver para asegurar que cuenta esta visita
+    // 3. Incrementar visita
     const updatedSecret = await prisma.secret.update({
       where: { id },
       data: { viewCount: { increment: 1 } }
     });
 
-    // 4. Comprobación post-lectura (Auto-quema inmediata si era la última)
-    // Si era de 1 solo uso, o si acabamos de llegar al límite, 
-    // podríamos borrarlo ya, o dejar que el próximo intento lo borre.
-    // Para mayor seguridad (y liberar espacio), si ya llegó al tope, borramos:
+    
+    // 4. Auto-quema inmediata si es la última visita
     if (updatedSecret.viewCount >= secret.maxViews) {
-       // Opcional: Borrar inmediatamente tras enviar la respuesta, 
-       // o dejarlo para el próximo intento (actualmente se borra al próximo intento).
+      await prisma.secret.delete({ where: { id } });
+      // El mensaje se borra de la DB justo ANTES de enviarlo al usuario
     }
 
-    // 5. Devolver datos
     res.json({
       title: secret.title,
       content: secret.content,
@@ -100,7 +96,7 @@ export const getVortex = async (req, res) => {
 
   } catch (error) {
     console.error("Error getVortex:", error);
-    res.status(500).json({ error: "Error al recuperar el mensaje" });
+    res.status(500).json({ error: "Error de servidor" });
   }
 };
 
@@ -124,4 +120,36 @@ export const heartbeat = async (req, res) => {
       console.error("Error heartbeat:", error);
       res.status(500).json({ error: "Error en el latido" });
     }
+};
+
+// --- OBTENER VÓRTICES DEL USUARIO (Para el Dashboard) ---
+export const getUserVortices = async (req, res) => {
+  try {
+    // 1. Verificamos que el usuario esté logueado
+    if (!req.auth || !req.auth.userId) {
+      return res.status(401).json({ error: "No autorizado" });
+    }
+
+    const { userId } = req.auth;
+
+    // 2. Buscamos sus secretos en la DB
+    const vortices = await prisma.secret.findMany({
+      where: { userId: userId },
+      orderBy: { createdAt: 'desc' }, // Los más nuevos primero
+      select: {
+        id: true,
+        title: true,
+        expiresAt: true,
+        maxViews: true,
+        viewCount: true,
+        createdAt: true,
+        // NO enviamos el content aquí para aligerar la carga del Dashboard
+      }
+    });
+
+    res.json(vortices);
+  } catch (error) {
+    console.error("Error getUserVortices:", error);
+    res.status(500).json({ error: "Error al recuperar tus vórtices" });
+  }
 };
