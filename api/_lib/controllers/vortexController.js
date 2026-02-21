@@ -3,48 +3,36 @@ import { prisma } from "../../db.js";
 
 // --- CREAR VÓRTICE (Público y Anónimo) ---
 export const createVortex = async (req, res) => {
-
-  if (userId) {
-  await prisma.user.upsert({
-    where: { id: userId },
-    update: {}, 
-    create: { 
-      id: userId,
-      // Creamos un email técnico para cumplir con la validación de Prisma
-      email: `${userId}@zyphro.local`, 
-      dmsStatus: "IDLE"
-    }
-  });
-}
-
-
   try {
+    // 1. Definimos primero el userId
     const userId = req.auth?.userId || null;
     const { content, type, expirationHours, maxViews } = req.body;
 
     if (!content) return res.status(400).json({ error: "El contenido no puede estar vacío" });
 
-    // --- SOLUCIÓN AL ERROR P2003: Asegurar que el usuario existe en Postgres ---
+    // 2. SOLUCIÓN AL ERROR P2003 & EMAIL MISSING
+    // Aseguramos que el usuario existe antes de crear el secreto
     if (userId) {
       await prisma.user.upsert({
         where: { id: userId },
-        update: {}, // Si existe no hace nada
+        update: {}, // Si ya existe, no tocamos nada
         create: { 
           id: userId,
-          dmsStatus: "IDLE" // Ajusta según los campos de tu modelo User
+          email: `${userId}@zyphro.local`, // Email técnico para validar el esquema
+          dmsStatus: "IDLE" 
         }
       });
     }
 
-    // 1. Calcular Fecha de Expiración
+    // 3. Calcular Fecha de Expiración
     const hours = Math.min(parseInt(expirationHours) || 24, 720); 
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + hours);
 
-    // 2. Calcular Límite de Visitas
+    // 4. Calcular Límite de Visitas
     const views = Math.min(parseInt(maxViews) || 1, 100);
 
-    // 3. Guardar en Base de Datos
+    // 5. Guardar el Secreto
     const newSecret = await prisma.secret.create({
       data: {
         userId: userId,
@@ -79,21 +67,25 @@ export const getVortex = async (req, res) => {
 
     if (!secret) return res.status(404).json({ error: "Vórtice no encontrado" });
 
+    // Validar Expiración
     if (new Date() > new Date(secret.expiresAt)) {
       await prisma.secret.delete({ where: { id } }).catch(() => {});
       return res.status(410).json({ error: "Caducado y destruido" });
     }
 
+    // Validar Límite
     if (secret.viewCount >= secret.maxViews) {
       await prisma.secret.delete({ where: { id } }).catch(() => {});
       return res.status(410).json({ error: "Límite alcanzado" });
     }
 
+    // Incrementar visita
     const updatedSecret = await prisma.secret.update({
       where: { id },
       data: { viewCount: { increment: 1 } }
     });
     
+    // Auto-quema si es la última
     if (updatedSecret.viewCount >= secret.maxViews) {
       await prisma.secret.delete({ where: { id } }).catch(() => {});
     }
@@ -114,10 +106,7 @@ export const getVortex = async (req, res) => {
 // --- HEARTBEAT ---
 export const heartbeat = async (req, res) => {
     try {
-      if (!req.auth || !req.auth.userId) {
-        return res.status(401).json({ error: "No autorizado" });
-      }
-
+      if (!req.auth?.userId) return res.status(401).json({ error: "No autorizado" });
       const { userId } = req.auth;
       
       await prisma.user.update({
@@ -132,13 +121,10 @@ export const heartbeat = async (req, res) => {
     }
 };
 
-// --- OBTENER VÓRTICES DEL USUARIO ---
+// --- OBTENER VÓRTICES DEL USUARIO (Dashboard) ---
 export const getUserVortices = async (req, res) => {
   try {
-    if (!req.auth || !req.auth.userId) {
-      return res.status(401).json({ error: "No autorizado" });
-    }
-
+    if (!req.auth?.userId) return res.status(401).json({ error: "No autorizado" });
     const { userId } = req.auth;
 
     const vortices = await prisma.secret.findMany({
