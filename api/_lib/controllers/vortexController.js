@@ -3,6 +3,21 @@ import { prisma } from "../../db.js";
 
 // --- CREAR VÓRTICE (Público y Anónimo) ---
 export const createVortex = async (req, res) => {
+
+  if (userId) {
+  await prisma.user.upsert({
+    where: { id: userId },
+    update: {}, 
+    create: { 
+      id: userId,
+      // Creamos un email técnico para cumplir con la validación de Prisma
+      email: `${userId}@zyphro.local`, 
+      dmsStatus: "IDLE"
+    }
+  });
+}
+
+
   try {
     const userId = req.auth?.userId || null;
     const { content, type, expirationHours, maxViews } = req.body;
