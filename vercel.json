@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/process-dms",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/v1/vortex/cleanup",
+      "schedule": "0 * * * *"
     }
   ],
   "rewrites": [
