@@ -1,5 +1,6 @@
-// api/_lib/controllers/vortexController.js
 import { prisma } from "../../db.js";
+// Importamos la utilidad del DMS para unificarla en un solo Cron Job
+import { checkDeadManSwitches } from '../utils/deathClock.js';
 
 // --- CREAR VÓRTICE ---
 export const createVortex = async (req, res) => {
@@ -49,7 +50,6 @@ export const createVortex = async (req, res) => {
 
 // --- LEER Y DESTRUIR (Blindado con Errores Ciegos) ---
 export const getVortex = async (req, res) => {
-  // Definimos un error genérico para no dar pistas al atacante
   const GENERIC_ERROR = "Vórtice no disponible o inexistente";
 
   try {
@@ -57,33 +57,27 @@ export const getVortex = async (req, res) => {
 
     const secret = await prisma.secret.findUnique({ where: { id } });
 
-    // 1. Si no existe, error ciego
     if (!secret) return res.status(404).json({ error: GENERIC_ERROR });
 
-    // 2. Si expiró por tiempo
     if (new Date() > new Date(secret.expiresAt)) {
       await prisma.secret.delete({ where: { id } }).catch(() => {});
-      return res.status(404).json({ error: GENERIC_ERROR }); // Usamos 404 en lugar de 410 para ser ciegos
+      return res.status(404).json({ error: GENERIC_ERROR });
     }
 
-    // 3. Si ya alcanzó el límite de vistas antes de esta petición
     if (secret.viewCount >= secret.maxViews) {
       await prisma.secret.delete({ where: { id } }).catch(() => {});
       return res.status(404).json({ error: GENERIC_ERROR });
     }
 
-    // 4. Procesar la lectura
     const updatedSecret = await prisma.secret.update({
       where: { id },
       data: { viewCount: { increment: 1 } }
     });
     
-    // Auto-quema si es la última visita permitida
     if (updatedSecret.viewCount >= secret.maxViews) {
       await prisma.secret.delete({ where: { id } }).catch(() => {});
     }
 
-    // Devolvemos solo lo necesario
     res.json({
       title: secret.title,
       content: secret.content,
@@ -139,34 +133,39 @@ export const getUserVortices = async (req, res) => {
   }
 };
 
-// --- LIMPIEZA AUTOMÁTICA (CRON JOB) ---
+// --- MANTENIMIENTO UNIFICADO (CRON JOB) ---
 export const cleanupVortices = async (req, res) => {
-  // SEGURIDAD: Solo permitimos que Vercel ejecute esto
   const isVercelCron = req.headers['x-vercel-cron'] === '1';
   const isDev = process.env.NODE_ENV !== 'production';
 
   if (!isVercelCron && !isDev) {
-    return res.status(401).json({ error: "Acceso denegado al sistema de limpieza" });
+    return res.status(401).json({ error: "Acceso denegado" });
   }
 
   try {
     const now = new Date();
 
-    // Borramos lo que caducó por tiempo O lo que ya se leyó el máximo de veces
+    // 1. Limpieza de Vórtices caducados o agotados
     const deleted = await prisma.secret.deleteMany({
       where: {
         OR: [
           { expiresAt: { lt: now } },
-          // Si viewCount es igual o mayor al máximo permitido, fuera.
           { viewCount: { gte: prisma.secret.fields.maxViews } }
         ]
       }
     });
 
-    console.log(`[CRON] Limpieza completada: ${deleted.count} eliminados.`);
-    res.status(200).json({ success: true, count: deleted.count });
+    // 2. Ejecutar chequeo del Dead Man's Switch
+    await checkDeadManSwitches();
+
+    console.log(`[CRON] Mantenimiento completado: ${deleted.count} secretos eliminados y DMS procesado.`);
+    res.status(200).json({ 
+      success: true, 
+      count: deleted.count,
+      dms: "OK" 
+    });
   } catch (error) {
-    console.error("Error Cron:", error);
-    res.status(500).json({ error: "Error interno en limpieza" });
+    console.error("Error Cron Unificado:", error);
+    res.status(500).json({ error: "Error interno en mantenimiento" });
   }
 };
