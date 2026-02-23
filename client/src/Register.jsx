@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { API_URL } from '../apiConfig';
 
 function Register() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(false); // false = Registro, true = Login
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-
-  // Determinar la URL de la API según el modo
-  const API_URL = '/api'; // Gracias al proxy de Vercel/Vite, esto apunta a tu servidor
 
   const handleSubmit = async (e) => {
     e.preventDefault();

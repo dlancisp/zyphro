@@ -7,8 +7,7 @@ import { toast } from 'react-hot-toast';
 import DOMPurify from 'dompurify';
 import { cryptoUtils } from '../utils/crypto';
 import { Shield, Lock, Trash2, Terminal, Loader2, ArrowRight, AlertTriangle } from 'lucide-react';
-
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+import { API_URL } from '../apiConfig';
 
 // --- FONDO DE PARTÍCULAS (Mismo que Home para consistencia) ---
 function ParticleGlobe() {

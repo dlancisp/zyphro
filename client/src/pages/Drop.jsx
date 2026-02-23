@@ -7,8 +7,9 @@ import { Link } from 'react-router-dom';
 import { SignedIn, UserButton, useAuth } from "@clerk/clerk-react"; // AÑADIDO useAuth
 import toast from 'react-hot-toast';
 import { cryptoUtils } from '../utils/crypto';
+import { API_URL } from '../apiConfig';
 
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+
 
 // --- COMPONENTE DEL TEMPORIZADOR ---
 const CountdownTimer = ({ expiresAt }) => {
