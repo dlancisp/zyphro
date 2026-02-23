@@ -32,25 +32,38 @@ function App() {
       <Toaster position="bottom-right" />
       
       <Routes>
-        {/* --- RAÍZ RESTAURADA AL HOME ORIGINAL --- */}
+        {/* --- RUTAS PÚBLICAS TOTALES --- */}
         <Route path="/" element={<Home />} />
-        
-        {/* --- RUTAS DE LA APLICACIÓN --- */}
-        <Route path="/drop" element={<SignedIn><Drop /></SignedIn>} />
-        <Route path="/mail" element={<SignedIn><Mail /></SignedIn>} />
-        <Route path="/dashboard" element={<SignedIn><Dashboard /></SignedIn>} />
-        <Route path="/switch/*" element={<SignedIn><Switch /></SignedIn>} />
-
-        {/* --- PROTECCIÓN DE RUTAS --- */}
-        <Route path="/drop" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
-        <Route path="/mail" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
-        <Route path="/dashboard" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
-
-        {/* --- RUTAS PÚBLICAS --- */}
         <Route path="/contact" element={<Contact />} />
+        
+        {/* OJO: /drop ahora es pública. 
+           El componente SecureDrop dentro de pages/Drop.jsx decidirá qué mostrar:
+           - Si hay ID en la URL -> Muestra el secreto (Público)
+           - Si NO hay ID -> Muestra el creador (Solo para logueados vía <SignedIn> dentro del componente)
+        */}
+        <Route path="/drop" element={<Drop />} />
         <Route path="/d/:fileId" element={<Viewer />} />
 
-        {/* --- AUTENTICACIÓN --- */}
+        {/* --- RUTAS PROTEGIDAS (REQUIEREN LOGIN) --- */}
+        <Route 
+          path="/mail" 
+          element={<SignedIn><Mail /></SignedIn>} 
+        />
+        <Route 
+          path="/dashboard" 
+          element={<SignedIn><Dashboard /></SignedIn>} 
+        />
+        <Route 
+          path="/switch/*" 
+          element={<SignedIn><Switch /></SignedIn>} 
+        />
+
+        {/* --- REDIRECCIONES SI NO HAY SESIÓN --- */}
+        <Route path="/mail" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
+        <Route path="/dashboard" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
+        <Route path="/switch/*" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
+
+        {/* --- AUTENTICACIÓN (CLERK) --- */}
         <Route 
           path="/sign-in/*" 
           element={
