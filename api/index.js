@@ -6,11 +6,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cron from 'node-cron';
 import { rateLimit } from 'express-rate-limit';
+import { prisma } from './db.js';
 
 import apiKeyRoutes from "./_lib/routes/apiKeyRoutes.js";
 import vortexRoutes from "./_lib/routes/vortexRoutes.js";
 import secretRoutes from './_lib/routes/secrets.js'; 
 import switchRoutes from './_lib/routes/switch.js';
+import mailRoutes from './_lib/routes/mail.js';
 import { checkDeadManSwitches } from './_lib/utils/deathClock.js';
 
 const app = express();
@@ -53,6 +55,7 @@ app.use("/api/v1/vortex", vortexRoutes);
 app.use("/api/keys", apiKeyRoutes);
 app.use('/api/messages', secretRoutes); 
 app.use('/api/switch', switchRoutes);
+app.use('/api/v1/mail', mailRoutes);
 
 // --- 🌍 CONFIGURACIÓN PARA PRODUCCIÓN ---
 if (process.env.NODE_ENV === 'production') {
@@ -65,9 +68,32 @@ if (process.env.NODE_ENV === 'production') {
 const PORT = process.env.PORT || 3000;
 
 
+// --- ⏰ TAREAS AUTOMATIZADAS (CRON JOBS) ---
+
 if (process.env.NODE_ENV !== 'production') {
+  // Tarea 1: Dead Man Switch (Cada minuto)
   cron.schedule('* * * * *', () => {
     checkDeadManSwitches();
+  });
+
+  // Tarea 2: Purga de Anon Mail Expirados (Cada 10 minutos)
+  cron.schedule('*/10 * * * *', async () => {
+    console.log('🛰️ ZYPHRO_CORE: Iniciando purga de nodos expirados...');
+    try {
+      const ahora = new Date();
+      const eliminados = await prisma.anon_aliases.deleteMany({
+        where: {
+          expires_at: {
+            lt: ahora
+          }
+        }
+      });
+      if (eliminados.count > 0) {
+        console.log(`♻️ PURGA_MAIL: ${eliminados.count} identidades volátiles eliminadas.`);
+      }
+    } catch (error) {
+      console.error('❌ ERROR_PURGA:', error);
+    }
   });
 }
 

@@ -1,21 +1,21 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Landing from './pages/Landing'; 
 import Home from './pages/Home';
 import Drop from './pages/Drop';
 import Switch from './pages/Switch';
 import Mail from './pages/Mail';
 import Dashboard from './pages/Dashboard';
 import Viewer from './pages/Viewer';
+import Contact from './pages/Contact';
 import { Toaster } from 'react-hot-toast';
 import { SignedIn, SignedOut, RedirectToSignIn, SignIn, SignUp } from "@clerk/clerk-react";
 import { dark } from '@clerk/themes';
-import Contact from './pages/Contact';
 
 function App() {
-  // Configuración de estilo común para Clerk
   const clerkAppearance = {
     baseTheme: dark,
     variables: {
-      colorPrimary: '#2563eb', // Tu azul sólido
+      colorPrimary: '#2563eb',
       colorBackground: '#030a1c',
       colorText: 'white',
       borderRadius: '1rem',
@@ -33,13 +33,34 @@ function App() {
       <Toaster position="bottom-right" />
       
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/drop" element={<Drop />} />
-        <Route path="/mail" element={<Mail />} />
-        <Route path="/d/:fileId" element={<Viewer />} />
-        <Route path="/contact" element={<Contact />} />
+        {/* --- RUTA RAÍZ INTELIGENTE --- */}
+        <Route path="/" element={
+          <>
+            <SignedOut>
+              <Landing />
+            </SignedOut>
+            <SignedIn>
+              <Home />
+            </SignedIn>
+          </>
+        } />
+        
+        {/* --- RUTAS PROTEGIDAS (Solo accesibles si estás logueado) --- */}
+        <Route path="/drop" element={<SignedIn><Drop /></SignedIn>} />
+        <Route path="/mail" element={<SignedIn><Mail /></SignedIn>} />
+        <Route path="/dashboard" element={<SignedIn><Dashboard /></SignedIn>} />
+        <Route path="/switch/*" element={<SignedIn><Switch /></SignedIn>} />
 
-        {/* RUTAS DE AUTENTICACIÓN PERSONALIZADAS */}
+        {/* --- REDIRECCIÓN SI NO HAY SESIÓN --- */}
+        <Route path="/drop" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
+        <Route path="/mail" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
+        <Route path="/dashboard" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
+
+        {/* --- RUTAS PÚBLICAS --- */}
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/d/:fileId" element={<Viewer />} />
+
+        {/* --- AUTENTICACIÓN --- */}
         <Route 
           path="/sign-in/*" 
           element={
@@ -61,26 +82,6 @@ function App() {
               </div>
             </div>
           } 
-        />
-
-        <Route
-          path="/dashboard"
-          element={
-            <>
-              <SignedIn><Dashboard /></SignedIn>
-              <SignedOut><RedirectToSignIn /></SignedOut>
-            </>
-          }
-        />
-
-        <Route
-          path="/switch/*"
-          element={
-            <>
-              <SignedIn><Switch /></SignedIn>
-              <SignedOut><RedirectToSignIn /></SignedOut>
-            </>
-          }
         />
       </Routes>
     </div>

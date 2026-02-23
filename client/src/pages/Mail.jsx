@@ -1,155 +1,197 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Shield, ArrowLeft, Trash2, ShieldAlert, Eye, Terminal, Clock, RefreshCw, ChevronDown, Cloud, Skull, Mail as MailIcon } from 'lucide-react';
-import { SignedIn, UserButton } from "@clerk/clerk-react";
+import { 
+  Mail, Trash2, ShieldAlert, Terminal, 
+  RefreshCw, Plus, Copy, Zap, ShieldCheck, Mail as MailIcon,
+  Clock, Eye, ChevronRight
+} from 'lucide-react';
+import { SignedIn, UserButton, useAuth } from "@clerk/clerk-react";
+import { API_URL } from '../apiConfig';
+import toast from 'react-hot-toast';
 
 const AnonMail = () => {
-  const [isServicesOpen, setIsServicesOpen] = useState(false);
-  const [emails] = useState([
-    { id: 1, from: "noreply@bank.com", subject: "Verification Code", time: "2m ago", body: "Your code is 8829..." },
-    { id: 2, from: "support@service.io", subject: "Welcome aboard", time: "15m ago", body: "Thanks for joining us..." }
-  ]);
+  const { getToken } = useAuth();
+  const [aliases, setAliases] = useState([]); 
+  const [messages, setMessages] = useState([]);
+  const [selectedAlias, setSelectedAlias] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [duration, setDuration] = useState(60); // Minutos por defecto (1h)
+
+  const fetchAliases = async () => {
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/api/v1/mail/aliases`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setAliases(Array.isArray(data) ? data : []);
+    } catch (err) {
+      toast.error("Error de sincronización");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMessages = async (aliasId) => {
+    setLoadingMessages(true);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/api/v1/mail/messages/${aliasId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setMessages(Array.isArray(data) ? data : []);
+    } catch (err) {
+      toast.error("Error al leer mensajes");
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  useEffect(() => { fetchAliases(); }, []);
+
+  const generateAlias = async () => {
+    setIsCreating(true);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/api/v1/mail/generate`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ durationMinutes: duration })
+      });
+      
+      if (res.ok) {
+        toast.success(`Nodo temporal creado (${duration}m)`);
+        fetchAliases();
+      }
+    } catch (err) {
+      toast.error("Error en la red de retransmisión");
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden">
       
-      {/* --- NAVBAR PREMIUM UNIFICADO --- */}
+      {/* NAVBAR */}
       <nav className="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center relative z-[100]">
-        {/* Logo */}
         <Link to="/" className="flex items-center group">
-          <span style={{ 
-            fontSize: '1.875rem', fontWeight: '900', fontStyle: 'italic', 
-            letterSpacing: '-0.05em', textTransform: 'uppercase', color: '#2563eb',
-            display: 'inline-block', paddingRight: '0.4em'
-          }}>
-            ZYPHRO
-          </span>
+          <span className="text-3xl font-black italic tracking-tighter text-blue-600 uppercase">ZYPHRO</span>
         </Link>
-
-        {/* Links Centrales */}
-        <div className="hidden md:flex items-center gap-10">
-          <Link to="/" className="text-[10px] font-black tracking-widest uppercase text-slate-400 hover:text-white transition-colors">Home</Link>
-          
-          <div 
-            className="relative"
-            onMouseEnter={() => setIsServicesOpen(true)}
-            onMouseLeave={() => setIsServicesOpen(false)}
-          >
-            <button className="flex items-center gap-2 text-[10px] font-black tracking-widest uppercase text-white transition-all cursor-pointer outline-none">
-              Servicios <ChevronDown size={12} className={`transition-transform duration-300 ${isServicesOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isServicesOpen && (
-              <div className="absolute top-full -left-4 pt-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="w-64 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 shadow-2xl">
-                  <Link to="/drop" className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group">
-                    <div className="bg-blue-600/20 p-2 rounded-lg text-blue-500"><Cloud size={16} /></div>
-                    <p className="text-[10px] font-black uppercase tracking-widest">Secure Drop</p>
-                  </Link>
-                  <Link to="/mail" className="flex items-center gap-4 p-3 rounded-xl bg-blue-600/10 border border-blue-600/20 mt-1">
-                    <MailIcon size={16} className="text-emerald-500" />
-                    <p className="text-[10px] font-black uppercase tracking-widest">Anon Mail</p>
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-          <Link to="/contact" className="text-[10px] font-black tracking-widest uppercase text-slate-400 hover:text-white transition-colors">Contact Us</Link>
-        </div>
-
-        {/* Perfil */}
-        <div className="flex items-center gap-6">
-           <Link to="/dashboard" className="text-[10px] font-black tracking-widest uppercase text-slate-400 hover:text-white transition-all">Dashboard</Link>
-           <SignedIn>
-             <UserButton 
-                afterSignOutUrl="/" 
-                appearance={{ elements: { userButtonAvatarBox: "w-9 h-9 border border-blue-500/50 shadow-lg shadow-blue-500/10" } }}
-             />
-           </SignedIn>
+        <div className="hidden md:flex items-center gap-6">
+           <Link to="/dashboard" className="text-[10px] font-black uppercase text-slate-400 hover:text-white tracking-widest transition-all">Dashboard</Link>
+           <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
         </div>
       </nav>
 
       <main className="max-w-7xl mx-auto px-6 mt-12 pb-20">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        {/* CABECERA CON SELECTOR DE TIEMPO */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
           <div>
-            <h2 className="text-4xl font-black italic uppercase tracking-tighter flex items-center gap-4">
-              <div className="p-3 bg-blue-600/20 rounded-2xl border border-blue-600/30">
-                <Mail className="text-blue-600" size={28} />
+            <h2 className="text-4xl font-black italic uppercase tracking-tighter flex items-center gap-4 text-white">
+              <div className="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                <MailIcon className="text-emerald-500" size={28} />
               </div> 
-              Anon Mail 
-              <span className="text-[10px] not-italic bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full border border-emerald-500/20 tracking-widest">ENCRYPTED_NODE</span>
+              Burner Mail
             </h2>
-            <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-4">Identidad protegida bajo protocolo de retransmisión Zero-Knowledge.</p>
+            <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-4">Identidades volátiles para registros efímeros.</p>
           </div>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 transition-all shadow-xl shadow-blue-600/20 active:scale-95">
-            <RefreshCw size={16} /> Refrescar Nodo
-          </button>
+          
+          <div className="flex items-center gap-3 bg-slate-900/50 p-2 rounded-[2rem] border border-white/5">
+            <select 
+              value={duration} 
+              onChange={(e) => setDuration(parseInt(e.target.value))}
+              className="bg-transparent border-none text-[10px] font-black uppercase text-blue-400 outline-none px-4 cursor-pointer"
+            >
+              <option value={30}>30 Minutos</option>
+              <option value={60}>1 Hora</option>
+              <option value={1440}>24 Horas</option>
+            </select>
+            <button 
+              onClick={generateAlias}
+              disabled={isCreating}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 transition-all shadow-xl shadow-blue-600/20 active:scale-95 disabled:opacity-50"
+            >
+              {isCreating ? <RefreshCw className="animate-spin" size={16} /> : <Plus size={16} />}
+              Generar Correo
+            </button>
+          </div>
         </div>
 
-        {/* INTERFAZ DE CORREO ESTILO TERMINAL */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[650px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* LISTA DE MENSAJES */}
-          <div className="lg:col-span-4 bg-slate-900/40 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 overflow-hidden flex flex-col shadow-2xl">
-            <div className="p-6 border-b border-white/5 bg-white/5 flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Inbound Packets</span>
-              <ShieldAlert size={14} className="text-blue-500 animate-pulse" />
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-              {emails.map(email => (
-                <div key={email.id} className="p-6 rounded-3xl bg-black/20 border border-white/5 hover:border-blue-600/40 transition-all cursor-pointer group relative overflow-hidden">
-                  <div className="absolute left-0 top-0 h-full w-1 bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-tighter">{email.from}</span>
-                    <span className="text-[9px] text-slate-600 font-bold uppercase">{email.time}</span>
+          {/* PANEL IZQUIERDO: MIS CORREOS TEMPORALES */}
+          <div className="lg:col-span-4 bg-slate-900/40 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 p-6 shadow-2xl relative">
+            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6 block">Nodos de Identidad</span>
+            
+            <div className="space-y-3 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
+              {aliases.map(alias => (
+                <div 
+                  key={alias.id} 
+                  onClick={() => { setSelectedAlias(alias); fetchMessages(alias.id); }}
+                  className={`p-5 rounded-3xl border transition-all cursor-pointer group ${selectedAlias?.id === alias.id ? 'bg-blue-600/20 border-blue-600/50 shadow-lg' : 'bg-black/40 border-white/5 hover:border-blue-600/30'}`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="max-w-[70%]">
+                      <p className={`text-[10px] font-black uppercase truncate ${selectedAlias?.id === alias.id ? 'text-white' : 'text-blue-500'}`}>{alias.alias_email}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock size={10} className="text-slate-500" />
+                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Temporal</span>
+                      </div>
+                    </div>
+                    <ChevronRight size={14} className={selectedAlias?.id === alias.id ? 'text-blue-500' : 'text-slate-700'} />
                   </div>
-                  <h4 className="text-xs font-black text-white truncate uppercase tracking-tight">{email.subject}</h4>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* VISOR DE MENSAJES */}
-          <div className="lg:col-span-8 bg-black/40 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 flex flex-col relative shadow-2xl overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-transparent opacity-30"></div>
-            
-            <div className="p-10 flex-1 font-mono text-sm leading-relaxed text-blue-100/70">
-              <div className="flex items-center gap-3 mb-10 text-blue-500 opacity-40">
-                <Terminal size={18} /> <span className="text-[10px] font-black tracking-widest">DECRYPTED_PAYLOAD_VIEW</span>
+          {/* PANEL DERECHO: BANDEJA DE ENTRADA (MESSAGES) */}
+          <div className="lg:col-span-8 bg-black/40 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 overflow-hidden flex flex-col shadow-2xl min-h-[500px]">
+            {!selectedAlias ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-10 space-y-4 opacity-40">
+                <Terminal size={40} className="text-slate-700" />
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600">Selecciona un nodo para interceptar paquetes</p>
               </div>
-              
-              <div className="space-y-8">
-                <div className="flex flex-col gap-2">
-                  <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Origen:</span>
-                  <span className="text-emerald-500 font-bold">noreply@bank.com</span>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Asunto:</span>
-                  <span className="text-white font-black text-lg uppercase tracking-tight">Verification Code</span>
-                </div>
-                <div className="h-[1px] bg-white/5 w-full"></div>
-                <div className="py-6 text-slate-300 space-y-6 leading-relaxed">
-                  <p>Estimado agente,</p>
-                  <p>Tu código de verificación para el acceso a la infraestructura ha sido generado con éxito:</p>
-                  <div className="inline-block bg-blue-600/10 border border-blue-600/30 px-6 py-3 rounded-2xl">
-                    <span className="text-blue-500 font-black text-xl tracking-[0.3em]">8829-10</span>
+            ) : (
+              <>
+                <div className="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                  <div>
+                    <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">Bandeja de Entrada</span>
+                    <h3 className="text-xs font-black text-white uppercase truncate max-w-[300px] mt-1">{selectedAlias.alias_email}</h3>
                   </div>
-                  <p className="text-rose-500/60 italic text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 pt-10">
-                    <Clock size={12} /> Este paquete se purgará automáticamente en 45 segundos.
-                  </p>
+                  <button onClick={() => fetchMessages(selectedAlias.id)} className="p-3 hover:bg-white/5 rounded-xl transition-all text-slate-400">
+                    <RefreshCw size={14} className={loadingMessages ? 'animate-spin' : ''} />
+                  </button>
                 </div>
-              </div>
-            </div>
 
-            {/* ACCIONES */}
-            <div className="p-8 bg-black/40 border-t border-white/5 flex justify-end gap-6 items-center">
-              <button className="flex items-center gap-2 text-slate-600 hover:text-rose-500 text-[10px] font-black uppercase tracking-[0.2em] transition-all">
-                <Trash2 size={16} /> Purgar
-              </button>
-              <button className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95">
-                Archivar en Bóveda
-              </button>
-            </div>
+                <div className="flex-1 p-6 space-y-4 overflow-y-auto max-h-[550px] custom-scrollbar">
+                  {messages.length === 0 ? (
+                    <div className="text-center py-20 animate-pulse uppercase text-[10px] font-black text-slate-700 tracking-[0.4em]">Esperando datos entrantes...</div>
+                  ) : (
+                    messages.map(msg => (
+                      <div key={msg.id} className="p-6 bg-slate-900/50 border border-white/5 rounded-[1.5rem] hover:bg-slate-900/80 transition-all border-l-2 border-l-blue-600">
+                        <div className="flex justify-between items-start mb-4">
+                          <span className="text-[10px] font-black text-emerald-500 uppercase tracking-tighter">{msg.from_address}</span>
+                          <span className="text-[9px] text-slate-600 font-bold uppercase">{new Date(msg.received_at).toLocaleTimeString()}</span>
+                        </div>
+                        <h4 className="text-sm font-black text-white uppercase tracking-tight mb-4">{msg.subject}</h4>
+                        <div 
+                          className="text-xs text-slate-400 leading-relaxed font-mono whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: msg.body_html }}
+                        />
+                      </div>
+                    ))
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
         </div>

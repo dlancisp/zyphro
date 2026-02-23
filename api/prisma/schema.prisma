@@ -94,3 +94,12 @@ enum DmsStatus {
   WARNING   // Se acerca la fecha, enviando avisos
   TRIGGERED // El usuario "murió", secretos liberados
 }
+
+model anon_aliases {
+  id          Int      @id @default(autoincrement())
+  user_id     String
+  alias_email String   @unique
+  label       String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+}

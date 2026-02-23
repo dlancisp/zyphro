@@ -3,13 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
-import { toast } from 'react-hot-toast';
 import DOMPurify from 'dompurify';
 import { cryptoUtils } from '../utils/crypto';
-import { Shield, Lock, Trash2, Terminal, Loader2, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Shield, Lock, Trash2, Terminal, Loader2, ArrowRight, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { API_URL } from '../apiConfig';
 
-// --- FONDO DE PARTÍCULAS (Mismo que Home para consistencia) ---
+// --- FONDO DE PARTÍCULAS ---
 function ParticleGlobe() {
   const ref = useRef();
   const particles = useMemo(() => {
@@ -35,11 +34,10 @@ function ParticleGlobe() {
 }
 
 const Viewer = () => {
-  const { fileId } = useParams(); // Obtenemos el ID de la URL /d/:fileId
-  const hash = window.location.hash.substring(1); // Obtenemos la clave tras el #
+  const { fileId } = useParams(); 
+  const hash = window.location.hash.substring(1); 
   
   const [status, setStatus] = useState('loading'); // loading, success, error, destroyed
-  const [secretContent, setSecretContent] = useState('');
   const [decodingText, setDecodingText] = useState('');
   const fetched = useRef(false);
 
@@ -63,15 +61,12 @@ const Viewer = () => {
           const decrypted = await cryptoUtils.decryptData(data.content, hash);
           const clean = DOMPurify.sanitize(decrypted);
           
-          // Simulación de descifrado tipo terminal
           let i = 0;
-          const fullText = clean;
           const interval = setInterval(() => {
-            setDecodingText(fullText.substring(0, i));
+            setDecodingText(clean.substring(0, i));
             i++;
-            if (i > fullText.length) {
+            if (i > clean.length) {
               clearInterval(interval);
-              setSecretContent(clean);
               setStatus('success');
             }
           }, 30);
@@ -105,7 +100,7 @@ const Viewer = () => {
 
       <main className="relative z-10 w-full max-w-3xl">
         
-        {/* ESTADO: CARGANDO / DESCIFRANDO */}
+        {/* ESTADO: CARGANDO */}
         {status === 'loading' && (
           <div className="bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-12 text-center shadow-2xl animate-in zoom-in duration-300">
             <div className="relative w-20 h-20 mx-auto mb-8">
@@ -117,31 +112,43 @@ const Viewer = () => {
           </div>
         )}
 
-        {/* ESTADO: ERROR / DESTRUIDO */}
+        {/* ESTADO: ERROR / DESTRUIDO (PASO C) */}
         {(status === 'destroyed' || status === 'error') && (
-          <div className="bg-slate-900/40 backdrop-blur-3xl border border-rose-500/20 rounded-[2.5rem] p-12 text-center shadow-2xl">
-            <div className="w-20 h-20 bg-rose-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-rose-500/20">
-                <AlertTriangle className="text-rose-500" size={32} />
+          <div className="bg-slate-900/40 backdrop-blur-3xl border border-rose-500/20 rounded-[2.5rem] p-12 text-center shadow-2xl animate-in fade-in zoom-in duration-500">
+            <div className="w-20 h-20 bg-rose-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-rose-500/20 relative">
+                <div className="absolute inset-0 bg-rose-500/20 blur-xl rounded-full animate-pulse" />
+                <AlertTriangle className="text-rose-500 relative z-10" size={32} />
             </div>
-            <h2 className="text-3xl font-black uppercase tracking-tighter italic mb-4">Acceso Denegado</h2>
+            
+            <h2 className="text-3xl font-black uppercase tracking-tighter italic mb-4 text-white">
+              {status === 'error' ? 'Error de Acceso' : 'Vórtice Inexistente'}
+            </h2>
+            
+            <div className="bg-rose-500/5 border border-rose-500/10 p-3 rounded-xl mb-8 inline-block px-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-rose-400">
+                Estado: {status === 'error' ? 'Clave Inválida' : 'Datos Purgados'}
+              </p>
+            </div>
+
             <p className="text-slate-400 text-sm font-medium leading-relaxed mb-10 max-w-xs mx-auto">
               {status === 'error' 
-                ? 'La clave de descifrado es incorrecta o el enlace está dañado.' 
-                : 'Este secreto ha sido purgado permanentemente tras su lectura o expiración.'}
+                ? 'La Master Key proporcionada no coincide con el fragmento cifrado. El acceso ha sido bloqueado por integridad.' 
+                : 'Este secreto ha sido desintegrado permanentemente. No quedan rastros en la base de datos tras su lectura o expiración.'}
             </p>
-            <Link to="/" className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2">
-              Volver a Zyphro <ArrowRight size={14} />
+
+            <Link to="/" className="bg-white text-black px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 mx-auto w-fit">
+              Volver al Inicio <ArrowRight size={14} />
             </Link>
           </div>
         )}
 
-        {/* ESTADO: ÉXITO (MENSAJE DESCIFRADO) */}
+        {/* ESTADO: ÉXITO */}
         {status === 'success' && (
           <div className="animate-in slide-in-from-bottom-6 duration-700">
             <div className="flex items-center justify-center gap-4 mb-8">
                 <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-6 py-3 rounded-full">
-                    <Shield size={14} className="text-emerald-500" />
-                    <span className="text-[10px] font-black tracking-[0.2em] text-emerald-500 uppercase">Verificación Completa</span>
+                    <ShieldCheck size={14} className="text-emerald-500" />
+                    <span className="text-[10px] font-black tracking-[0.2em] text-emerald-500 uppercase">Integridad Verificada</span>
                 </div>
             </div>
 
@@ -170,7 +177,6 @@ const Viewer = () => {
             </div>
           </div>
         )}
-
       </main>
 
       <footer className="absolute bottom-8 text-[9px] font-black text-slate-700 uppercase tracking-[0.5em] italic">
