@@ -96,10 +96,20 @@ enum DmsStatus {
 }
 
 model anon_aliases {
-  id          Int      @id @default(autoincrement())
-  user_id     String
-  alias_email String   @unique
-  label       String?
-  is_active   Boolean  @default(true)
-  created_at  DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  user_id      String
+  alias_email  String   @unique
+  label        String?
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  expires_at   DateTime @default(now())
+}
+
+model received_emails {
+  id           Int      @id @default(autoincrement())
+  alias_id     Int
+  from_address String
+  subject      String?
+  body_html    String   @db.Text
+  received_at  DateTime @default(now())
 }

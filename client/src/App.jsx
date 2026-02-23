@@ -1,5 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Landing from './pages/Landing'; 
+import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Drop from './pages/Drop';
 import Switch from './pages/Switch';
@@ -33,25 +32,16 @@ function App() {
       <Toaster position="bottom-right" />
       
       <Routes>
-        {/* --- RUTA RAÍZ INTELIGENTE --- */}
-        <Route path="/" element={
-          <>
-            <SignedOut>
-              <Landing />
-            </SignedOut>
-            <SignedIn>
-              <Home />
-            </SignedIn>
-          </>
-        } />
+        {/* --- RAÍZ RESTAURADA AL HOME ORIGINAL --- */}
+        <Route path="/" element={<Home />} />
         
-        {/* --- RUTAS PROTEGIDAS (Solo accesibles si estás logueado) --- */}
+        {/* --- RUTAS DE LA APLICACIÓN --- */}
         <Route path="/drop" element={<SignedIn><Drop /></SignedIn>} />
         <Route path="/mail" element={<SignedIn><Mail /></SignedIn>} />
         <Route path="/dashboard" element={<SignedIn><Dashboard /></SignedIn>} />
         <Route path="/switch/*" element={<SignedIn><Switch /></SignedIn>} />
 
-        {/* --- REDIRECCIÓN SI NO HAY SESIÓN --- */}
+        {/* --- PROTECCIÓN DE RUTAS --- */}
         <Route path="/drop" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
         <Route path="/mail" element={<SignedOut><RedirectToSignIn /></SignedOut>} />
         <Route path="/dashboard" element={<SignedOut><RedirectToSignIn /></SignedOut>} />

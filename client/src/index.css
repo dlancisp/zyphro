@@ -189,3 +189,22 @@ body {
 .shadow-corporate {
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
 }
+
+/* Estilos para el contenido de los correos en AnonMail */
+.email-body-content img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 12px;
+  margin: 10px 0;
+}
+
+.email-body-content a {
+  color: #3b82f6 !important; /* Azul Zyphro */
+  text-decoration: underline !important;
+  word-break: break-all;
+}
+
+.email-body-content table {
+  max-width: 100% !important;
+  color: inherit !important;
+}
